@@ -59,7 +59,7 @@
     border:none; outline:none;
     background:transparent;
     color:var(--ink);
-    width:auto; min-width:60px;
+    width:auto;
     padding:2px 4px;
     border-radius:4px;
   }
@@ -303,6 +303,11 @@
   .line-text-static{ flex:1; font-size:14.5px; line-height:1.55; padding-top:1px; }
   .row-actions{ display:flex; gap:2px; flex:0 0 auto; }
   .row-add, .row-del{ width:22px; height:22px; border:none; background:none; display:flex; align-items:center; justify-content:center; opacity:0.5; }
+  .opt-toggle-btn{
+    border:1px solid var(--hairline-strong); background:var(--paper-raised); border-radius:6px;
+    height:22px; padding:0 6px; font-size:10px; letter-spacing:0.3px; color:var(--ink-faint);
+  }
+  .opt-toggle-btn.active{ background:var(--accent); color:#fff; border-color:var(--accent); }
   .row-add svg, .row-del svg{ width:13px; height:13px; stroke:var(--ink-soft); fill:none; }
   .add-row-btn{
     display:flex; align-items:center; gap:6px; border:none; background:none;
@@ -351,7 +356,13 @@
   .yield-reset-btn svg{ width:13px; height:13px; stroke:var(--ink-soft); fill:none; }
 
   /* Recipe links */
-  .field-with-link{ display:flex; align-items:flex-start; gap:4px; flex:1; min-width:0; }
+  .field-with-link{ display:flex; align-items:flex-start; gap:4px; flex:1; min-width:0; position:relative; flex-wrap:wrap; }
+  .fmt-toolbar{ display:none; align-items:center; gap:4px; width:100%; order:-1; margin-bottom:2px; }
+  .fmt-toolbar button{
+    border:1px solid var(--hairline-strong); background:var(--paper-raised); border-radius:6px;
+    width:26px; height:24px; font-size:12.5px; color:var(--ink); display:flex; align-items:center; justify-content:center;
+  }
+  .fmt-toolbar button:active{ background:var(--ink); color:var(--paper); }
   .link-insert-btn{ border:none; background:none; opacity:0.45; display:flex; align-items:center; justify-content:center; width:20px; height:20px; flex:0 0 auto; margin-top:1px; }
   .link-insert-btn svg{ width:13px; height:13px; stroke:var(--accent); fill:none; }
   a.recipe-link{ color:var(--accent); text-decoration:underline; text-decoration-color: var(--hairline-strong); cursor:pointer; }
@@ -365,21 +376,20 @@
   .picker-empty{ font-size:13.5px; color:var(--ink-faint); padding:14px 6px; text-align:center; }
 
   /* ---------- Pantry ---------- */
-  .pantry-list{ padding: 6px 20px 20px 20px; }
-  .pantry-item{ display:flex; align-items:flex-start; gap:8px; padding:10px 0; border-bottom:1px solid var(--hairline); }
-  .pantry-fields{ flex:1; display:flex; flex-wrap:wrap; gap:8px 10px; align-items:center; min-width:0; }
-  .pantry-fields input[type=text]{ border:1px solid var(--hairline-strong); background:var(--paper-raised); border-radius:8px; padding:7px 10px; font-size:13.5px; outline:none; }
-  .pantry-name{ flex:1 1 140px; min-width:100px; }
-  .pantry-brand{ flex:1 1 110px; min-width:90px; color:var(--ink-soft); }
-  .pantry-link{ flex:1 1 140px; min-width:110px; color:var(--accent); }
-  .pantry-cat-select{ border:1px solid var(--hairline-strong); background:var(--paper-raised); border-radius:8px; padding:7px 10px; font-size:13px; color:var(--ink-soft); }
-  .pantry-static-row{ flex:1; display:flex; align-items:center; gap:10px; flex-wrap:wrap; min-width:0; }
-  .pantry-static-name{ font-size:14.5px; font-weight:600; }
-  .pantry-static-brand{ font-size:13px; color:var(--ink-soft); }
-  .pantry-static-link{ font-size:12.5px; }
-  .pantry-static-cat{ display:flex; align-items:center; gap:5px; }
-  .pantry-static-cat .dot{ width:6px; height:6px; border-radius:50%; }
-  .pantry-static-cat span{ font-size:11px; color:var(--ink-faint); text-transform:uppercase; letter-spacing:0.4px; }
+  .pantry-sublabel{ font-size:10.5px; text-transform:uppercase; letter-spacing:0.8px; color:var(--ink-faint); margin: 20px 0 8px 0; font-weight:600; }
+  .pantry-brand-input{
+    flex:1; border:1px solid var(--hairline-strong); background:var(--paper); border-radius:8px;
+    padding:7px 10px; font-size:13.5px; outline:none;
+  }
+  .pantry-store-row{ display:flex; align-items:center; gap:6px; padding:6px 0; }
+  .pantry-store-name{ flex:1 1 100px; min-width:70px; border:1px solid var(--hairline-strong); background:var(--paper); border-radius:8px; padding:7px 10px; font-size:13.5px; outline:none; }
+  .pantry-store-url{ flex:1.4 1 140px; min-width:90px; border:1px solid var(--hairline-strong); background:var(--paper); border-radius:8px; padding:7px 10px; font-size:13.5px; outline:none; color:var(--accent); }
+  .pantry-open-link{ flex:0 0 auto; width:26px; height:26px; border:none; background:none; display:flex; align-items:center; justify-content:center; opacity:0.6; }
+  .pantry-open-link svg{ width:14px; height:14px; stroke:var(--accent); fill:none; }
+  .pantry-store-view-list{ display:flex; flex-direction:column; gap:4px; }
+  .pantry-store-view-row{ font-size:14.5px; display:flex; gap:8px; }
+  .pantry-store-view-row a{ color:var(--accent); word-break:break-all; }
+  .pantry-notes-preview{ font-size:12.5px; color:var(--ink-faint); margin-top:3px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 
   /* Ingredients */
   .ing-list{ list-style:none; margin:0; padding:0; }
@@ -396,6 +406,7 @@
   .ing-fields input::placeholder{ color:var(--ink-faint); font-family:var(--font-body); }
   .ing-static{ font-size:14.5px; }
   .ing-static .amt{ font-family:var(--font-mono); }
+  .ing-static-name.checked{ color:var(--ink-faint); text-decoration: line-through; text-decoration-color: var(--hairline-strong); }
 
   /* Instructions */
   .instr-list{ list-style:none; margin:0; padding:0; }
@@ -424,6 +435,19 @@
   .source-row input{ width:100%; border:none; outline:none; background:transparent; font-size:12.5px; color:var(--ink-soft); }
   .source-row input::placeholder{ color:var(--ink-faint); }
   .source-row a{ word-break:break-all; }
+  .reference-row{ margin-top:10px; }
+  .reference-btn{
+    border:1px solid var(--hairline-strong); background:var(--paper-raised); border-radius:999px;
+    padding:6px 13px; font-size:12.5px; color:var(--ink-soft);
+  }
+  .reference-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap:10px; margin-bottom:6px; }
+  .reference-thumb-wrap{ position:relative; border-radius:8px; overflow:hidden; border:1px solid var(--hairline); }
+  .reference-thumb{ width:100%; aspect-ratio:1; object-fit:cover; display:block; cursor:pointer; }
+  .reference-remove{
+    position:absolute; top:4px; right:4px; width:22px; height:22px; border-radius:50%;
+    background:rgba(43,41,38,0.72); border:none; display:flex; align-items:center; justify-content:center;
+  }
+  .reference-remove svg{ width:12px; height:12px; stroke:var(--paper); fill:none; }
 
   /* ---------- Modal ---------- */
   .modal-backdrop{ position:fixed; inset:0; background: rgba(43,41,38,0.36); display:flex; align-items:flex-end; justify-content:center; z-index:100; }
@@ -473,7 +497,7 @@
 /* =========================================================
    CONSTANTS
 ========================================================= */
-const APP_VERSION = "v3";
+const APP_VERSION = "v5";
 const DEFAULT_CATEGORIES = ["Dessert","Dinner","Bites","Drinks","Side Dishes","Batch Cooking"];
 const ACCENTS = ["#7C5A6B","#6B7561","#A68A5B","#5C7A80","#8A8F5C","#9C6B54","#5E6B8A","#8B6F8C"];
 const OVEN_SETTINGS = ["With fan","Without fan","Turbo","Airfry","Other"];
@@ -484,8 +508,10 @@ const OVEN_SETTINGS = ["With fan","Without fan","Turbo","Airfry","Other"];
 let data = loadLocal() || { title:"Recipe Book", categories:[...DEFAULT_CATEGORIES], recipes:[], pantryCategories:[], pantry:[] };
 if(!Array.isArray(data.pantryCategories)) data.pantryCategories = [];
 if(!Array.isArray(data.pantry)) data.pantry = [];
+data.pantry = data.pantry.map(migratePantryItem);
 let dirty = false;
 let draftRecipe = null; // holds an unsaved new recipe until first Save
+let draftPantryItem = null; // holds an unsaved new pantry item until first Save
 let wakeLockRef = null;
 
 let state = {
@@ -499,6 +525,11 @@ let state = {
   openSections: { storage:true, prep:true, ingredients:true, instructions:true },
   kitchenMode: false,
   pantryActiveCategory: "All",
+  pantryViewMode: "tile",
+  pantryItemId: null,
+  pantryIsNew: false,
+  pantryIsEditing: false,
+  pantryEditSnapshot: null,
   currentYield: null,
   linkPickerTarget: null
 };
@@ -535,6 +566,7 @@ function deepClone(o){ return JSON.parse(JSON.stringify(o)); }
 function blankRecipe(cat){
   return {
     id: uid(), name:"", categories: cat ? [cat] : [], image:null, description:"", source:"",
+    referenceImages: [],
     sectionsEnabled: { storage:false, prepPlan:false, oven:false },
     storageLines: [], prepPlan: [],
     yield: { base:4, unit:"servings", na:false },
@@ -543,10 +575,22 @@ function blankRecipe(cat){
     variants: [], activeVariant: 'standard'
   };
 }
-function makeIngredient(){ return { id: uid(), amount:null, unit:'', name:'', checked:false }; }
+function makeIngredient(){ return { id: uid(), amount:null, unit:'', name:'', checked:false, optional:false }; }
 function makeLine(){ return { id: uid(), text:'' }; }
 function makeInstr(){ return { id: uid(), text:'' }; }
-function makePantryItem(cat){ return { id: uid(), name:'', brand:'', category: cat||'', link:'' }; }
+function makePantryItem(cat){ return { id: uid(), name:'', category: cat||'', image:null, brands:[], stores:[], notes:'' }; }
+function makeBrand(){ return { id: uid(), text:'' }; }
+function makeStore(){ return { id: uid(), name:'', url:'' }; }
+function migratePantryItem(raw){
+  if(Array.isArray(raw.brands) && Array.isArray(raw.stores)){
+    if(!('image' in raw)) raw.image = null;
+    return raw;
+  }
+  const item = { id: raw.id||uid(), name: raw.name||'', category: raw.category||'', image: raw.image||null, brands: [], stores: [], notes: raw.notes||'' };
+  if(raw.brand) item.brands.push({ id: uid(), text: raw.brand });
+  if(raw.link) item.stores.push({ id: uid(), name:'', url: raw.link });
+  return item;
+}
 
 /* =========================================================
    ICONS
@@ -582,6 +626,8 @@ function render(){
     attachHomeEvents();
   } else if(state.view === 'pantry'){
     renderPantryView();
+  } else if(state.view === 'pantryItem'){
+    renderPantryItemView();
   } else {
     renderRecipeView();
   }
@@ -627,7 +673,7 @@ function homeHTML(){
   return `
     <div class="topbar">
       <div class="title-wrap">
-        <input class="book-title" id="bookTitleInput" size="${Math.max(4, (data.title||'').length + 1)}" value="${escAttr(data.title)}" />
+        <input class="book-title" id="bookTitleInput" value="${escAttr(data.title)}" />
         <span class="version-badge">${APP_VERSION}</span>
       </div>
       <div class="topbar-actions">
@@ -704,9 +750,10 @@ function attachHomeEvents(){
   if(emptyBtn) emptyBtn.addEventListener('click', addNewRecipe);
 
   const titleInput = document.getElementById('bookTitleInput');
+  resizeTitleInput(titleInput);
   titleInput.addEventListener('input', e=>{
     data.title = e.target.value;
-    e.target.setAttribute('size', Math.max(4, e.target.value.length + 1));
+    resizeTitleInput(e.target);
     markDirty();
   });
 
@@ -733,6 +780,8 @@ function openRecipe(id){
   state.editSnapshot = null;
   state.currentYield = null;
   state.view = 'recipe';
+  const r = data.recipes.find(x=>x.id===id);
+  if(r) r.activeVariant = 'standard';
   render();
 }
 
@@ -813,6 +862,18 @@ function openManageCategories(){
 /* =========================================================
    PANTRY
 ========================================================= */
+
+/* =========================================================
+   PANTRY — INDEX
+========================================================= */
+function pantrySummaryLine(item){
+  const parts = [item.name || 'Untitled'];
+  const brandText = (item.brands||[]).map(b=>b.text).filter(Boolean).join(', ');
+  if(brandText) parts.push(brandText);
+  const storeText = (item.stores||[]).map(s=>s.name||s.url).filter(Boolean).join(', ');
+  if(storeText) parts.push(storeText);
+  return parts.join(' › ');
+}
 function renderPantryView(){
   const app = document.getElementById('app');
   const cats = ["All", ...data.pantryCategories];
@@ -828,9 +889,16 @@ function renderPantryView(){
     </button>`;
   }).join('');
 
-  const rows = filtered.length === 0
-    ? `<div class="empty">${ICON.book}<h3>No pantry items yet</h3><p>Add your staples, brands, and links to where you buy them.</p></div>`
-    : `<ul class="pantry-list" id="pantryList" style="list-style:none;margin:0;">${filtered.map(pantryRowHTML).join('')}</ul>`;
+  let body;
+  if(data.pantry.length === 0){
+    body = `<div class="empty">${ICON.book}<h3>No pantry items yet</h3><p>Add your staples, brands, and where to find them.</p></div>`;
+  } else if(filtered.length === 0){
+    body = `<div class="empty">${ICON.book}<h3>Nothing here yet</h3><p>No pantry items tagged ${escHtml(state.pantryActiveCategory)} yet.</p></div>`;
+  } else if(state.pantryViewMode === 'tile'){
+    body = `<div class="grid">${filtered.map(pantryTileHTML).join('')}</div>`;
+  } else {
+    body = `<div class="list">${filtered.map(pantryListRowHTML).join('')}</div>`;
+  }
 
   app.innerHTML = `
     <div class="rv-header">
@@ -845,7 +913,14 @@ function renderPantryView(){
       <div class="cat-row">${catTabs}</div>
       <button class="pinned-manage-btn" id="managePantryCatsBtn" title="Manage pantry tags">⚙️</button>
     </div>
-    ${rows}
+    <div class="toolbar">
+      <span class="count-label">${filtered.length} item${filtered.length===1?'':'s'}</span>
+      <div class="view-toggle">
+        <button class="${state.pantryViewMode==='tile'?'active':''}" data-pmode="tile">${ICON.grid}</button>
+        <button class="${state.pantryViewMode==='list'?'active':''}" data-pmode="list">${ICON.list}</button>
+      </div>
+    </div>
+    ${body}
     <button class="fab" id="pantryAdd">${ICON.plus}</button>
   `;
 
@@ -854,62 +929,301 @@ function renderPantryView(){
   document.querySelectorAll('.cat-tab[data-pcat]').forEach(btn=>{
     btn.addEventListener('click', ()=>{ state.pantryActiveCategory = btn.dataset.pcat; render(); });
   });
-  document.getElementById('pantryAdd').addEventListener('click', ()=>{
-    const cat = state.pantryActiveCategory !== "All" ? state.pantryActiveCategory : (data.pantryCategories[0]||'');
-    data.pantry.push(makePantryItem(cat));
-    markDirty();
-    render();
-    focusLast('.pantry-name');
+  document.querySelectorAll('.view-toggle button[data-pmode]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{ state.pantryViewMode = btn.dataset.pmode; render(); });
   });
-  wirePantryRows();
+  document.querySelectorAll('.tile[data-pid], .list-row[data-pid]').forEach(el=>{
+    el.addEventListener('click', ()=> openPantryItem(el.dataset.pid));
+  });
+  document.getElementById('pantryAdd').addEventListener('click', addNewPantryItem);
+}
+function pantryTileHTML(item){
+  const img = item.image
+    ? `<img class="tile-img" src="${item.image}" />`
+    : `<div class="tile-img placeholder">${ICON.image}</div>`;
+  const tag = item.category ? `<div class="tile-tags"><span class="dot" style="background:${pantryAccentFor(item.category)}"></span><span class="lbl">${escHtml(item.category)}</span></div>` : '';
+  return `<div class="tile" data-pid="${item.id}">
+    ${img}
+    <div class="tile-body">
+      <div class="tile-name">${escHtml(item.name || 'Untitled')}</div>
+      ${tag}
+    </div>
+  </div>`;
+}
+function pantryListRowHTML(item){
+  const img = item.image
+    ? `<img class="list-thumb" src="${item.image}" />`
+    : `<div class="list-thumb placeholder">${ICON.image}</div>`;
+  const notesLine = item.notes ? `<div class="pantry-notes-preview">${escHtml(item.notes)}</div>` : '';
+  return `<div class="list-row" data-pid="${item.id}">
+    ${img}
+    <div class="list-info">
+      <div class="list-name">${escHtml(pantrySummaryLine(item))}</div>
+      ${notesLine}
+    </div>
+  </div>`;
+}
+function addNewPantryItem(){
+  const cat = state.pantryActiveCategory !== "All" ? state.pantryActiveCategory : '';
+  draftPantryItem = makePantryItem(cat);
+  state.pantryItemId = draftPantryItem.id;
+  state.pantryIsNew = true;
+  state.pantryIsEditing = true;
+  state.view = 'pantryItem';
+  render();
+}
+function openPantryItem(id){
+  state.pantryItemId = id;
+  state.pantryIsNew = false;
+  state.pantryIsEditing = false;
+  state.pantryEditSnapshot = null;
+  state.view = 'pantryItem';
+  render();
+}
+function getPantryItem(){
+  if(state.pantryIsNew && draftPantryItem) return draftPantryItem;
+  return data.pantry.find(p => p.id === state.pantryItemId);
 }
 
-function pantryRowHTML(item){
+/* =========================================================
+   PANTRY — DETAIL VIEW
+========================================================= */
+function renderPantryItemView(){
+  const item = getPantryItem();
+  const app = document.getElementById('app');
+  if(!item){ state.view='pantry'; render(); return; }
+  const editing = state.pantryIsEditing;
+
+  app.innerHTML = `
+    <div class="rv-header">
+      <div class="rv-header-left">
+        ${editing
+          ? `<button class="text-btn" id="piCancel">Cancel</button>`
+          : `<button class="back-btn" id="piBack">${ICON.back} Pantry</button>`
+        }
+      </div>
+      <div class="rv-header-right">
+        ${editing
+          ? `<button class="text-btn primary" id="piSave">Save</button>`
+          : `<button class="icon-btn" id="piEdit" title="Edit">${ICON.settings}</button>
+             <button class="icon-btn danger" id="piDelete" title="Delete">${ICON.trash}</button>`
+        }
+      </div>
+    </div>
+    <div class="rv-body" id="piBodyContainer"></div>
+  `;
+  renderPantryItemBody(item);
+
+  if(editing){
+    document.getElementById('piCancel').addEventListener('click', ()=> handlePantryCancel(item));
+    document.getElementById('piSave').addEventListener('click', ()=> handlePantrySave(item));
+  } else {
+    document.getElementById('piBack').addEventListener('click', ()=>{ state.view='pantry'; render(); });
+    document.getElementById('piEdit').addEventListener('click', ()=>{
+      state.pantryEditSnapshot = deepClone(item);
+      state.pantryIsEditing = true;
+      render();
+    });
+    document.getElementById('piDelete').addEventListener('click', ()=>{
+      if(confirm('Delete this pantry item? This cannot be undone.')){
+        data.pantry = data.pantry.filter(x=>x.id!==item.id);
+        markDirty();
+        state.view = 'pantry';
+        render();
+      }
+    });
+  }
+}
+function handlePantryCancel(item){
+  if(state.pantryIsNew){
+    draftPantryItem = null;
+    state.pantryIsNew = false;
+    state.pantryIsEditing = false;
+    state.view = 'pantry';
+    render();
+    return;
+  }
+  const idx = data.pantry.findIndex(x=>x.id===item.id);
+  if(idx > -1 && state.pantryEditSnapshot) data.pantry[idx] = state.pantryEditSnapshot;
+  state.pantryEditSnapshot = null;
+  state.pantryIsEditing = false;
+  saveLocal();
+  render();
+}
+function handlePantrySave(item){
+  if(state.pantryIsNew){
+    data.pantry.push(item);
+    draftPantryItem = null;
+    state.pantryIsNew = false;
+  }
+  state.pantryEditSnapshot = null;
+  state.pantryIsEditing = false;
+  markDirty();
+  render();
+}
+function refreshPantryBody(item){ renderPantryItemBody(item); }
+
+function renderPantryItemBody(item){
+  const container = document.getElementById('piBodyContainer');
+  const editing = state.pantryIsEditing;
+
   const catOptions = data.pantryCategories.map(c=>`<option value="${escAttr(c)}" ${item.category===c?'selected':''}>${escHtml(c)}</option>`).join('');
-  return `<li class="pantry-item" data-id="${item.id}">
-    <div class="pantry-fields">
-      <input type="text" class="pantry-name" data-id="${item.id}" data-field="name" placeholder="Item name" value="${escAttr(item.name)}" />
-      <input type="text" class="pantry-brand" data-id="${item.id}" data-field="brand" placeholder="Brand" value="${escAttr(item.brand)}" />
-      <select class="pantry-cat-select" data-id="${item.id}" data-field="category">
-        <option value="">No tag</option>
-        ${catOptions}
-      </select>
-      <input type="text" class="pantry-link" data-id="${item.id}" data-field="link" placeholder="Link to store…" value="${escAttr(item.link)}" />
-    </div>
-    <div class="row-actions">
-      <button class="row-add" data-kind="pantry" data-id="${item.id}">${ICON.plus}</button>
-      <button class="row-del" data-kind="pantry" data-id="${item.id}">${ICON.trash}</button>
-    </div>
-  </li>`;
+  const catRow = editing
+    ? `<div class="rv-cat-select"><select id="piCategory"><option value="">No tag</option>${catOptions}</select></div>`
+    : (item.category ? `<div class="tile-tags" style="margin-top:10px;"><span class="dot" style="background:${pantryAccentFor(item.category)}"></span><span class="lbl">${escHtml(item.category)}</span></div>` : '');
+
+  const brandsInner = (item.brands||[]).length === 0 && !editing
+    ? ''
+    : editing
+      ? `<ul class="line-list" id="brandsList">${item.brands.map(b=>`
+          <li class="line-item" data-id="${b.id}">
+            <input class="line-text pantry-brand-input" data-id="${b.id}" placeholder="Brand name" value="${escAttr(b.text)}" />
+            <div class="row-actions">
+              <button class="row-add" data-kind="brand" data-id="${b.id}">${ICON.plus}</button>
+              <button class="row-del" data-kind="brand" data-id="${b.id}">${ICON.trash}</button>
+            </div>
+          </li>`).join('')}</ul>
+        <button class="add-row-btn" id="addBrandRow">${ICON.plus} Add brand</button>`
+      : `<ul class="line-list">${item.brands.map(b=>`<li class="line-item"><div class="line-text-static">${escHtml(b.text)}</div></li>`).join('')}</ul>`;
+
+  const storesInner = (item.stores||[]).length === 0 && !editing
+    ? ''
+    : editing
+      ? `<div id="storesList">${item.stores.map(s=>`
+          <div class="pantry-store-row" data-id="${s.id}">
+            <input type="text" class="pantry-store-name" data-id="${s.id}" placeholder="Store name" value="${escAttr(s.name)}" />
+            <input type="text" class="pantry-store-url" data-id="${s.id}" placeholder="https://…" value="${escAttr(s.url)}" />
+            <button class="pantry-open-link" data-url="${escAttr(s.url)}" title="Open link">${ICON.link}</button>
+            <button class="row-add" data-kind="store" data-id="${s.id}">${ICON.plus}</button>
+            <button class="row-del" data-kind="store" data-id="${s.id}">${ICON.trash}</button>
+          </div>`).join('')}</div>
+        <button class="add-row-btn" id="addStoreRow">${ICON.plus} Add store</button>`
+      : `<div class="pantry-store-view-list">${item.stores.map(s=>{
+          let url = s.url||'';
+          if(url && !/^https?:\/\//i.test(url)) url = 'https://'+url;
+          return `<div class="pantry-store-view-row">${s.name?`<span>${escHtml(s.name)}</span> `:''}${url?`<a href="${escAttr(url)}" target="_blank" rel="noopener">${escHtml(s.url)}</a>`:''}</div>`;
+        }).join('')}</div>`;
+
+  const showBrandsSection = editing || (item.brands||[]).length > 0;
+  const showStoresSection = editing || (item.stores||[]).length > 0;
+  const showNotesSection = editing || !!item.notes;
+
+  container.innerHTML = `
+    ${imageBlockHTMLGeneric(item, editing, 'piImageWrap')}
+    <input type="file" accept="image/*" id="piImageInput" style="display:none" />
+
+    ${editing
+      ? `<input class="rv-title" id="piName" placeholder="Product name" value="${escAttr(item.name)}" />`
+      : `<div class="rv-title-static">${escHtml(item.name || 'Untitled')}</div>`
+    }
+    ${catRow}
+
+    ${showBrandsSection ? `<div class="section" style="margin-top:20px;"><div class="pantry-sublabel">Brands</div>${brandsInner}</div>` : ''}
+    ${showStoresSection ? `<div class="section"><div class="pantry-sublabel">Where to buy</div>${storesInner}</div>` : ''}
+    ${showNotesSection ? `<div class="section"><div class="pantry-sublabel">Notes</div>${editing ? `<textarea class="storage-text" id="piNotes" placeholder="Tried and tested notes…">${escHtml(item.notes)}</textarea>` : `<div class="rv-desc-static">${escHtml(item.notes)}</div>`}</div>` : ''}
+  `;
+
+  wirePantryItemBody(item, editing);
+  autosizeAll();
 }
-function wirePantryRows(){
-  document.querySelectorAll('#pantryList input, #pantryList select').forEach(el=>{
-    el.addEventListener('input', e=>{
-      const item = data.pantry.find(x=>x.id===e.target.dataset.id);
-      if(item){ item[e.target.dataset.field] = e.target.value; markDirty(); }
+function imageBlockHTMLGeneric(obj, editing, wrapId){
+  const inner = obj.image ? `<img src="${obj.image}" />` : `<div class="upload-hint">${ICON.camera}<span>${editing?'Add a photo':'No photo'}</span></div>`;
+  const overlay = (editing && obj.image) ? `<span class="change-overlay">Change photo</span>` : '';
+  return `<div class="rv-image-wrap ${editing?'editable':''}" id="${wrapId}">${inner}${overlay}</div>`;
+}
+function wirePantryItemBody(item, editing){
+  const wrap = document.getElementById('piImageWrap');
+  const imgInput = document.getElementById('piImageInput');
+  if(editing && wrap && imgInput){
+    wrap.addEventListener('click', ()=> imgInput.click());
+    imgInput.addEventListener('change', e=>{
+      const file = e.target.files[0];
+      if(!file) return;
+      resizeImageToBase64(file, 1000, dataUrl=>{
+        item.image = dataUrl;
+        refreshPantryBody(item);
+      });
     });
-    el.addEventListener('change', e=>{
-      const item = data.pantry.find(x=>x.id===e.target.dataset.id);
-      if(item){ item[e.target.dataset.field] = e.target.value; markDirty(); render(); }
+  }
+
+  if(editing){
+    const nameInput = document.getElementById('piName');
+    if(nameInput) nameInput.addEventListener('input', e=>{ item.name = e.target.value; });
+    const catSelect = document.getElementById('piCategory');
+    if(catSelect) catSelect.addEventListener('change', e=>{ item.category = e.target.value; });
+    const notes = document.getElementById('piNotes');
+    if(notes) notes.addEventListener('input', e=>{ item.notes = e.target.value; autosize(e.target); });
+
+    const addBrandBtn = document.getElementById('addBrandRow');
+    if(addBrandBtn) addBrandBtn.addEventListener('click', ()=>{
+      item.brands.push(makeBrand());
+      refreshPantryBody(item);
+      focusLast('#brandsList .pantry-brand-input');
     });
-  });
-  document.querySelectorAll('#pantryList .row-add[data-kind="pantry"]').forEach(btn=>{
+    document.querySelectorAll('.pantry-brand-input').forEach(inp=>{
+      inp.addEventListener('input', e=>{
+        const b = item.brands.find(x=>x.id===e.target.dataset.id);
+        if(b) b.text = e.target.value;
+      });
+    });
+    document.querySelectorAll('#brandsList .row-add[data-kind="brand"]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const idx = item.brands.findIndex(x=>x.id===btn.dataset.id);
+        item.brands.splice(idx+1, 0, makeBrand());
+        refreshPantryBody(item);
+      });
+    });
+    document.querySelectorAll('#brandsList .row-del[data-kind="brand"]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        item.brands = item.brands.filter(x=>x.id!==btn.dataset.id);
+        refreshPantryBody(item);
+      });
+    });
+
+    const addStoreBtn = document.getElementById('addStoreRow');
+    if(addStoreBtn) addStoreBtn.addEventListener('click', ()=>{
+      item.stores.push(makeStore());
+      refreshPantryBody(item);
+      focusLast('#storesList .pantry-store-name');
+    });
+    document.querySelectorAll('.pantry-store-name, .pantry-store-url').forEach(inp=>{
+      const field = inp.classList.contains('pantry-store-name') ? 'name' : 'url';
+      inp.addEventListener('input', e=>{
+        const s = item.stores.find(x=>x.id===e.target.dataset.id);
+        if(s) s[field] = e.target.value;
+        if(field==='url'){
+          const row = e.target.closest('.pantry-store-row');
+          const openBtn = row && row.querySelector('.pantry-open-link');
+          if(openBtn) openBtn.dataset.url = e.target.value;
+        }
+      });
+    });
+    document.querySelectorAll('#storesList .row-add[data-kind="store"]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const idx = item.stores.findIndex(x=>x.id===btn.dataset.id);
+        item.stores.splice(idx+1, 0, makeStore());
+        refreshPantryBody(item);
+      });
+    });
+    document.querySelectorAll('#storesList .row-del[data-kind="store"]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        item.stores = item.stores.filter(x=>x.id!==btn.dataset.id);
+        refreshPantryBody(item);
+      });
+    });
+  }
+
+  document.querySelectorAll('.pantry-open-link').forEach(btn=>{
     btn.addEventListener('click', ()=>{
-      const idx = data.pantry.findIndex(x=>x.id===btn.dataset.id);
-      const cat = state.pantryActiveCategory !== "All" ? state.pantryActiveCategory : '';
-      data.pantry.splice(idx+1, 0, makePantryItem(cat));
-      markDirty();
-      render();
-    });
-  });
-  document.querySelectorAll('#pantryList .row-del[data-kind="pantry"]').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      data.pantry = data.pantry.filter(x=>x.id!==btn.dataset.id);
-      markDirty();
-      render();
+      let url = btn.dataset.url || '';
+      if(!url) return;
+      if(!/^https?:\/\//i.test(url)) url = 'https://' + url;
+      window.open(url, '_blank', 'noopener');
     });
   });
 }
+
+
 
 function openManagePantryCategories(){
   const backdrop = document.createElement('div');
@@ -1036,6 +1350,12 @@ function parseRecipeLinks(text){
   }
   result += escHtml(text.slice(lastIndex));
   return result;
+}
+function renderInstructionText(text){
+  let html = parseRecipeLinks(text);
+  html = html.replace(/\*\*([^\*]+?)\*\*/g, '<b>$1</b>');
+  html = html.replace(/\*([^\*]+?)\*/g, '<i>$1</i>');
+  return html;
 }
 function recipeTextsFor(rec){
   const texts = [];
@@ -1213,6 +1533,7 @@ function handleDelete(r){
   }
 }
 function duplicateRecipe(r){
+  if(!confirm(`Duplicate "${r.name || 'Untitled'}"? This will create a new editable copy.`)) return;
   const clone = deepClone(r);
   clone.id = uid();
   clone.name = 'Copy of ' + (r.name || 'Untitled');
@@ -1220,6 +1541,7 @@ function duplicateRecipe(r){
   clone.instructions = clone.instructions.map(i=>({...i, id: uid()}));
   clone.storageLines = clone.storageLines.map(i=>({...i, id: uid()}));
   clone.prepPlan = clone.prepPlan.map(i=>({...i, id: uid()}));
+  clone.referenceImages = (clone.referenceImages||[]).map(i=>({...i, id: uid()}));
   clone.variants = (clone.variants||[]).map(v=>({
     ...v, id: uid(),
     ingredients: v.ingredients.map(i=>({...i, id: uid()})),
@@ -1256,8 +1578,11 @@ function renderRecipeBody(r){
     ${tagsBlockHTML(r, editing)}
 
     ${editing
-      ? `<textarea class="rv-desc" id="rvDesc" placeholder="A short description of this recipe…">${escHtml(r.description)}</textarea>`
-      : (r.description ? `<div class="rv-desc-static">${escHtml(r.description)}</div>` : '')
+      ? `<div class="field-with-link" style="margin-top:16px;">
+           <textarea class="rv-desc" id="rvDesc" style="margin-top:0;" placeholder="A short description of this recipe…">${escHtml(r.description)}</textarea>
+           <button class="link-insert-btn" data-target="rvDesc" title="Link to a recipe">${ICON.link}</button>
+         </div>`
+      : (r.description ? `<div class="rv-desc-static">${renderInstructionText(r.description)}</div>` : '')
     }
 
     ${editing ? optionalChipsHTML(r) : ''}
@@ -1504,16 +1829,11 @@ function wirePrepPlan(r, editing){
 /* ---------- yield + variant strip ---------- */
 function yieldRowHTML(r, editing){
   const y = r.yield;
-  if(y.na){
-    if(!editing){
+  if(!editing){
+    if(y.na){
       return `<div class="yield-row"><span class="yield-static">⚪ Servings not specified</span></div>`;
     }
-    return `<div class="yield-row">
-      <label class="yield-na-row"><input type="checkbox" id="yieldNaToggle" checked /> Servings not specified (N/A)</label>
-    </div>`;
-  }
-  const current = ensureYieldSession(r);
-  if(!editing){
+    const current = ensureYieldSession(r);
     return `<div class="yield-row"><span class="yield-static">Makes <b>${current}</b> ${escHtml(y.unit)}</span>
       <div class="stepper" id="yieldStepper">
         <button data-dir="-1">${ICON.minus}</button>
@@ -1523,23 +1843,31 @@ function yieldRowHTML(r, editing){
       </div>
     </div>`;
   }
+  // editing — one scalable "Makes" field, no duplicate stepper
+  if(y.na){
+    return `<div class="yield-row">
+      <div class="yield-base-row">
+        <label class="yield-na-row"><input type="checkbox" id="yieldNaToggle" checked /> N/A</label>
+        <span style="color:var(--ink-faint);">Makes — not specified</span>
+      </div>
+    </div>`;
+  }
   return `<div class="yield-row">
     <div class="yield-base-row">
-      Written for <input type="number" id="yieldBase" value="${y.base}" min="1" /> <input class="yield-unit-input" id="yieldUnit" value="${escAttr(y.unit)}" placeholder="servings" />
+      <label class="yield-na-row"><input type="checkbox" id="yieldNaToggle" /> N/A</label>
+      Makes <input type="number" id="yieldBase" value="${y.base}" min="1" /> <input class="yield-unit-input" id="yieldUnit" value="${escAttr(y.unit)}" placeholder="servings" />
     </div>
-    <div class="stepper" id="yieldStepper">
-      <button data-dir="-1">${ICON.minus}</button>
-      <span class="yield-num">${current}</span>
-      <button data-dir="1">${ICON.plus}</button>
-      <button class="yield-reset-btn" id="yieldReset" title="Reset to original">${ICON.reset}</button>
-    </div>
-    <label class="yield-na-row"><input type="checkbox" id="yieldNaToggle" /> N/A</label>
   </div>`;
 }
 function variantRowHTML(r, editing){
-  const pills = [`<button class="variant-pill ${r.activeVariant==='standard'?'active':''}" data-variant="standard">Standard</button>`]
-    .concat((r.variants||[]).map(v=>`<button class="variant-pill ${r.activeVariant===v.id?'active':''}" data-variant="${v.id}">${escHtml(v.name)}</button>`));
+  const hasVariants = (r.variants||[]).length > 0;
+  const pills = [];
+  if(hasVariants){
+    pills.push(`<button class="variant-pill ${r.activeVariant==='standard'?'active':''}" data-variant="standard">Standard</button>`);
+    pills.push(...(r.variants||[]).map(v=>`<button class="variant-pill ${r.activeVariant===v.id?'active':''}" data-variant="${v.id}">${escHtml(v.name)}</button>`));
+  }
   const manageBtn = editing ? `<button class="pinned-manage-btn" id="manageVariantsBtn" title="Manage variants">⚙️</button>` : '';
+  if(!hasVariants && !editing) return '';
   return `<div class="variant-row-wrap"><div class="variant-row">${pills.join('')}</div>${manageBtn}</div>`;
 }
 function wireYieldAndVariant(r, editing){
@@ -1651,14 +1979,20 @@ function ingredientsBodyHTML(r, editing){
   const list = activeIngredients(r);
   const factor = scaleFactor(r);
   if(!editing){
-    const rows = list.map(item=>{
+    const renderItem = (item) => {
       const amt = item.amount !== null && item.amount !== '' && !isNaN(item.amount) ? formatAmount(item.amount * factor) : '';
       return `<li class="ing-item">
         <button class="ing-check ${item.checked?'checked':''}" data-id="${item.id}">${ICON.check}</button>
-        <div class="ing-static">${amt?`<span class="amt">${escHtml(amt)}${item.unit?' '+escHtml(item.unit):''}</span> `:''}<span class="${item.checked?'checked':''}">${parseRecipeLinks(item.name)}</span></div>
+        <div class="ing-static">${amt?`<span class="amt ing-static-name${item.checked?' checked':''}">${escHtml(amt)}${item.unit?' '+escHtml(item.unit):''}</span> `:''}<span class="ing-static-name${item.checked?' checked':''}">${parseRecipeLinks(item.name)}</span></div>
       </li>`;
-    }).join('');
-    return `<ul class="ing-list" id="ingList">${rows}</ul>`;
+    };
+    const required = list.filter(i=>!i.optional);
+    const optional = list.filter(i=>i.optional);
+    let html = `<ul class="ing-list" id="ingList">${required.map(renderItem).join('')}</ul>`;
+    if(optional.length){
+      html += `<div class="pantry-sublabel" style="margin-top:14px;">Optional</div><ul class="ing-list">${optional.map(renderItem).join('')}</ul>`;
+    }
+    return html;
   }
   const rows = list.map(item => `
     <li class="ing-item" data-id="${item.id}">
@@ -1672,6 +2006,7 @@ function ingredientsBodyHTML(r, editing){
         </div>
       </div>
       <div class="row-actions">
+        <button class="opt-toggle-btn ${item.optional?'active':''}" data-kind="ing" data-id="${item.id}" title="Mark as optional">Opt</button>
         <button class="row-add" data-kind="ing" data-id="${item.id}">${ICON.plus}</button>
         <button class="row-del" data-kind="ing" data-id="${item.id}">${ICON.trash}</button>
       </div>
@@ -1705,6 +2040,12 @@ function wireIngredients(r, editing){
       } else {
         item[field] = e.target.value;
       }
+    });
+  });
+  document.querySelectorAll('#ingList .opt-toggle-btn[data-kind="ing"]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const item = list.find(x=>x.id===btn.dataset.id);
+      if(item){ item.optional = !item.optional; refreshBody(r); }
     });
   });
   document.querySelectorAll('#ingList .row-add[data-kind="ing"]').forEach(btn=>{
@@ -1794,7 +2135,7 @@ function instructionsBodyHTML(r, editing){
     const rows = list.map((item, i) => `
       <li class="instr-item">
         <span class="instr-num">${i+1}</span>
-        <div class="instr-static">${parseRecipeLinks(item.text)}</div>
+        <div class="instr-static">${renderInstructionText(item.text)}</div>
       </li>`).join('');
     return `${oven}<ul class="instr-list" id="instrList">${rows}</ul>`;
   }
@@ -1802,6 +2143,10 @@ function instructionsBodyHTML(r, editing){
     <li class="instr-item" data-id="${item.id}">
       <span class="instr-num">${i+1}</span>
       <div class="field-with-link">
+        <div class="fmt-toolbar" id="fmttoolbar_${item.id}" style="display:none;">
+          <button data-fmt="**" title="Bold"><b>B</b></button>
+          <button data-fmt="*" title="Italic"><i>I</i></button>
+        </div>
         <textarea class="instr-text" id="instrtext_${item.id}" data-id="${item.id}" placeholder="Describe this step…" rows="1">${escHtml(item.text)}</textarea>
         <button class="link-insert-btn" data-target="instrtext_${item.id}" title="Link to a recipe">${ICON.link}</button>
       </div>
@@ -1812,6 +2157,37 @@ function instructionsBodyHTML(r, editing){
     </li>`).join('');
   return `${oven}<ul class="instr-list" id="instrList">${rows}</ul>
     <button class="add-row-btn" id="addInstrRow">${ICON.plus} Add step</button>`;
+}
+function applyInlineFormat(el, marker){
+  const start = el.selectionStart, end = el.selectionEnd;
+  if(start === end) return;
+  const before = el.value.slice(0, start);
+  const selected = el.value.slice(start, end);
+  const after = el.value.slice(end);
+  el.value = before + marker + selected + marker + after;
+  el.dispatchEvent(new Event('input', {bubbles:true}));
+  el.focus();
+  el.setSelectionRange(start, start + marker.length*2 + selected.length);
+}
+function wireFormatToolbar(item){
+  const ta = document.getElementById(`instrtext_${item.id}`);
+  const toolbar = document.getElementById(`fmttoolbar_${item.id}`);
+  if(!ta || !toolbar) return;
+  const checkSelection = ()=>{
+    if(ta.selectionStart !== ta.selectionEnd){ toolbar.style.display = 'flex'; }
+    else { toolbar.style.display = 'none'; }
+  };
+  ta.addEventListener('mouseup', checkSelection);
+  ta.addEventListener('touchend', checkSelection);
+  ta.addEventListener('keyup', checkSelection);
+  ta.addEventListener('blur', ()=>{ setTimeout(()=>{ toolbar.style.display = 'none'; }, 150); });
+  toolbar.querySelectorAll('button[data-fmt]').forEach(btn=>{
+    btn.addEventListener('mousedown', e=> e.preventDefault());
+    btn.addEventListener('click', ()=>{
+      applyInlineFormat(ta, btn.dataset.fmt);
+      toolbar.style.display = 'none';
+    });
+  });
 }
 function wireInstructions(r, editing){
   wireOvenBlock(r, editing);
@@ -1831,6 +2207,7 @@ function wireInstructions(r, editing){
       autosize(e.target);
     });
   });
+  list.forEach(item => wireFormatToolbar(item));
   document.querySelectorAll('#instrList .row-add[data-kind="instr"]').forEach(btn=>{
     btn.addEventListener('click', ()=>{
       const idx = list.findIndex(x=>x.id===btn.dataset.id);
@@ -1848,18 +2225,105 @@ function wireInstructions(r, editing){
   });
 }
 
-/* ---------- source ---------- */
+/* ---------- source & reference images ---------- */
 function sourceBlockHTML(r, editing){
+  const refBtn = `<button class="reference-btn" id="referenceBtn">📎 Reference${r.referenceImages.length ? ` (${r.referenceImages.length})` : ''}</button>`;
   if(!editing){
-    if(!r.source) return '';
-    return `<div class="source-row">Source: ${linkify(r.source)}</div>`;
+    const sourceLine = r.source ? `<div class="source-row">Source: ${linkify(r.source)}</div>` : '';
+    return `${sourceLine}<div class="reference-row">${refBtn}</div>`;
   }
-  return `<div class="source-row"><input type="text" id="rvSource" placeholder="Source (book, site, person, or link)…" value="${escAttr(r.source)}" /></div>`;
+  return `<div class="source-row"><input type="text" id="rvSource" placeholder="Source (book, site, person, or link)…" value="${escAttr(r.source)}" /></div>
+    <div class="reference-row">${refBtn}</div>`;
 }
 function wireSource(r, editing){
-  if(!editing) return;
-  const inp = document.getElementById('rvSource');
-  if(inp) inp.addEventListener('input', e=>{ r.source = e.target.value; });
+  if(editing){
+    const inp = document.getElementById('rvSource');
+    if(inp) inp.addEventListener('input', e=>{ r.source = e.target.value; });
+  }
+  const refBtn = document.getElementById('referenceBtn');
+  if(refBtn) refBtn.addEventListener('click', ()=> openReferenceGallery(r, editing));
+}
+function openReferenceGallery(r, editing){
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-backdrop';
+  overlay.id = 'referenceOverlay';
+
+  function bodyHTML(){
+    if(r.referenceImages.length === 0){
+      return `<div class="picker-empty">No reference images yet.</div>`;
+    }
+    return `<div class="reference-grid">${r.referenceImages.map(img=>`
+      <div class="reference-thumb-wrap" data-id="${img.id}">
+        <img class="reference-thumb" src="${img.data}" data-id="${img.id}" />
+        ${editing ? `<button class="reference-remove" data-id="${img.id}">${ICON.trash}</button>` : ''}
+      </div>`).join('')}</div>`;
+  }
+
+  overlay.innerHTML = `
+    <div class="modal" style="max-width:520px;">
+      <h3>Reference images</h3>
+      <div id="referenceGalleryBody">${bodyHTML()}</div>
+      ${editing ? `<div class="modal-add-row"><button id="addReferenceBtn" style="flex:1;">${ICON.plus} Add image</button></div><input type="file" id="referenceFileInput" accept="image/*" multiple style="display:none" />` : ''}
+      <button class="modal-close" id="closeReferenceModal">Close</button>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  function refreshGallery(){
+    document.getElementById('referenceGalleryBody').innerHTML = bodyHTML();
+    wireGalleryButtons();
+  }
+  function wireGalleryButtons(){
+    document.querySelectorAll('.reference-thumb').forEach(img=>{
+      img.addEventListener('click', ()=> openReferenceLightbox(img.src));
+    });
+    document.querySelectorAll('.reference-remove').forEach(btn=>{
+      btn.addEventListener('click', (e)=>{
+        e.stopPropagation();
+        r.referenceImages = r.referenceImages.filter(x=>x.id!==btn.dataset.id);
+        markDirty();
+        refreshGallery();
+        const mainRefBtn = document.getElementById('referenceBtn');
+        if(mainRefBtn) mainRefBtn.textContent = `📎 Reference${r.referenceImages.length ? ` (${r.referenceImages.length})` : ''}`;
+      });
+    });
+  }
+  wireGalleryButtons();
+
+  if(editing){
+    document.getElementById('addReferenceBtn').addEventListener('click', ()=>{
+      document.getElementById('referenceFileInput').click();
+    });
+    document.getElementById('referenceFileInput').addEventListener('change', e=>{
+      const files = Array.from(e.target.files || []);
+      let remaining = files.length;
+      if(remaining === 0) return;
+      files.forEach(file=>{
+        resizeImageToBase64(file, 1400, dataUrl=>{
+          r.referenceImages.push({ id: uid(), data: dataUrl });
+          markDirty();
+          remaining--;
+          if(remaining === 0){
+            refreshGallery();
+            const mainRefBtn = document.getElementById('referenceBtn');
+            if(mainRefBtn) mainRefBtn.textContent = `📎 Reference${r.referenceImages.length ? ` (${r.referenceImages.length})` : ''}`;
+          }
+        });
+      });
+    });
+  }
+
+  document.getElementById('closeReferenceModal').addEventListener('click', ()=>{
+    document.body.removeChild(overlay);
+  });
+  overlay.addEventListener('click', e=>{ if(e.target === overlay) document.body.removeChild(overlay); });
+}
+function openReferenceLightbox(src){
+  const box = document.createElement('div');
+  box.className = 'modal-backdrop';
+  box.style.zIndex = '300';
+  box.innerHTML = `<img src="${src}" style="max-width:92vw;max-height:88vh;border-radius:8px;" />`;
+  box.addEventListener('click', ()=> document.body.removeChild(box));
+  document.body.appendChild(box);
 }
 
 /* =========================================================
@@ -1876,12 +2340,18 @@ async function openKitchenMode(r){
   overlay.className = 'kitchen-overlay';
   overlay.id = 'kitchenOverlay';
 
-  const ingHtml = ingredients.map(item=>{
+  const renderKitchenIng = (item) => {
     const amt = item.amount !== null && item.amount !== '' && !isNaN(item.amount) ? formatAmount(item.amount*factor) : '';
     return `<li><span class="amt">${escHtml(amt)}${item.unit?' '+escHtml(item.unit):''}</span><span>${parseRecipeLinks(item.name)}</span></li>`;
-  }).join('');
+  };
+  const requiredIng = ingredients.filter(i=>!i.optional);
+  const optionalIng = ingredients.filter(i=>i.optional);
+  let ingHtml = requiredIng.map(renderKitchenIng).join('');
+  if(optionalIng.length){
+    ingHtml += `<li style="margin-top:8px;"><span class="kitchen-section-title" style="margin:0;font-size:11px;">Optional</span></li>` + optionalIng.map(renderKitchenIng).join('');
+  }
 
-  const instrHtml = instructions.map((item,i)=>`<li><span class="kitchen-instr-num">${i+1}</span><span>${parseRecipeLinks(item.text)}</span></li>`).join('');
+  const instrHtml = instructions.map((item,i)=>`<li><span class="kitchen-instr-num">${i+1}</span><span>${renderInstructionText(item.text)}</span></li>`).join('');
 
   let ovenHtml = '';
   if(oven && (oven.temp || oven.time || oven.setting)){
@@ -1976,8 +2446,8 @@ function migrateRecipe(raw){
   if(!Array.isArray(r.ingredients)) r.ingredients = [];
   // ingredients: migrate old free-text {id,text,checked} to {amount,unit,name,checked}
   r.ingredients = r.ingredients.map(i=>{
-    if('name' in i) return i;
-    return { id: i.id||uid(), amount:null, unit:'', name: i.text||'', checked: !!i.checked };
+    if('name' in i) return { optional:false, ...i };
+    return { id: i.id||uid(), amount:null, unit:'', name: i.text||'', checked: !!i.checked, optional:false };
   });
   if(!Array.isArray(r.instructions)) r.instructions = [];
   if(!r.yield) r.yield = { base:4, unit:'servings', na:false };
@@ -1988,6 +2458,7 @@ function migrateRecipe(raw){
   if(!Array.isArray(r.variants)) r.variants = [];
   if(!r.activeVariant) r.activeVariant = 'standard';
   if(typeof r.source !== 'string') r.source = '';
+  if(!Array.isArray(r.referenceImages)) r.referenceImages = [];
   return r;
 }
 
@@ -2018,7 +2489,7 @@ function importJSON(e){
         categories: Array.isArray(parsed.categories) && parsed.categories.length ? parsed.categories : [...DEFAULT_CATEGORIES],
         recipes: parsed.recipes.map(migrateRecipe),
         pantryCategories: Array.isArray(parsed.pantryCategories) ? parsed.pantryCategories : [],
-        pantry: Array.isArray(parsed.pantry) ? parsed.pantry : []
+        pantry: Array.isArray(parsed.pantry) ? parsed.pantry.map(migratePantryItem) : []
       };
       saveLocal();
       clearDirty();
@@ -2035,6 +2506,23 @@ function importJSON(e){
 /* =========================================================
    HELPERS
 ========================================================= */
+function measureTextWidth(text, font){
+  try{
+    const canvas = measureTextWidth._canvas || (measureTextWidth._canvas = document.createElement('canvas'));
+    const ctx = canvas.getContext('2d');
+    if(!ctx) return (text||'').length * 11;
+    ctx.font = font;
+    return ctx.measureText(text || '').width;
+  }catch(e){
+    return (text||'').length * 11;
+  }
+}
+function resizeTitleInput(input){
+  const style = window.getComputedStyle(input);
+  const font = `${style.fontStyle} ${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+  const width = measureTextWidth(input.value || input.placeholder || 'Recipe Book', font);
+  input.style.width = Math.max(20, Math.ceil(width) + 10) + 'px';
+}
 function escHtml(s){ return (s||'').toString().replace(/[&<>]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
 function escAttr(s){ return (s||'').toString().replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function focusLast(selector){ const els = document.querySelectorAll(selector); if(els.length) els[els.length-1].focus(); }
