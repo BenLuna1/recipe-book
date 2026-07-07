@@ -180,6 +180,10 @@
   .list-thumb.placeholder svg{ width:18px; height:18px; stroke:var(--ink-faint); fill:none; opacity:0.6; }
   .list-info{ min-width:0; }
   .list-info .list-name{ font-family:var(--font-display); font-size:15.5px; }
+  .pantry-list-name{ font-family:var(--font-display); font-size:15.5px; color:var(--ink); }
+  .pantry-list-meta{ display:flex; align-items:baseline; gap:8px; margin-top:3px; flex-wrap:wrap; }
+  .pantry-list-type{ font-size:12.5px; font-style:italic; color:var(--ink-soft); }
+  .pantry-list-brand{ font-size:11px; text-transform:uppercase; letter-spacing:0.5px; color:var(--ink-faint); }
   .list-info .tile-tags{ margin-top:3px; }
 
   /* ---------- Empty state ---------- */
@@ -224,6 +228,11 @@
   .text-btn.danger{ color:var(--danger); }
   .rv-body{ max-width:640px; margin:0 auto; padding: 8px 20px 60px 20px; }
 
+  .quickfill-row{ display:flex; gap:8px; margin-top:14px; flex-wrap:wrap; }
+  .quickfill-row button{
+    border:1px dashed var(--hairline-strong); background:var(--paper-raised); border-radius:999px;
+    padding:8px 14px; font-size:13px; color:var(--ink-soft);
+  }
   .rv-image-wrap{
     width:100%; aspect-ratio: 16/10; border-radius: var(--radius-l);
     background: linear-gradient(135deg, #E7E1D3, #DED6C3);
@@ -365,17 +374,24 @@
   .fmt-toolbar button:active{ background:var(--ink); color:var(--paper); }
   .link-insert-btn{ border:none; background:none; opacity:0.45; display:flex; align-items:center; justify-content:center; width:20px; height:20px; flex:0 0 auto; margin-top:1px; }
   .link-insert-btn svg{ width:13px; height:13px; stroke:var(--accent); fill:none; }
-  a.recipe-link{ color:var(--accent); text-decoration:underline; text-decoration-color: var(--hairline-strong); cursor:pointer; }
+  a.recipe-link, a.pantry-link-ref{ color:var(--accent); text-decoration:underline; text-decoration-color: var(--hairline-strong); cursor:pointer; }
   .linked-from-row{ margin-top:14px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
   .linked-from-pill{ font-size:12px; color:var(--ink-soft); background:var(--paper-raised); border:1px solid var(--hairline-strong); border-radius:999px; padding:5px 12px; cursor:pointer; }
 
   /* Recipe picker modal */
   .picker-search{ width:100%; border:1px solid var(--hairline-strong); background:var(--paper-raised); border-radius:8px; padding:9px 12px; font-size:14px; outline:none; margin-bottom:10px; }
+  .picker-group-label{ font-size:10.5px; text-transform:uppercase; letter-spacing:0.6px; color:var(--ink-faint); font-weight:600; padding:10px 6px 4px 6px; }
   .picker-item{ padding:10px 6px; border-bottom:1px solid var(--hairline); font-size:14.5px; cursor:pointer; }
   .picker-item:active{ background:var(--paper-raised); }
   .picker-empty{ font-size:13.5px; color:var(--ink-faint); padding:14px 6px; text-align:center; }
 
   /* ---------- Pantry ---------- */
+  .pantry-type-input{
+    display:block; margin-top:6px; border:none; outline:none; background:transparent;
+    font-size:14px; color:var(--ink-soft); padding:2px 0; width:100%;
+    border-bottom:1px dashed var(--hairline-strong);
+  }
+  .pantry-type-static{ font-size:14px; color:var(--ink-soft); margin-top:4px; }
   .pantry-sublabel{ font-size:10.5px; text-transform:uppercase; letter-spacing:0.8px; color:var(--ink-faint); margin: 20px 0 8px 0; font-weight:600; }
   .pantry-brand-input{
     flex:1; border:1px solid var(--hairline-strong); background:var(--paper); border-radius:8px;
@@ -418,7 +434,9 @@
   .instr-actions{ display:flex; flex-direction:column; gap:2px; }
 
   /* Oven block */
-  .oven-block{ display:flex; flex-wrap:wrap; gap:18px 34px; padding: 2px 0 20px 0; border-bottom:1px dashed var(--hairline-strong); margin-bottom:16px; }
+  .oven-row-edit{ display:flex; flex-wrap:wrap; gap:18px 34px; padding: 14px 0 18px 0; border-bottom:1px dashed var(--hairline-strong); margin-bottom:14px; position:relative; }
+  .oven-row-edit:first-child{ padding-top:2px; }
+  .ovenRowDel{ position:absolute; top:12px; right:0; }
   .oven-field{ display:flex; flex-direction:column; gap:5px; }
   .oven-field label{ font-size:10.5px; text-transform:uppercase; letter-spacing:0.6px; color:var(--ink-faint); }
   .oven-field .row{ display:flex; align-items:center; gap:6px; }
@@ -427,8 +445,10 @@
   .unit-toggle{ display:flex; border:1px solid var(--hairline-strong); border-radius:8px; overflow:hidden; }
   .unit-toggle button{ border:none; background:var(--paper-raised); padding:6px 9px; font-size:12px; color:var(--ink-soft); }
   .unit-toggle button.active{ background:var(--ink); color:var(--paper); }
+  .oven-row-group{ padding-bottom:2px; }
+  .oven-row-label{ font-size:12px; font-weight:600; color:var(--accent); margin-bottom:6px; letter-spacing:0.2px; }
   .oven-static{ display:flex; gap:18px; flex-wrap:wrap; padding-bottom:18px; border-bottom:1px dashed var(--hairline-strong); margin-bottom:16px; font-size:13.5px; color:var(--ink-soft); }
-  .oven-static b{ color:var(--ink); font-weight:600; }
+  .oven-static b{ color:var(--ink); font-weight:600; margin-right:8px; }
 
   /* Source line */
   .source-row{ margin-top:26px; padding-top:14px; border-top:1px solid var(--hairline); font-size:12.5px; color:var(--ink-faint); }
@@ -479,6 +499,7 @@
   .kitchen-variant{ font-size:15px; color:var(--accent); font-weight:600; margin-top:4px; }
   .kitchen-yield{ font-size:15px; color:var(--ink-soft); margin-top:8px; }
   .kitchen-section-title{ font-size:13px; text-transform:uppercase; letter-spacing:1.2px; color:var(--ink-soft); font-weight:700; margin:30px 0 14px 0; }
+  .kitchen-oven-label{ font-size:13px; font-weight:700; color:var(--accent); margin: 10px 0 4px 0; letter-spacing:0.2px; }
   .kitchen-oven{ display:flex; gap:24px; flex-wrap:wrap; font-size:16px; color:var(--ink); margin-bottom:6px; }
   .kitchen-oven b{ display:block; font-size:12px; text-transform:uppercase; color:var(--ink-faint); font-weight:600; letter-spacing:0.4px; margin-bottom:3px; }
   .kitchen-ing-list{ list-style:none; margin:0; padding:0; }
@@ -488,6 +509,15 @@
   .kitchen-instr-list li{ font-size:18px; line-height:1.7; display:flex; gap:16px; margin-bottom:18px; }
   .kitchen-instr-num{ font-family:var(--font-mono); font-size:15px; color:var(--ink-faint); flex:0 0 auto; min-width:24px; }
   .kitchen-source{ margin-top:36px; padding-top:16px; border-top:1px solid var(--hairline); font-size:13px; color:var(--ink-faint); }
+
+  @media print{
+    body *{ visibility:hidden; }
+    .kitchen-overlay.print-mode, .kitchen-overlay.print-mode *{ visibility:visible; }
+    .kitchen-overlay.print-mode{ position:absolute; top:0; left:0; width:100%; background:#fff; }
+    .kitchen-overlay.print-mode .kitchen-header{ display:none; }
+    .kitchen-overlay.print-mode .kitchen-body{ padding:0 8px; max-width:100%; }
+    .kitchen-overlay.print-mode .kitchen-img{ max-height:220px; }
+  }
 </style>
 </head>
 <body>
@@ -497,7 +527,7 @@
 /* =========================================================
    CONSTANTS
 ========================================================= */
-const APP_VERSION = "v5";
+const APP_VERSION = "v11";
 const DEFAULT_CATEGORIES = ["Dessert","Dinner","Bites","Drinks","Side Dishes","Batch Cooking"];
 const ACCENTS = ["#7C5A6B","#6B7561","#A68A5B","#5C7A80","#8A8F5C","#9C6B54","#5E6B8A","#8B6F8C"];
 const OVEN_SETTINGS = ["With fan","Without fan","Turbo","Airfry","Other"];
@@ -522,7 +552,7 @@ let state = {
   isNew: false,
   isEditing: false,
   editSnapshot: null,
-  openSections: { storage:true, prep:true, ingredients:true, instructions:true },
+  openSections: { storage:true, prep:true, ingredients:true, instructions:true, source:true },
   kitchenMode: false,
   pantryActiveCategory: "All",
   pantryViewMode: "tile",
@@ -531,7 +561,9 @@ let state = {
   pantryIsEditing: false,
   pantryEditSnapshot: null,
   currentYield: null,
-  linkPickerTarget: null
+  linkPickerTarget: null,
+  archiveViewMode: "tile",
+  recipeOrigin: "home"
 };
 
 function uid(){ return 'id_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,8); }
@@ -565,28 +597,32 @@ function deepClone(o){ return JSON.parse(JSON.stringify(o)); }
 ========================================================= */
 function blankRecipe(cat){
   return {
-    id: uid(), name:"", categories: cat ? [cat] : [], image:null, description:"", source:"",
+    id: uid(), name:"", categories: cat ? [cat] : [], image:null, description:"",
+    sourceLines: [],
     referenceImages: [],
-    sectionsEnabled: { storage:false, prepPlan:false, oven:false },
+    sectionsEnabled: { storage:false, prepPlan:false, oven:false, source:false },
     storageLines: [], prepPlan: [],
     yield: { base:4, unit:"servings", na:false },
     ingredients: [], instructions: [],
-    oven: { temp:null, tempUnit:'C', time:null, timeUnit:'min', setting:'Without fan', settingOther:'' },
-    variants: [], activeVariant: 'standard'
+    ovenRows: [makeOvenRow()],
+    variants: [], activeVariant: 'standard',
+    archived: false
   };
 }
+function makeOvenRow(){ return { id: uid(), label:'', temp:null, tempUnit:'C', time:null, timeUnit:'min', setting:'Without fan', settingOther:'' }; }
 function makeIngredient(){ return { id: uid(), amount:null, unit:'', name:'', checked:false, optional:false }; }
 function makeLine(){ return { id: uid(), text:'' }; }
 function makeInstr(){ return { id: uid(), text:'' }; }
-function makePantryItem(cat){ return { id: uid(), name:'', category: cat||'', image:null, brands:[], stores:[], notes:'' }; }
+function makePantryItem(cat){ return { id: uid(), name:'', type:'', category: cat||'', image:null, brands:[], stores:[], notes:'' }; }
 function makeBrand(){ return { id: uid(), text:'' }; }
 function makeStore(){ return { id: uid(), name:'', url:'' }; }
 function migratePantryItem(raw){
   if(Array.isArray(raw.brands) && Array.isArray(raw.stores)){
     if(!('image' in raw)) raw.image = null;
+    if(!('type' in raw)) raw.type = '';
     return raw;
   }
-  const item = { id: raw.id||uid(), name: raw.name||'', category: raw.category||'', image: raw.image||null, brands: [], stores: [], notes: raw.notes||'' };
+  const item = { id: raw.id||uid(), name: raw.name||'', type: raw.type||'', category: raw.category||'', image: raw.image||null, brands: [], stores: [], notes: raw.notes||'' };
   if(raw.brand) item.brands.push({ id: uid(), text: raw.brand });
   if(raw.link) item.stores.push({ id: uid(), name:'', url: raw.link });
   return item;
@@ -612,6 +648,9 @@ const ICON = {
   copy:  `<svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>`,
   chef:  `<svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 13.87A4 4 0 117.41 6a4.001 4.001 0 016.02-1.61A4 4 0 0118 6.4a4 4 0 011 7.47"/><path d="M6 13.87V21h12v-7.13"/></svg>`,
   minus: `<svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round"><path d="M5 12h14"/></svg>`,
+  print: `<svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>`,
+  archive: `<svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="5" rx="1"/><path d="M5 9v9a2 2 0 002 2h10a2 2 0 002-2V9"/><path d="M10 13h4"/></svg>`,
+  restore: `<svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 1 3 6.7"/><path d="M3 16v-4h4"/></svg>`,
   reset: `<svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 1 3 6.7"/><path d="M3 16v-4h4"/></svg>`,
   link: `<svg viewBox="0 0 24 24" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.07 0l1.93-1.93a5 5 0 00-7.07-7.07L10.5 5.5"/><path d="M14 11a5 5 0 00-7.07 0L5 12.93a5 5 0 007.07 7.07L13.5 18.5"/></svg>`,
 };
@@ -628,6 +667,8 @@ function render(){
     renderPantryView();
   } else if(state.view === 'pantryItem'){
     renderPantryItemView();
+  } else if(state.view === 'archive'){
+    renderArchiveView();
   } else {
     renderRecipeView();
   }
@@ -638,9 +679,11 @@ function render(){
 ========================================================= */
 function homeHTML(){
   const cats = ["All", ...data.categories];
-  const filtered = state.activeCategory === "All"
-    ? data.recipes
-    : data.recipes.filter(r => (r.categories||[]).includes(state.activeCategory));
+  const visibleRecipes = data.recipes.filter(r => !r.archived);
+  const filtered = (state.activeCategory === "All"
+    ? visibleRecipes
+    : visibleRecipes.filter(r => (r.categories||[]).includes(state.activeCategory))
+  ).slice().sort((a,b)=>(a.name||'').localeCompare(b.name||'', undefined, {sensitivity:'base'}));
 
   const catTabs = cats.map(c => {
     const active = c === state.activeCategory;
@@ -678,6 +721,7 @@ function homeHTML(){
       </div>
       <div class="topbar-actions">
         <button class="icon-btn" id="pantryBtn" title="Pantry">🧺</button>
+        <button class="icon-btn" id="archiveBtn" title="Archive">🗄️</button>
         <button class="icon-btn" id="importBtn" title="Import JSON">${ICON.upload}</button>
         <button class="icon-btn" id="exportBtn" title="Export JSON">
           ${ICON.download}
@@ -759,6 +803,7 @@ function attachHomeEvents(){
 
   document.getElementById('exportBtn').addEventListener('click', exportJSON);
   document.getElementById('pantryBtn').addEventListener('click', ()=>{ state.view = 'pantry'; render(); });
+  document.getElementById('archiveBtn').addEventListener('click', ()=>{ state.view = 'archive'; render(); });
   document.getElementById('importBtn').addEventListener('click', ()=> document.getElementById('importFile').click());
   document.getElementById('importFile').addEventListener('change', importJSON);
 }
@@ -773,13 +818,14 @@ function addNewRecipe(){
   state.view = 'recipe';
   render();
 }
-function openRecipe(id){
+function openRecipe(id, origin){
   state.recipeId = id;
   state.isNew = false;
   state.isEditing = false;
   state.editSnapshot = null;
   state.currentYield = null;
   state.view = 'recipe';
+  state.recipeOrigin = origin || 'home';
   const r = data.recipes.find(x=>x.id===id);
   if(r) r.activeVariant = 'standard';
   render();
@@ -866,20 +912,13 @@ function openManageCategories(){
 /* =========================================================
    PANTRY — INDEX
 ========================================================= */
-function pantrySummaryLine(item){
-  const parts = [item.name || 'Untitled'];
-  const brandText = (item.brands||[]).map(b=>b.text).filter(Boolean).join(', ');
-  if(brandText) parts.push(brandText);
-  const storeText = (item.stores||[]).map(s=>s.name||s.url).filter(Boolean).join(', ');
-  if(storeText) parts.push(storeText);
-  return parts.join(' › ');
-}
 function renderPantryView(){
   const app = document.getElementById('app');
   const cats = ["All", ...data.pantryCategories];
-  const filtered = state.pantryActiveCategory === "All"
+  const filtered = (state.pantryActiveCategory === "All"
     ? data.pantry
-    : data.pantry.filter(p => p.category === state.pantryActiveCategory);
+    : data.pantry.filter(p => p.category === state.pantryActiveCategory)
+  ).slice().sort((a,b)=>(a.name||'').localeCompare(b.name||'', undefined, {sensitivity:'base'}));
 
   const catTabs = cats.map(c=>{
     const active = c === state.pantryActiveCategory;
@@ -937,6 +976,51 @@ function renderPantryView(){
   });
   document.getElementById('pantryAdd').addEventListener('click', addNewPantryItem);
 }
+/* =========================================================
+   ARCHIVE
+========================================================= */
+function renderArchiveView(){
+  const app = document.getElementById('app');
+  const archived = data.recipes.filter(r=>r.archived).slice()
+    .sort((a,b)=>(a.name||'').localeCompare(b.name||'', undefined, {sensitivity:'base'}));
+
+  let body;
+  if(archived.length === 0){
+    body = `<div class="empty">${ICON.archive}<h3>Archive is empty</h3><p>Recipes you archive will show up here, out of the way but never deleted.</p></div>`;
+  } else if(state.archiveViewMode === 'tile'){
+    body = `<div class="grid">${archived.map(tileHTML).join('')}</div>`;
+  } else {
+    body = `<div class="list">${archived.map(listRowHTML).join('')}</div>`;
+  }
+
+  app.innerHTML = `
+    <div class="rv-header">
+      <div class="rv-header-left">
+        <button class="back-btn" id="archiveBack">${ICON.back} Recipes</button>
+      </div>
+      <div class="rv-header-right">
+        <span style="font-family:var(--font-display);font-size:17px;">Archive</span>
+      </div>
+    </div>
+    <div class="toolbar">
+      <span class="count-label">${archived.length} recipe${archived.length===1?'':'s'}</span>
+      <div class="view-toggle">
+        <button class="${state.archiveViewMode==='tile'?'active':''}" data-amode="tile">${ICON.grid}</button>
+        <button class="${state.archiveViewMode==='list'?'active':''}" data-amode="list">${ICON.list}</button>
+      </div>
+    </div>
+    ${body}
+  `;
+
+  document.getElementById('archiveBack').addEventListener('click', ()=>{ state.view='home'; render(); });
+  document.querySelectorAll('.view-toggle button[data-amode]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{ state.archiveViewMode = btn.dataset.amode; render(); });
+  });
+  document.querySelectorAll('.tile[data-id], .list-row[data-id]').forEach(el=>{
+    el.addEventListener('click', ()=> openRecipe(el.dataset.id, 'archive'));
+  });
+}
+
 function pantryTileHTML(item){
   const img = item.image
     ? `<img class="tile-img" src="${item.image}" />`
@@ -954,12 +1038,15 @@ function pantryListRowHTML(item){
   const img = item.image
     ? `<img class="list-thumb" src="${item.image}" />`
     : `<div class="list-thumb placeholder">${ICON.image}</div>`;
-  const notesLine = item.notes ? `<div class="pantry-notes-preview">${escHtml(item.notes)}</div>` : '';
+  const brandText = (item.brands||[]).map(b=>b.text).filter(Boolean).join(', ');
   return `<div class="list-row" data-pid="${item.id}">
     ${img}
     <div class="list-info">
-      <div class="list-name">${escHtml(pantrySummaryLine(item))}</div>
-      ${notesLine}
+      <div class="pantry-list-name">${escHtml(item.name || 'Untitled')}</div>
+      <div class="pantry-list-meta">
+        ${brandText ? `<span class="pantry-list-brand">${escHtml(brandText)}</span>` : ''}
+        ${item.type ? `<span class="pantry-list-type">${escHtml(item.type)}</span>` : ''}
+      </div>
     </div>
   </div>`;
 }
@@ -1116,14 +1203,27 @@ function renderPantryItemBody(item){
       ? `<input class="rv-title" id="piName" placeholder="Product name" value="${escAttr(item.name)}" />`
       : `<div class="rv-title-static">${escHtml(item.name || 'Untitled')}</div>`
     }
+    ${editing
+      ? `<input class="pantry-type-input" id="piType" placeholder="Type (e.g. Couverture chocolate)" value="${escAttr(item.type)}" />`
+      : (item.type ? `<div class="pantry-type-static">${escHtml(item.type)}</div>` : '')
+    }
     ${catRow}
 
     ${showBrandsSection ? `<div class="section" style="margin-top:20px;"><div class="pantry-sublabel">Brands</div>${brandsInner}</div>` : ''}
     ${showStoresSection ? `<div class="section"><div class="pantry-sublabel">Where to buy</div>${storesInner}</div>` : ''}
-    ${showNotesSection ? `<div class="section"><div class="pantry-sublabel">Notes</div>${editing ? `<textarea class="storage-text" id="piNotes" placeholder="Tried and tested notes…">${escHtml(item.notes)}</textarea>` : `<div class="rv-desc-static">${escHtml(item.notes)}</div>`}</div>` : ''}
+    ${showNotesSection ? `<div class="section"><div class="pantry-sublabel">Notes</div>${editing ? `<div class="field-with-link"><textarea class="storage-text" id="piNotes" style="margin-top:0;" placeholder="Tried and tested notes…">${escHtml(item.notes)}</textarea><button class="link-insert-btn" data-target="piNotes" title="Link to a recipe">${ICON.link}</button></div>` : `<div class="rv-desc-static">${parseAllLinks(item.notes)}</div>`}</div>` : ''}
+    ${pantryLinkedFromHTML(item)}
   `;
 
   wirePantryItemBody(item, editing);
+  wireRecipeLinkClicks(container);
+  if(editing){
+    const notesLinkBtn = document.querySelector('.link-insert-btn[data-target="piNotes"]');
+    if(notesLinkBtn) notesLinkBtn.addEventListener('click', ()=>{
+      const targetEl = document.getElementById('piNotes');
+      if(targetEl) openLinkPicker(targetEl, null, item.id);
+    });
+  }
   autosizeAll();
 }
 function imageBlockHTMLGeneric(obj, editing, wrapId){
@@ -1149,6 +1249,8 @@ function wirePantryItemBody(item, editing){
   if(editing){
     const nameInput = document.getElementById('piName');
     if(nameInput) nameInput.addEventListener('input', e=>{ item.name = e.target.value; });
+    const typeInput = document.getElementById('piType');
+    if(typeInput) typeInput.addEventListener('input', e=>{ item.type = e.target.value; });
     const catSelect = document.getElementById('piCategory');
     if(catSelect) catSelect.addEventListener('change', e=>{ item.category = e.target.value; });
     const notes = document.getElementById('piNotes');
@@ -1302,7 +1404,7 @@ function activeVariantObj(r){
 }
 function activeIngredients(r){ const v = activeVariantObj(r); return v ? v.ingredients : r.ingredients; }
 function activeInstructions(r){ const v = activeVariantObj(r); return v ? v.instructions : r.instructions; }
-function activeOven(r){ const v = activeVariantObj(r); return v ? v.oven : r.oven; }
+function activeOvenRows(r){ const v = activeVariantObj(r); return v ? v.ovenRows : r.ovenRows; }
 
 function ensureYieldSession(r){
   if(state.currentYield === null || state.currentYield === undefined){
@@ -1331,6 +1433,7 @@ function linkify(text){
 
 /* ---------- inline recipe links ---------- */
 const RECIPE_LINK_RE = /\[\[([a-zA-Z0-9_]+):([^\]]*)\]\]/g;
+const PANTRY_LINK_RE = /\{\{([a-zA-Z0-9_]+):([^\}]*)\}\}/g;
 function parseRecipeLinks(text){
   if(!text) return '';
   let result = '';
@@ -1351,14 +1454,45 @@ function parseRecipeLinks(text){
   result += escHtml(text.slice(lastIndex));
   return result;
 }
+function parseAllLinks(text){
+  if(!text) return '';
+  const COMBINED_RE = /\[\[([a-zA-Z0-9_]+):([^\]]*)\]\]|\{\{([a-zA-Z0-9_]+):([^\}]*)\}\}/g;
+  let result = '';
+  let lastIndex = 0;
+  let match;
+  while((match = COMBINED_RE.exec(text)) !== null){
+    result += escHtml(text.slice(lastIndex, match.index));
+    if(match[1] !== undefined){
+      const targetId = match[1];
+      const target = data.recipes.find(x=>x.id===targetId);
+      if(target){
+        result += `<a class="recipe-link" data-goto="${escAttr(targetId)}">${escHtml(target.name||'Untitled')}</a>`;
+      } else {
+        result += escHtml(match[2]);
+      }
+    } else {
+      const targetId = match[3];
+      const target = data.pantry.find(x=>x.id===targetId);
+      if(target){
+        result += `<a class="pantry-link-ref" data-goto-pantry="${escAttr(targetId)}">${escHtml(target.name||'Untitled')}</a>`;
+      } else {
+        result += escHtml(match[4]);
+      }
+    }
+    lastIndex = COMBINED_RE.lastIndex;
+  }
+  result += escHtml(text.slice(lastIndex));
+  return result;
+}
 function renderInstructionText(text){
-  let html = parseRecipeLinks(text);
+  let html = parseAllLinks(text);
   html = html.replace(/\*\*([^\*]+?)\*\*/g, '<b>$1</b>');
   html = html.replace(/\*([^\*]+?)\*/g, '<i>$1</i>');
   return html;
 }
 function recipeTextsFor(rec){
   const texts = [];
+  texts.push(rec.description||'');
   (rec.ingredients||[]).forEach(i=>texts.push(i.name||''));
   (rec.instructions||[]).forEach(i=>texts.push(i.text||''));
   (rec.variants||[]).forEach(v=>{
@@ -1375,6 +1509,18 @@ function findLinkedFromRecipes(targetId){
   });
   return found;
 }
+function findRecipesLinkingToPantry(pantryId){
+  const found = [];
+  data.recipes.forEach(rec=>{
+    if(recipeTextsFor(rec).includes(`{{${pantryId}:`)) found.push(rec);
+  });
+  return found;
+}
+function pantryLinkedFromHTML(item){
+  const sources = findRecipesLinkingToPantry(item.id);
+  if(sources.length === 0) return '';
+  return `<div class="linked-from-row">${sources.map(s=>`<button class="linked-from-pill" data-goto="${escAttr(s.id)}">Linked from: ${escHtml(s.name||'Untitled')}</button>`).join('')}</div>`;
+}
 function linkedFromHTML(r){
   const sources = findLinkedFromRecipes(r.id);
   if(sources.length === 0) return '';
@@ -1387,17 +1533,22 @@ function wireRecipeLinkClicks(container){
       openRecipe(el.dataset.goto);
     });
   });
+  container.querySelectorAll('[data-goto-pantry]').forEach(el=>{
+    el.addEventListener('click', (e)=>{
+      e.preventDefault();
+      openPantryItem(el.dataset.gotoPantry);
+    });
+  });
 }
 function wireRecipeLinkButtons(r){
   document.querySelectorAll('.link-insert-btn').forEach(btn=>{
     btn.addEventListener('click', ()=>{
       const targetEl = document.getElementById(btn.dataset.target);
-      if(targetEl) openRecipeLinkPicker(targetEl, r.id);
+      if(targetEl) openLinkPicker(targetEl, r.id, null);
     });
   });
 }
-function insertRecipeLinkIntoField(inputEl, recipeId, recipeName){
-  const token = `[[${recipeId}:${recipeName}]]`;
+function insertTokenIntoField(inputEl, token){
   const start = inputEl.selectionStart != null ? inputEl.selectionStart : inputEl.value.length;
   const end = inputEl.selectionEnd != null ? inputEl.selectionEnd : inputEl.value.length;
   const before = inputEl.value.slice(0, start);
@@ -1408,13 +1559,19 @@ function insertRecipeLinkIntoField(inputEl, recipeId, recipeName){
   if(inputEl.setSelectionRange) inputEl.setSelectionRange(newPos, newPos);
   inputEl.dispatchEvent(new Event('input', {bubbles:true}));
 }
-function openRecipeLinkPicker(targetEl, currentRecipeId){
+function insertRecipeLinkIntoField(inputEl, recipeId, recipeName){
+  insertTokenIntoField(inputEl, `[[${recipeId}:${recipeName}]]`);
+}
+function insertPantryLinkIntoField(inputEl, pantryId, pantryName){
+  insertTokenIntoField(inputEl, `{{${pantryId}:${pantryName}}}`);
+}
+function openLinkPicker(targetEl, currentRecipeId, currentPantryId){
   const backdrop = document.createElement('div');
   backdrop.className = 'modal-backdrop';
   backdrop.innerHTML = `
     <div class="modal">
-      <h3>Link to a recipe</h3>
-      <input type="text" class="picker-search" id="linkPickerSearch" placeholder="Search recipes…" />
+      <h3>Link to a recipe or pantry item</h3>
+      <input type="text" class="picker-search" id="linkPickerSearch" placeholder="Search…" />
       <div id="linkPickerList"></div>
       <button class="modal-close" id="closeLinkPicker">Cancel</button>
     </div>`;
@@ -1423,15 +1580,27 @@ function openRecipeLinkPicker(targetEl, currentRecipeId){
   function renderResults(query){
     const list = backdrop.querySelector('#linkPickerList');
     const q = (query||'').trim().toLowerCase();
-    const options = data.recipes.filter(rec => rec.id !== currentRecipeId && (!q || (rec.name||'').toLowerCase().includes(q)));
-    if(options.length === 0){
-      list.innerHTML = `<div class="picker-empty">No matching recipes</div>`;
+    const recipeOptions = data.recipes.filter(rec => rec.id !== currentRecipeId && (!q || (rec.name||'').toLowerCase().includes(q)));
+    const pantryOptions = data.pantry.filter(p => p.id !== currentPantryId && (!q || (p.name||'').toLowerCase().includes(q)));
+    if(recipeOptions.length === 0 && pantryOptions.length === 0){
+      list.innerHTML = `<div class="picker-empty">No matches</div>`;
       return;
     }
-    list.innerHTML = options.map(rec=>`<div class="picker-item" data-id="${rec.id}" data-name="${escAttr(rec.name||'Untitled')}">${escHtml(rec.name||'Untitled')}</div>`).join('');
+    let html = '';
+    if(recipeOptions.length){
+      html += `<div class="picker-group-label">Recipes</div>` + recipeOptions.map(rec=>`<div class="picker-item" data-kind="recipe" data-id="${rec.id}" data-name="${escAttr(rec.name||'Untitled')}">${escHtml(rec.name||'Untitled')}</div>`).join('');
+    }
+    if(pantryOptions.length){
+      html += `<div class="picker-group-label">Pantry items</div>` + pantryOptions.map(p=>`<div class="picker-item" data-kind="pantry" data-id="${p.id}" data-name="${escAttr(p.name||'Untitled')}">${escHtml(p.name||'Untitled')}</div>`).join('');
+    }
+    list.innerHTML = html;
     list.querySelectorAll('.picker-item').forEach(item=>{
       item.addEventListener('click', ()=>{
-        insertRecipeLinkIntoField(targetEl, item.dataset.id, item.dataset.name);
+        if(item.dataset.kind === 'pantry'){
+          insertPantryLinkIntoField(targetEl, item.dataset.id, item.dataset.name);
+        } else {
+          insertRecipeLinkIntoField(targetEl, item.dataset.id, item.dataset.name);
+        }
         document.body.removeChild(backdrop);
       });
     });
@@ -1451,21 +1620,24 @@ function renderRecipeView(){
   if(!r){ state.view='home'; render(); return; }
 
   const editing = state.isEditing;
+  const backLabel = state.recipeOrigin === 'archive' ? 'Archive' : 'Recipes';
 
   app.innerHTML = `
     <div class="rv-header">
       <div class="rv-header-left">
         ${editing
           ? `<button class="text-btn" id="rvCancel">Cancel</button>`
-          : `<button class="back-btn" id="rvBack">${ICON.back} Recipes</button>`
+          : `<button class="back-btn" id="rvBack">${ICON.back} ${backLabel}</button>`
         }
       </div>
       <div class="rv-header-right">
         ${editing
           ? `<button class="text-btn primary" id="rvSave">Save</button>`
           : `
+            <button class="icon-btn" id="rvPrint" title="Print">${ICON.print}</button>
             <button class="icon-btn" id="rvKitchen" title="Kitchen mode">${ICON.chef}</button>
             <button class="icon-btn" id="rvDuplicate" title="Duplicate">${ICON.copy}</button>
+            <button class="icon-btn" id="rvArchive" title="${r.archived?'Restore':'Archive'}">${r.archived?ICON.restore:ICON.archive}</button>
             <button class="icon-btn" id="rvEdit" title="Edit">${ICON.settings}</button>
             <button class="icon-btn danger" id="rvDelete" title="Delete">${ICON.trash}</button>
           `
@@ -1481,12 +1653,20 @@ function renderRecipeView(){
     document.getElementById('rvCancel').addEventListener('click', ()=> handleCancel(r));
     document.getElementById('rvSave').addEventListener('click', ()=> handleSave(r));
   } else {
-    document.getElementById('rvBack').addEventListener('click', ()=>{ state.view='home'; render(); });
-    document.getElementById('rvKitchen').addEventListener('click', ()=> openKitchenMode(r));
+    document.getElementById('rvBack').addEventListener('click', ()=>{ state.view = state.recipeOrigin === 'archive' ? 'archive' : 'home'; render(); });
+    document.getElementById('rvPrint').addEventListener('click', ()=> openKitchenMode(r, true));
+    document.getElementById('rvKitchen').addEventListener('click', ()=> openKitchenMode(r, false));
     document.getElementById('rvDuplicate').addEventListener('click', ()=> duplicateRecipe(r));
+    document.getElementById('rvArchive').addEventListener('click', ()=> handleToggleArchive(r));
     document.getElementById('rvEdit').addEventListener('click', ()=> handleEdit(r));
     document.getElementById('rvDelete').addEventListener('click', ()=> handleDelete(r));
   }
+}
+function handleToggleArchive(r){
+  r.archived = !r.archived;
+  markDirty();
+  state.view = 'home';
+  render();
 }
 
 function handleEdit(r){
@@ -1537,15 +1717,19 @@ function duplicateRecipe(r){
   const clone = deepClone(r);
   clone.id = uid();
   clone.name = 'Copy of ' + (r.name || 'Untitled');
+  clone.archived = false;
   clone.ingredients = clone.ingredients.map(i=>({...i, id: uid()}));
   clone.instructions = clone.instructions.map(i=>({...i, id: uid()}));
   clone.storageLines = clone.storageLines.map(i=>({...i, id: uid()}));
   clone.prepPlan = clone.prepPlan.map(i=>({...i, id: uid()}));
+  clone.sourceLines = (clone.sourceLines||[]).map(i=>({...i, id: uid()}));
+  clone.ovenRows = (clone.ovenRows||[]).map(i=>({...i, id: uid()}));
   clone.referenceImages = (clone.referenceImages||[]).map(i=>({...i, id: uid()}));
   clone.variants = (clone.variants||[]).map(v=>({
     ...v, id: uid(),
     ingredients: v.ingredients.map(i=>({...i, id: uid()})),
-    instructions: v.instructions.map(i=>({...i, id: uid()}))
+    instructions: v.instructions.map(i=>({...i, id: uid()})),
+    ovenRows: (v.ovenRows||[]).map(i=>({...i, id: uid()}))
   }));
   clone.activeVariant = 'standard';
   data.recipes.push(clone);
@@ -1567,6 +1751,10 @@ function renderRecipeBody(r){
   const variant = activeVariantObj(r);
 
   container.innerHTML = `
+    ${(editing && state.isNew) ? `<div class="quickfill-row">
+      <button id="pasteTextBtn">📋 Paste text</button>
+      <button id="scanPhotoBtn">📷 Scan a photo</button>
+    </div>` : ''}
     ${imageBlockHTML(r, editing)}
     <input type="file" accept="image/*" id="rvImageInput" style="display:none" />
 
@@ -1587,7 +1775,6 @@ function renderRecipeBody(r){
 
     ${editing ? optionalChipsHTML(r) : ''}
 
-    ${(r.sectionsEnabled.storage) ? sectionHTML('storage','Storage instructions', storageBodyHTML(r, editing), editing) : ''}
     ${(r.sectionsEnabled.prepPlan) ? sectionHTML('prep','Preparation plan', prepPlanBodyHTML(r, editing), editing) : ''}
 
     <div class="yv-strip">
@@ -1597,8 +1784,10 @@ function renderRecipeBody(r){
 
     ${sectionHTML('ingredients','Ingredients', ingredientsBodyHTML(r, editing), false)}
     ${sectionHTML('instructions','Instructions', instructionsBodyHTML(r, editing), false)}
+    ${(r.sectionsEnabled.storage) ? sectionHTML('storage','Storage instructions', storageBodyHTML(r, editing), editing) : ''}
+    ${(r.sectionsEnabled.source) ? sectionHTML('source','Source', sourceSectionBodyHTML(r, editing), editing) : ''}
 
-    ${sourceBlockHTML(r, editing)}
+    ${referenceRowHTML(r)}
     ${linkedFromHTML(r)}
   `;
 
@@ -1606,6 +1795,10 @@ function renderRecipeBody(r){
   if(editing){
     wireTitleTagsDesc(r);
     wireOptionalChips(r);
+    const pasteBtn = document.getElementById('pasteTextBtn');
+    if(pasteBtn) pasteBtn.addEventListener('click', ()=> openPasteTextModal(r));
+    const scanBtn = document.getElementById('scanPhotoBtn');
+    if(scanBtn) scanBtn.addEventListener('click', ()=> openScanPhotoFlow(r));
   }
   wireSectionToggles();
   wireStorage(r, editing);
@@ -1613,7 +1806,8 @@ function renderRecipeBody(r){
   wireYieldAndVariant(r, editing);
   wireIngredients(r, editing);
   wireInstructions(r, editing);
-  wireSource(r, editing);
+  wireSourceSection(r, editing);
+  wireReferenceRow(r, editing);
   wireRecipeLinkButtons(r);
   wireRecipeLinkClicks(container);
   autosizeAll();
@@ -1676,7 +1870,8 @@ function optionalChipsHTML(r){
   const opts = [
     {key:'storage', label:'Storage instructions'},
     {key:'prepPlan', label:'Preparation plan'},
-    {key:'oven', label:'Oven details'}
+    {key:'oven', label:'Oven details'},
+    {key:'source', label:'Source'}
   ].filter(o => !r.sectionsEnabled[o.key]);
   if(opts.length === 0) return '';
   return `<div class="optional-section-chips">
@@ -1689,6 +1884,7 @@ function wireOptionalChips(r){
       r.sectionsEnabled[btn.dataset.enable] = true;
       if(btn.dataset.enable === 'storage' && r.storageLines.length===0) r.storageLines.push(makeLine());
       if(btn.dataset.enable === 'prepPlan' && r.prepPlan.length===0) r.prepPlan.push(makeLine());
+      if(btn.dataset.enable === 'source' && r.sourceLines.length===0) r.sourceLines.push(makeLine());
       state.openSections[btn.dataset.enable==='prepPlan'?'prep':btn.dataset.enable] = true;
       refreshBody(r);
     });
@@ -1961,7 +2157,7 @@ function openManageVariants(r){
       id: uid(), name: val,
       ingredients: r.ingredients.map(i=>({...i, id: uid()})),
       instructions: r.instructions.map(i=>({...i, id: uid()})),
-      oven: deepClone(r.oven)
+      ovenRows: r.ovenRows.map(row=>({...row, id: uid()}))
     };
     r.variants.push(v);
     input.value = '';
@@ -1983,7 +2179,7 @@ function ingredientsBodyHTML(r, editing){
       const amt = item.amount !== null && item.amount !== '' && !isNaN(item.amount) ? formatAmount(item.amount * factor) : '';
       return `<li class="ing-item">
         <button class="ing-check ${item.checked?'checked':''}" data-id="${item.id}">${ICON.check}</button>
-        <div class="ing-static">${amt?`<span class="amt ing-static-name${item.checked?' checked':''}">${escHtml(amt)}${item.unit?' '+escHtml(item.unit):''}</span> `:''}<span class="ing-static-name${item.checked?' checked':''}">${parseRecipeLinks(item.name)}</span></div>
+        <div class="ing-static">${amt?`<span class="amt ing-static-name${item.checked?' checked':''}">${escHtml(amt)}${item.unit?' '+escHtml(item.unit):''}</span> `:''}<span class="ing-static-name${item.checked?' checked':''}">${parseAllLinks(item.name)}</span></div>
       </li>`;
     };
     const required = list.filter(i=>!i.optional);
@@ -2067,65 +2263,122 @@ function wireIngredients(r, editing){
 /* ---------- instructions ---------- */
 function ovenBlockHTML(r, editing){
   if(!r.sectionsEnabled.oven) return '';
-  const oven = activeOven(r);
+  const rows = activeOvenRows(r);
+  const showLabels = rows.length > 1;
+
   if(!editing){
-    const parts = [];
-    if(oven.temp) parts.push(`<div><b>Preheat</b>${oven.temp}°${oven.tempUnit}</div>`);
-    if(oven.time) parts.push(`<div><b>Bake time</b>${escHtml(String(oven.time))} ${oven.timeUnit}</div>`);
-    const settingLabel = oven.setting === 'Other' ? (oven.settingOther||'Other') : oven.setting;
-    if(settingLabel) parts.push(`<div><b>Oven setting</b>${escHtml(settingLabel)}</div>`);
-    if(parts.length===0) return '';
-    return `<div class="oven-static">${parts.join('')}</div>`;
+    const rowsHtml = rows.map(oven=>{
+      const parts = [];
+      if(oven.temp) parts.push(`<div><b>Preheat</b>${oven.temp}°${oven.tempUnit}</div>`);
+      const settingLabel = oven.setting === 'Other' ? (oven.settingOther||'Other') : oven.setting;
+      if(settingLabel) parts.push(`<div><b>Oven setting</b>${escHtml(settingLabel)}</div>`);
+      if(oven.time) parts.push(`<div><b>Bake time</b>${escHtml(String(oven.time))} ${oven.timeUnit}</div>`);
+      if(parts.length===0) return '';
+      const label = (showLabels && oven.label) ? `<div class="oven-row-label">${escHtml(oven.label)}</div>` : '';
+      return `<div class="oven-row-group">${label}<div class="oven-static">${parts.join('')}</div></div>`;
+    }).join('');
+    return rowsHtml ? `<div id="ovenStaticWrap">${rowsHtml}</div>` : '';
   }
-  return `<div class="oven-block" id="ovenBlock">
-    <div class="oven-field">
-      <label>Preheat temp</label>
-      <div class="row">
-        <input type="number" id="ovenTemp" value="${oven.temp===null?'':oven.temp}" />
-        <div class="unit-toggle" id="tempUnitToggle">
-          <button data-val="C" class="${oven.tempUnit==='C'?'active':''}">°C</button>
-          <button data-val="F" class="${oven.tempUnit==='F'?'active':''}">°F</button>
+
+  const rowsHtml = rows.map((oven,idx)=>`
+    <div class="oven-row-edit" data-id="${oven.id}">
+      ${showLabels ? `<div class="oven-field" style="flex-basis:100%;"><label>Component label</label><input type="text" class="ovenLabelInput" data-id="${oven.id}" placeholder="e.g. Feuilletine" value="${escAttr(oven.label)}" /></div>` : ''}
+      <div class="oven-field">
+        <label>Preheat temp</label>
+        <div class="row">
+          <input type="number" class="ovenTempInput" data-id="${oven.id}" value="${oven.temp===null?'':oven.temp}" />
+          <div class="unit-toggle tempUnitToggle" data-id="${oven.id}">
+            <button data-val="C" class="${oven.tempUnit==='C'?'active':''}">°C</button>
+            <button data-val="F" class="${oven.tempUnit==='F'?'active':''}">°F</button>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="oven-field">
-      <label>Bake time</label>
-      <div class="row">
-        <input type="text" id="ovenTime" placeholder="e.g. 10-15" value="${oven.time===null?'':escAttr(String(oven.time))}" style="width:74px;" />
-        <div class="unit-toggle" id="timeUnitToggle">
-          <button data-val="min" class="${oven.timeUnit==='min'?'active':''}">min</button>
-          <button data-val="hr" class="${oven.timeUnit==='hr'?'active':''}">hr</button>
+      <div class="oven-field">
+        <label>Oven setting</label>
+        <select class="ovenSettingSelect" data-id="${oven.id}">
+          ${OVEN_SETTINGS.map(s=>`<option value="${s}" ${oven.setting===s?'selected':''}>${s}</option>`).join('')}
+        </select>
+      </div>
+      ${oven.setting==='Other' ? `<div class="oven-field"><label>Describe</label><input type="text" class="ovenOtherInput" data-id="${oven.id}" value="${escAttr(oven.settingOther)}" placeholder="e.g. Convection roast" /></div>` : ''}
+      <div class="oven-field">
+        <label>Bake time</label>
+        <div class="row">
+          <input type="text" class="ovenTimeInput" data-id="${oven.id}" placeholder="e.g. 10-15" value="${oven.time===null?'':escAttr(String(oven.time))}" style="width:74px;" />
+          <div class="unit-toggle timeUnitToggle" data-id="${oven.id}">
+            <button data-val="min" class="${oven.timeUnit==='min'?'active':''}">min</button>
+            <button data-val="hr" class="${oven.timeUnit==='hr'?'active':''}">hr</button>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="oven-field">
-      <label>Oven setting</label>
-      <select id="ovenSetting">
-        ${OVEN_SETTINGS.map(s=>`<option value="${s}" ${oven.setting===s?'selected':''}>${s}</option>`).join('')}
-      </select>
-    </div>
-    ${oven.setting==='Other' ? `<div class="oven-field"><label>Describe</label><input type="text" id="ovenOther" value="${escAttr(oven.settingOther)}" placeholder="e.g. Convection roast" /></div>` : ''}
+      ${rows.length > 1 ? `<button class="row-del ovenRowDel" data-id="${oven.id}" title="Remove this oven setting">${ICON.trash}</button>` : ''}
+    </div>`).join('');
+
+  return `<div id="ovenBlock">${rowsHtml}
+    <button class="add-row-btn" id="addOvenRowBtn">${ICON.plus} Add oven setting</button>
   </div>`;
 }
 function wireOvenBlock(r, editing){
-  if(!editing || !r.sectionsEnabled.oven) return;
-  const oven = activeOven(r);
-  const temp = document.getElementById('ovenTemp');
-  if(temp) temp.addEventListener('input', e=>{ oven.temp = e.target.value===''?null:parseFloat(e.target.value); });
-  const time = document.getElementById('ovenTime');
-  if(time) time.addEventListener('input', e=>{ oven.time = e.target.value===''?null:e.target.value; });
-  const tempToggle = document.getElementById('tempUnitToggle');
-  if(tempToggle) tempToggle.querySelectorAll('button').forEach(btn=>{
-    btn.addEventListener('click', ()=>{ oven.tempUnit = btn.dataset.val; refreshBody(r); });
+  if(!r.sectionsEnabled.oven) return;
+  const rows = activeOvenRows(r);
+  if(!editing) return;
+
+  document.querySelectorAll('.ovenTempInput').forEach(inp=>{
+    inp.addEventListener('input', e=>{
+      const row = rows.find(x=>x.id===e.target.dataset.id);
+      if(row) row.temp = e.target.value===''?null:parseFloat(e.target.value);
+    });
   });
-  const timeToggle = document.getElementById('timeUnitToggle');
-  if(timeToggle) timeToggle.querySelectorAll('button').forEach(btn=>{
-    btn.addEventListener('click', ()=>{ oven.timeUnit = btn.dataset.val; refreshBody(r); });
+  document.querySelectorAll('.ovenTimeInput').forEach(inp=>{
+    inp.addEventListener('input', e=>{
+      const row = rows.find(x=>x.id===e.target.dataset.id);
+      if(row) row.time = e.target.value===''?null:e.target.value;
+    });
   });
-  const setting = document.getElementById('ovenSetting');
-  if(setting) setting.addEventListener('change', e=>{ oven.setting = e.target.value; refreshBody(r); });
-  const other = document.getElementById('ovenOther');
-  if(other) other.addEventListener('input', e=>{ oven.settingOther = e.target.value; });
+  document.querySelectorAll('.ovenLabelInput').forEach(inp=>{
+    inp.addEventListener('input', e=>{
+      const row = rows.find(x=>x.id===e.target.dataset.id);
+      if(row) row.label = e.target.value;
+    });
+  });
+  document.querySelectorAll('.ovenOtherInput').forEach(inp=>{
+    inp.addEventListener('input', e=>{
+      const row = rows.find(x=>x.id===e.target.dataset.id);
+      if(row) row.settingOther = e.target.value;
+    });
+  });
+  document.querySelectorAll('.tempUnitToggle').forEach(toggle=>{
+    toggle.querySelectorAll('button').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const row = rows.find(x=>x.id===toggle.dataset.id);
+        if(row){ row.tempUnit = btn.dataset.val; refreshBody(r); }
+      });
+    });
+  });
+  document.querySelectorAll('.timeUnitToggle').forEach(toggle=>{
+    toggle.querySelectorAll('button').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const row = rows.find(x=>x.id===toggle.dataset.id);
+        if(row){ row.timeUnit = btn.dataset.val; refreshBody(r); }
+      });
+    });
+  });
+  document.querySelectorAll('.ovenSettingSelect').forEach(sel=>{
+    sel.addEventListener('change', e=>{
+      const row = rows.find(x=>x.id===e.target.dataset.id);
+      if(row){ row.setting = e.target.value; refreshBody(r); }
+    });
+  });
+  document.querySelectorAll('.ovenRowDel').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const idx = rows.findIndex(x=>x.id===btn.dataset.id);
+      if(idx>-1 && rows.length>1){ rows.splice(idx,1); refreshBody(r); }
+    });
+  });
+  const addBtn = document.getElementById('addOvenRowBtn');
+  if(addBtn) addBtn.addEventListener('click', ()=>{
+    rows.push(makeOvenRow());
+    refreshBody(r);
+  });
 }
 
 function instructionsBodyHTML(r, editing){
@@ -2226,20 +2479,53 @@ function wireInstructions(r, editing){
 }
 
 /* ---------- source & reference images ---------- */
-function sourceBlockHTML(r, editing){
-  const refBtn = `<button class="reference-btn" id="referenceBtn">📎 Reference${r.referenceImages.length ? ` (${r.referenceImages.length})` : ''}</button>`;
+function sourceSectionBodyHTML(r, editing){
   if(!editing){
-    const sourceLine = r.source ? `<div class="source-row">Source: ${linkify(r.source)}</div>` : '';
-    return `${sourceLine}<div class="reference-row">${refBtn}</div>`;
+    return `<ul class="line-list">${r.sourceLines.map(l=>`<li class="line-item"><div class="line-text-static">${linkify(l.text)}</div></li>`).join('')}</ul>`;
   }
-  return `<div class="source-row"><input type="text" id="rvSource" placeholder="Source (book, site, person, or link)…" value="${escAttr(r.source)}" /></div>
-    <div class="reference-row">${refBtn}</div>`;
+  const rows = r.sourceLines.map(l => `
+    <li class="line-item" data-id="${l.id}">
+      <input class="line-text" data-id="${l.id}" placeholder="e.g. Cedric Grolet, or a link…" value="${escAttr(l.text)}" />
+      <div class="row-actions">
+        <button class="row-add" data-kind="source" data-id="${l.id}">${ICON.plus}</button>
+        <button class="row-del" data-kind="source" data-id="${l.id}">${ICON.trash}</button>
+      </div>
+    </li>`).join('');
+  return `<ul class="line-list" id="sourceList">${rows}</ul>
+    <button class="add-row-btn" id="addSourceRow">${ICON.plus} Add source</button>`;
 }
-function wireSource(r, editing){
-  if(editing){
-    const inp = document.getElementById('rvSource');
-    if(inp) inp.addEventListener('input', e=>{ r.source = e.target.value; });
-  }
+function wireSourceSection(r, editing){
+  if(!editing) return;
+  const addBtn = document.getElementById('addSourceRow');
+  if(addBtn) addBtn.addEventListener('click', ()=>{
+    r.sourceLines.push(makeLine());
+    refreshBody(r);
+    focusLast('#sourceList .line-text');
+  });
+  document.querySelectorAll('#sourceList .line-text').forEach(inp=>{
+    inp.addEventListener('input', e=>{
+      const item = r.sourceLines.find(x=>x.id===e.target.dataset.id);
+      if(item) item.text = e.target.value;
+    });
+  });
+  document.querySelectorAll('#sourceList .row-add[data-kind="source"]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const idx = r.sourceLines.findIndex(x=>x.id===btn.dataset.id);
+      r.sourceLines.splice(idx+1, 0, makeLine());
+      refreshBody(r);
+    });
+  });
+  document.querySelectorAll('#sourceList .row-del[data-kind="source"]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      r.sourceLines = r.sourceLines.filter(x=>x.id!==btn.dataset.id);
+      refreshBody(r);
+    });
+  });
+}
+function referenceRowHTML(r){
+  return `<div class="reference-row"><button class="reference-btn" id="referenceBtn">📎 Reference${r.referenceImages.length ? ` (${r.referenceImages.length})` : ''}</button></div>`;
+}
+function wireReferenceRow(r, editing){
   const refBtn = document.getElementById('referenceBtn');
   if(refBtn) refBtn.addEventListener('click', ()=> openReferenceGallery(r, editing));
 }
@@ -2329,20 +2615,20 @@ function openReferenceLightbox(src){
 /* =========================================================
    KITCHEN / PRINT MODE
 ========================================================= */
-async function openKitchenMode(r){
+async function openKitchenMode(r, isPrintMode){
   const factor = scaleFactor(r);
   const ingredients = activeIngredients(r);
   const instructions = activeInstructions(r);
-  const oven = r.sectionsEnabled.oven ? activeOven(r) : null;
+  const ovenRows = r.sectionsEnabled.oven ? activeOvenRows(r) : [];
   const variant = activeVariantObj(r);
 
   const overlay = document.createElement('div');
-  overlay.className = 'kitchen-overlay';
+  overlay.className = isPrintMode ? 'kitchen-overlay print-mode' : 'kitchen-overlay';
   overlay.id = 'kitchenOverlay';
 
   const renderKitchenIng = (item) => {
     const amt = item.amount !== null && item.amount !== '' && !isNaN(item.amount) ? formatAmount(item.amount*factor) : '';
-    return `<li><span class="amt">${escHtml(amt)}${item.unit?' '+escHtml(item.unit):''}</span><span>${parseRecipeLinks(item.name)}</span></li>`;
+    return `<li><span class="amt">${escHtml(amt)}${item.unit?' '+escHtml(item.unit):''}</span><span>${parseAllLinks(item.name)}</span></li>`;
   };
   const requiredIng = ingredients.filter(i=>!i.optional);
   const optionalIng = ingredients.filter(i=>i.optional);
@@ -2353,19 +2639,22 @@ async function openKitchenMode(r){
 
   const instrHtml = instructions.map((item,i)=>`<li><span class="kitchen-instr-num">${i+1}</span><span>${renderInstructionText(item.text)}</span></li>`).join('');
 
+  const showOvenLabels = ovenRows.length > 1;
   let ovenHtml = '';
-  if(oven && (oven.temp || oven.time || oven.setting)){
+  ovenRows.forEach(oven=>{
+    if(!(oven.temp || oven.time || oven.setting)) return;
     const bits = [];
     if(oven.temp) bits.push(`<div><b>Preheat</b>${oven.temp}°${oven.tempUnit}</div>`);
-    if(oven.time) bits.push(`<div><b>Bake time</b>${escHtml(String(oven.time))} ${oven.timeUnit}</div>`);
     const settingLabel = oven.setting==='Other' ? (oven.settingOther||'Other') : oven.setting;
     if(settingLabel) bits.push(`<div><b>Oven setting</b>${escHtml(settingLabel)}</div>`);
-    ovenHtml = `<div class="kitchen-oven">${bits.join('')}</div>`;
-  }
+    if(oven.time) bits.push(`<div><b>Bake time</b>${escHtml(String(oven.time))} ${oven.timeUnit}</div>`);
+    const label = (showOvenLabels && oven.label) ? `<div class="kitchen-oven-label">${escHtml(oven.label)}</div>` : '';
+    ovenHtml += `${label}<div class="kitchen-oven">${bits.join('')}</div>`;
+  });
 
   overlay.innerHTML = `
     <div class="kitchen-header">
-      <span style="font-family:var(--font-display);font-size:15px;">Kitchen mode</span>
+      <span style="font-family:var(--font-display);font-size:15px;">${isPrintMode ? 'Print preview' : 'Kitchen mode'}</span>
       <button class="kitchen-close" id="kitchenCloseBtn">${ICON.back}</button>
     </div>
     <div class="kitchen-body">
@@ -2381,7 +2670,7 @@ async function openKitchenMode(r){
       ${ovenHtml}
       <ul class="kitchen-instr-list">${instrHtml}</ul>
 
-      ${r.source ? `<div class="kitchen-source">Source: ${linkify(r.source)}</div>` : ''}
+      ${r.sourceLines && r.sourceLines.length ? `<div class="kitchen-source">${r.sourceLines.map(l=>`<div>${linkify(l.text)}</div>`).join('')}</div>` : ''}
     </div>
   `;
   document.body.appendChild(overlay);
@@ -2394,6 +2683,19 @@ async function openKitchenMode(r){
       openRecipe(id);
     });
   });
+  overlay.querySelectorAll('.pantry-link-ref').forEach(el=>{
+    el.addEventListener('click', (e)=>{
+      e.preventDefault();
+      const id = el.dataset.gotoPantry;
+      closeKitchenMode();
+      openPantryItem(id);
+    });
+  });
+
+  if(isPrintMode){
+    setTimeout(()=>{ window.print(); }, 150);
+    return;
+  }
 
   try{
     if('wakeLock' in navigator){ wakeLockRef = await navigator.wakeLock.request('screen'); }
@@ -2453,12 +2755,35 @@ function migrateRecipe(raw){
   if(!r.yield) r.yield = { base:4, unit:'servings', na:false };
   if(typeof r.yield.na !== 'boolean') r.yield.na = false;
   if(!r.yield.base) r.yield.base = 4;
-  if(!r.sectionsEnabled) r.sectionsEnabled = { storage:false, prepPlan:false, oven:false };
-  if(!r.oven) r.oven = { temp:null, tempUnit:'C', time:null, timeUnit:'min', setting:'Without fan', settingOther:'' };
+  if(!r.sectionsEnabled) r.sectionsEnabled = { storage:false, prepPlan:false, oven:false, source:false };
+  if(typeof r.sectionsEnabled.source !== 'boolean') r.sectionsEnabled.source = false;
+  // oven: migrate old single `oven` object to `ovenRows` array
+  if(!Array.isArray(raw.ovenRows)){
+    if(raw.oven && (raw.oven.temp || raw.oven.time || raw.oven.setting)){
+      r.ovenRows = [{ id: uid(), label:'', ...raw.oven }];
+      r.sectionsEnabled.oven = true;
+    } else {
+      r.ovenRows = [makeOvenRow()];
+    }
+  }
   if(!Array.isArray(r.variants)) r.variants = [];
+  r.variants = r.variants.map(v=>{
+    if(!Array.isArray(v.ovenRows)){
+      v.ovenRows = (v.oven && (v.oven.temp || v.oven.time || v.oven.setting))
+        ? [{ id: uid(), label:'', ...v.oven }]
+        : [makeOvenRow()];
+    }
+    delete v.oven;
+    return v;
+  });
   if(!r.activeVariant) r.activeVariant = 'standard';
-  if(typeof r.source !== 'string') r.source = '';
+  // source: migrate old single string `source` to sourceLines array
+  if(!Array.isArray(raw.sourceLines)){
+    r.sourceLines = (typeof raw.source === 'string' && raw.source) ? [{id:uid(), text: raw.source}] : [];
+    if(r.sourceLines.length) r.sectionsEnabled.source = true;
+  }
   if(!Array.isArray(r.referenceImages)) r.referenceImages = [];
+  if(typeof r.archived !== 'boolean') r.archived = false;
   return r;
 }
 
@@ -2523,6 +2848,208 @@ function resizeTitleInput(input){
   const width = measureTextWidth(input.value || input.placeholder || 'Recipe Book', font);
   input.style.width = Math.max(20, Math.ceil(width) + 10) + 'px';
 }
+/* =========================================================
+   RECIPE TEXT PARSER (shared by Paste text & Scan a photo)
+========================================================= */
+const FRACTION_MAP = {'¼':0.25,'½':0.5,'¾':0.75,'⅓':1/3,'⅔':2/3,'⅕':0.2,'⅖':0.4,'⅗':0.6,'⅘':0.8,'⅙':1/6,'⅚':5/6,'⅛':0.125,'⅜':0.375,'⅝':0.625,'⅞':0.875};
+const FRAC_CLASS = '¼½¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞';
+function extractIngredientAmount(line){
+  let m = line.match(new RegExp(`^(\\d+)\\s*\\+\\s*([${FRAC_CLASS}])\\s*([a-zA-Zµ]*)\\.?\\s+(.*)$`));
+  if(m) return { amount: parseFloat(m[1]) + FRACTION_MAP[m[2]], unit: m[3]||'', name: m[4].trim() };
+  m = line.match(new RegExp(`^(\\d+)\\s+([${FRAC_CLASS}])\\s*([a-zA-Zµ]*)\\.?\\s+(.*)$`));
+  if(m) return { amount: parseFloat(m[1]) + FRACTION_MAP[m[2]], unit: m[3]||'', name: m[4].trim() };
+  m = line.match(new RegExp(`^([${FRAC_CLASS}])\\s*([a-zA-Zµ]*)\\.?\\s+(.*)$`));
+  if(m) return { amount: FRACTION_MAP[m[1]], unit: m[2]||'', name: m[3].trim() };
+  m = line.match(/^(\d+)\/(\d+)\s*([a-zA-Zµ]*)\.?\s+(.*)$/);
+  if(m){ const den = Number(m[2]); return { amount: den ? Number(m[1])/den : null, unit: m[3]||'', name: m[4].trim() }; }
+  m = line.match(/^(\d+(?:[.,]\d+)?)\s*([a-zA-Zµ]*)\.?\s+(.*)$/);
+  if(m){ const amt = parseFloat(m[1].replace(',','.')); return { amount: isNaN(amt)?null:amt, unit: m[2]||'', name: m[3].trim() }; }
+  return null;
+}
+function parseRecipeText(text){
+  const rawLines = text.split(/\r?\n/).map(l=>l.trim());
+  const stripMd = s => s.replace(/^\*+|\*+$/g,'').trim();
+  const ingredientsHeaderRe = /^ingredients?\b/i;
+  const instructionsHeaderRe = /^(instructions?|directions?|method|steps|preparation)\b/i;
+  const isBulletLine = l => /^[-*•●▪️○\u2022]\s*/.test(l);
+
+  let ingIdx=-1, instrIdx=-1;
+  rawLines.forEach((l,i)=>{
+    const t = stripMd(l);
+    if(ingIdx===-1 && ingredientsHeaderRe.test(t)) ingIdx=i;
+    if(instrIdx===-1 && instructionsHeaderRe.test(t)) instrIdx=i;
+  });
+
+  function scanIngredientBlock(from, hardEnd){
+    let i = from;
+    let labelCount = 0;
+    while(i < hardEnd){
+      const line = rawLines[i];
+      if(!line){ i++; continue; }
+      if(isBulletLine(line)){ i++; continue; }
+      const next = rawLines.slice(i+1, hardEnd).find(l=>l);
+      const isShortLabel = line.split(/\s+/).length <= 4 && !/[.!?]$/.test(line);
+      if(isShortLabel && next && isBulletLine(next)){ labelCount++; i++; continue; }
+      break;
+    }
+    return { end: i, labelCount };
+  }
+  function isShortLabelLine(line){
+    return !!line && line.split(/\s+/).length <= 4 && !/[.!?]$/.test(line);
+  }
+  function absorbLeadingLabel(idx, scanResult){
+    if(scanResult.labelCount < 1) return idx;
+    let j = idx - 1;
+    while(j >= 0 && !rawLines[j]) j--;
+    if(j >= 0 && isShortLabelLine(rawLines[j])) return j;
+    return idx;
+  }
+
+  let titleEndIdx, ingStart=-1, ingEnd=-1, instrStart=-1;
+
+  if(ingIdx !== -1 && instrIdx !== -1 && instrIdx > ingIdx){
+    titleEndIdx = ingIdx;
+    ingStart = ingIdx+1; ingEnd = instrIdx;
+    instrStart = instrIdx+1;
+  } else if(ingIdx !== -1){
+    titleEndIdx = ingIdx;
+    ingStart = ingIdx+1;
+    ingEnd = scanIngredientBlock(ingStart, rawLines.length).end;
+    instrStart = ingEnd;
+  } else if(instrIdx !== -1){
+    instrStart = instrIdx+1;
+    const firstBulletIdx = rawLines.slice(0, instrIdx).findIndex(isBulletLine);
+    if(firstBulletIdx !== -1){
+      titleEndIdx = firstBulletIdx;
+      ingStart = firstBulletIdx;
+      const scanResult = scanIngredientBlock(ingStart, instrIdx);
+      ingEnd = scanResult.end;
+      const absorbed = absorbLeadingLabel(titleEndIdx, scanResult);
+      titleEndIdx = absorbed; ingStart = absorbed;
+    } else {
+      titleEndIdx = instrIdx;
+    }
+  } else {
+    const firstBulletIdx = rawLines.findIndex(isBulletLine);
+    if(firstBulletIdx !== -1){
+      titleEndIdx = firstBulletIdx;
+      ingStart = firstBulletIdx;
+      const scanResult = scanIngredientBlock(ingStart, rawLines.length);
+      ingEnd = scanResult.end;
+      instrStart = ingEnd;
+      const absorbed = absorbLeadingLabel(titleEndIdx, scanResult);
+      titleEndIdx = absorbed; ingStart = absorbed;
+    } else {
+      titleEndIdx = rawLines.length;
+    }
+  }
+
+  const preLines = rawLines.slice(0, titleEndIdx).filter(l=>l);
+  const name = preLines[0] || '';
+  const description = preLines.slice(1).join(' ');
+
+  const ingLines = (ingStart !== -1) ? rawLines.slice(ingStart, ingEnd).filter(l=>l) : [];
+  const instrLines = (instrStart !== -1) ? rawLines.slice(instrStart).filter(l=>l) : [];
+
+  const ingredients = ingLines.map(line=>{
+    const clean = line.replace(/^[-*•●▪️○\u2022]\s*/, '').replace(/^\[\s?[xX]?\s?\]\s*/, '').trim();
+    const extracted = extractIngredientAmount(clean);
+    if(extracted) return { id: uid(), amount: extracted.amount, unit: extracted.unit, name: extracted.name, checked:false, optional:false };
+    return { id: uid(), amount: null, unit:'', name: clean, checked:false, optional:false };
+  }).filter(i=>i.name);
+
+  const instructions = instrLines.map(line=>{
+    return line.replace(/^\d+[\.\)]\s*/, '').replace(/^step\s*\d+[:.]?\s*/i,'').trim();
+  }).filter(Boolean).map(text=>({ id: uid(), text }));
+
+  return { name, description, ingredients, instructions };
+}
+function applyParsedRecipe(r, parsed){
+  if(parsed.name) r.name = parsed.name;
+  if(parsed.description) r.description = parsed.description;
+  if(parsed.ingredients && parsed.ingredients.length) r.ingredients = parsed.ingredients;
+  if(parsed.instructions && parsed.instructions.length) r.instructions = parsed.instructions;
+  refreshBody(r);
+}
+
+function openPasteTextModal(r){
+  const backdrop = document.createElement('div');
+  backdrop.className = 'modal-backdrop';
+  backdrop.innerHTML = `
+    <div class="modal">
+      <h3>Paste recipe text</h3>
+      <p class="hint" style="margin:0 0 10px 0;">Paste a recipe below. If it has "Ingredients" and "Instructions" headers, it'll parse into a draft you can review and clean up.</p>
+      <textarea id="pasteTextArea" style="width:100%;min-height:220px;border:1px solid var(--hairline-strong);background:var(--paper-raised);border-radius:8px;padding:10px;font-size:13.5px;outline:none;resize:vertical;"></textarea>
+      <div class="modal-add-row">
+        <button id="parsePasteBtn" style="flex:1;">Parse &amp; fill</button>
+      </div>
+      <button class="modal-close" id="closePasteModal">Cancel</button>
+    </div>`;
+  document.body.appendChild(backdrop);
+  document.getElementById('parsePasteBtn').addEventListener('click', ()=>{
+    const text = document.getElementById('pasteTextArea').value;
+    if(!text.trim()){ document.body.removeChild(backdrop); return; }
+    const parsed = parseRecipeText(text);
+    applyParsedRecipe(r, parsed);
+    document.body.removeChild(backdrop);
+  });
+  document.getElementById('closePasteModal').addEventListener('click', ()=> document.body.removeChild(backdrop));
+  backdrop.addEventListener('click', e=>{ if(e.target === backdrop) document.body.removeChild(backdrop); });
+}
+
+let tesseractLoadPromise = null;
+function ensureTesseractLoaded(){
+  if(window.Tesseract) return Promise.resolve();
+  if(tesseractLoadPromise) return tesseractLoadPromise;
+  tesseractLoadPromise = new Promise((resolve, reject)=>{
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error('Could not load the OCR library. Check your internet connection and try again.'));
+    document.head.appendChild(script);
+  });
+  return tesseractLoadPromise;
+}
+function openScanPhotoFlow(r){
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.style.display = 'none';
+  document.body.appendChild(input);
+  input.addEventListener('change', async (e)=>{
+    const file = e.target.files[0];
+    document.body.removeChild(input);
+    if(!file) return;
+
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-backdrop';
+    overlay.id = 'ocrOverlay';
+    overlay.innerHTML = `
+      <div class="modal" style="text-align:center;">
+        <h3>Reading photo…</h3>
+        <p class="hint" id="ocrStatus">Loading OCR engine (first time may take a moment)…</p>
+      </div>`;
+    document.body.appendChild(overlay);
+
+    try{
+      await ensureTesseractLoaded();
+      const statusEl = document.getElementById('ocrStatus');
+      if(statusEl) statusEl.textContent = 'Recognizing text in your photo…';
+      const worker = await Tesseract.createWorker('eng');
+      const { data } = await worker.recognize(file);
+      await worker.terminate();
+      document.body.removeChild(overlay);
+      const parsed = parseRecipeText(data.text || '');
+      applyParsedRecipe(r, parsed);
+    }catch(err){
+      const existingOverlay = document.getElementById('ocrOverlay');
+      if(existingOverlay) document.body.removeChild(existingOverlay);
+      alert(err.message || 'Something went wrong reading that photo. Please try again.');
+    }
+  });
+  input.click();
+}
+
 function escHtml(s){ return (s||'').toString().replace(/[&<>]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
 function escAttr(s){ return (s||'').toString().replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function focusLast(selector){ const els = document.querySelectorAll(selector); if(els.length) els[els.length-1].focus(); }
