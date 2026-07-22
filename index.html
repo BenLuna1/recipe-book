@@ -357,6 +357,7 @@
   .variant-row::-webkit-scrollbar{ display:none; }
   .variant-pill{ flex:0 0 auto; padding:6px 13px; border-radius:999px; border:1px solid var(--hairline-strong); background:var(--paper-raised); font-size:12.5px; color:var(--ink-soft); }
   .variant-pill.active{ background:var(--accent); color:#fff; border-color:var(--accent); }
+  .variant-rename-btn{ flex:0 0 auto; border:none; background:none; font-size:12px; padding:0 4px; opacity:0.75; }
 
   /* N/A yield */
   .yield-na-row{ display:flex; align-items:center; gap:6px; font-size:12px; color:var(--ink-soft); }
@@ -503,11 +504,19 @@
   .kitchen-oven{ display:flex; gap:24px; flex-wrap:wrap; font-size:16px; color:var(--ink); margin-bottom:6px; }
   .kitchen-oven b{ display:block; font-size:12px; text-transform:uppercase; color:var(--ink-faint); font-weight:600; letter-spacing:0.4px; margin-bottom:3px; }
   .kitchen-ing-list{ list-style:none; margin:0; padding:0; }
-  .kitchen-ing-list li{ font-size:18px; line-height:1.9; display:flex; gap:10px; }
+  .kitchen-ing-list li{ font-size:18px; line-height:1.9; display:flex; align-items:flex-start; gap:10px; }
   .kitchen-ing-list .amt{ font-family:var(--font-mono); min-width:70px; text-align:right; color:var(--ink-soft); }
   .kitchen-instr-list{ list-style:none; margin:0; padding:0; counter-reset:k; }
-  .kitchen-instr-list li{ font-size:18px; line-height:1.7; display:flex; gap:16px; margin-bottom:18px; }
+  .kitchen-instr-list li{ font-size:18px; line-height:1.7; display:flex; align-items:flex-start; gap:14px; margin-bottom:18px; }
   .kitchen-instr-num{ font-family:var(--font-mono); font-size:15px; color:var(--ink-faint); flex:0 0 auto; min-width:24px; }
+  .kitchen-check{
+    flex:0 0 auto; width:26px; height:26px; border-radius:7px; margin-top:2px;
+    border:2px solid var(--hairline-strong); background:var(--paper); display:flex; align-items:center; justify-content:center;
+  }
+  .kitchen-check.checked{ background:var(--accent); border-color:var(--accent); }
+  .kitchen-check svg{ width:15px; height:15px; stroke:var(--paper); fill:none; opacity:0; }
+  .kitchen-check.checked svg{ opacity:1; }
+  .kitchen-done{ color:var(--ink-faint); text-decoration:line-through; text-decoration-color: var(--hairline-strong); }
   .kitchen-source{ margin-top:36px; padding-top:16px; border-top:1px solid var(--hairline); font-size:13px; color:var(--ink-faint); }
 
   @media print{
@@ -527,7 +536,7 @@
 /* =========================================================
    CONSTANTS
 ========================================================= */
-const APP_VERSION = "v11";
+const APP_VERSION = "v13";
 const DEFAULT_CATEGORIES = ["Dessert","Dinner","Bites","Drinks","Side Dishes","Batch Cooking"];
 const ACCENTS = ["#7C5A6B","#6B7561","#A68A5B","#5C7A80","#8A8F5C","#9C6B54","#5E6B8A","#8B6F8C"];
 const OVEN_SETTINGS = ["With fan","Without fan","Turbo","Airfry","Other"];
@@ -561,6 +570,7 @@ let state = {
   pantryIsEditing: false,
   pantryEditSnapshot: null,
   currentYield: null,
+  currentMultiplier: null,
   linkPickerTarget: null,
   archiveViewMode: "tile",
   recipeOrigin: "home"
@@ -612,7 +622,7 @@ function blankRecipe(cat){
 function makeOvenRow(){ return { id: uid(), label:'', temp:null, tempUnit:'C', time:null, timeUnit:'min', setting:'Without fan', settingOther:'' }; }
 function makeIngredient(){ return { id: uid(), amount:null, unit:'', name:'', checked:false, optional:false }; }
 function makeLine(){ return { id: uid(), text:'' }; }
-function makeInstr(){ return { id: uid(), text:'' }; }
+function makeInstr(){ return { id: uid(), text:'', checked:false }; }
 function makePantryItem(cat){ return { id: uid(), name:'', type:'', category: cat||'', image:null, brands:[], stores:[], notes:'' }; }
 function makeBrand(){ return { id: uid(), text:'' }; }
 function makeStore(){ return { id: uid(), name:'', url:'' }; }
@@ -815,6 +825,7 @@ function addNewRecipe(){
   state.isNew = true;
   state.isEditing = true;
   state.currentYield = null;
+  state.currentMultiplier = null;
   state.view = 'recipe';
   render();
 }
@@ -824,6 +835,7 @@ function openRecipe(id, origin){
   state.isEditing = false;
   state.editSnapshot = null;
   state.currentYield = null;
+  state.currentMultiplier = null;
   state.view = 'recipe';
   state.recipeOrigin = origin || 'home';
   const r = data.recipes.find(x=>x.id===id);
@@ -1412,8 +1424,15 @@ function ensureYieldSession(r){
   }
   return state.currentYield;
 }
+function ensureMultiplierSession(){
+  if(state.currentMultiplier === null || state.currentMultiplier === undefined){
+    state.currentMultiplier = 1;
+  }
+  return state.currentMultiplier;
+}
 function scaleFactor(r){
-  if(!r.yield || r.yield.na) return 1;
+  if(!r.yield) return 1;
+  if(r.yield.na) return ensureMultiplierSession();
   const base = r.yield.base || 1;
   const current = ensureYieldSession(r);
   return base === 0 ? 1 : (current / base);
@@ -1690,6 +1709,7 @@ function handleCancel(r){
   state.editSnapshot = null;
   state.isEditing = false;
   state.currentYield = null;
+  state.currentMultiplier = null;
   saveLocal();
   render();
 }
@@ -1739,6 +1759,7 @@ function duplicateRecipe(r){
   state.editSnapshot = deepClone(clone);
   state.isEditing = true;
   state.currentYield = null;
+  state.currentMultiplier = null;
   render();
 }
 
@@ -2027,7 +2048,15 @@ function yieldRowHTML(r, editing){
   const y = r.yield;
   if(!editing){
     if(y.na){
-      return `<div class="yield-row"><span class="yield-static">⚪ Servings not specified</span></div>`;
+      const mult = ensureMultiplierSession();
+      return `<div class="yield-row"><span class="yield-static">⚪ Servings not specified</span>
+        <div class="stepper" id="multiplierStepper">
+          <button data-dir="-1">${ICON.minus}</button>
+          <span class="yield-num">×${formatAmount(mult)}</span>
+          <button data-dir="1">${ICON.plus}</button>
+          <button class="yield-reset-btn" id="multiplierReset" title="Reset to ×1">${ICON.reset}</button>
+        </div>
+      </div>`;
     }
     const current = ensureYieldSession(r);
     return `<div class="yield-row"><span class="yield-static">Makes <b>${current}</b> ${escHtml(y.unit)}</span>
@@ -2060,11 +2089,41 @@ function variantRowHTML(r, editing){
   const pills = [];
   if(hasVariants){
     pills.push(`<button class="variant-pill ${r.activeVariant==='standard'?'active':''}" data-variant="standard">Standard</button>`);
-    pills.push(...(r.variants||[]).map(v=>`<button class="variant-pill ${r.activeVariant===v.id?'active':''}" data-variant="${v.id}">${escHtml(v.name)}</button>`));
+    pills.push(...(r.variants||[]).map(v=>{
+      const isActive = r.activeVariant === v.id;
+      const pill = `<button class="variant-pill ${isActive?'active':''}" data-variant="${v.id}">${escHtml(v.name)}</button>`;
+      const renameBtn = (isActive && editing) ? `<button class="variant-rename-btn" data-id="${v.id}" title="Rename variant">✏️</button>` : '';
+      return pill + renameBtn;
+    }));
   }
   const manageBtn = editing ? `<button class="pinned-manage-btn" id="manageVariantsBtn" title="Manage variants">⚙️</button>` : '';
   if(!hasVariants && !editing) return '';
   return `<div class="variant-row-wrap"><div class="variant-row">${pills.join('')}</div>${manageBtn}</div>`;
+}
+function openVariantRenamePrompt(r, variantId){
+  const v = (r.variants||[]).find(x=>x.id===variantId);
+  if(!v) return;
+  const backdrop = document.createElement('div');
+  backdrop.className = 'modal-backdrop';
+  backdrop.innerHTML = `
+    <div class="modal">
+      <h3>Rename variant</h3>
+      <input type="text" id="variantRenameInput" value="${escAttr(v.name)}" style="width:100%;border:1px solid var(--hairline-strong);background:var(--paper-raised);border-radius:8px;padding:9px 12px;font-size:14px;outline:none;box-sizing:border-box;" />
+      <div class="modal-add-row"><button id="saveVariantRenameBtn" style="flex:1;">Save</button></div>
+      <button class="modal-close" id="cancelVariantRenameBtn">Cancel</button>
+    </div>`;
+  document.body.appendChild(backdrop);
+  const input = document.getElementById('variantRenameInput');
+  input.focus();
+  input.select();
+  document.getElementById('saveVariantRenameBtn').addEventListener('click', ()=>{
+    const val = input.value.trim();
+    if(val) v.name = val;
+    document.body.removeChild(backdrop);
+    refreshBody(r);
+  });
+  document.getElementById('cancelVariantRenameBtn').addEventListener('click', ()=> document.body.removeChild(backdrop));
+  backdrop.addEventListener('click', e=>{ if(e.target===backdrop) document.body.removeChild(backdrop); });
 }
 function wireYieldAndVariant(r, editing){
   const stepper = document.getElementById('yieldStepper');
@@ -2080,6 +2139,21 @@ function wireYieldAndVariant(r, editing){
   const resetBtn = document.getElementById('yieldReset');
   if(resetBtn) resetBtn.addEventListener('click', ()=>{
     state.currentYield = r.yield.base || 1;
+    refreshBody(r);
+  });
+  const multStepper = document.getElementById('multiplierStepper');
+  if(multStepper){
+    multStepper.querySelectorAll('button[data-dir]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const dir = +btn.dataset.dir;
+        state.currentMultiplier = Math.max(0.5, ensureMultiplierSession() + dir);
+        refreshBody(r);
+      });
+    });
+  }
+  const multReset = document.getElementById('multiplierReset');
+  if(multReset) multReset.addEventListener('click', ()=>{
+    state.currentMultiplier = 1;
     refreshBody(r);
   });
   const naToggle = document.getElementById('yieldNaToggle');
@@ -2104,6 +2178,12 @@ function wireYieldAndVariant(r, editing){
     btn.addEventListener('click', ()=>{
       r.activeVariant = btn.dataset.variant;
       refreshBody(r);
+    });
+  });
+  document.querySelectorAll('.variant-rename-btn').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      openVariantRenamePrompt(r, btn.dataset.id);
     });
   });
 }
@@ -2232,7 +2312,7 @@ function wireIngredients(r, editing){
       const field = e.target.dataset.field;
       if(field === 'amount'){
         const v = e.target.value.trim();
-        item.amount = v === '' ? null : parseFloat(v.replace(',', '.'));
+        item.amount = v === '' ? null : parseAmountInput(v);
       } else {
         item[field] = e.target.value;
       }
@@ -2310,7 +2390,7 @@ function ovenBlockHTML(r, editing){
           </div>
         </div>
       </div>
-      ${rows.length > 1 ? `<button class="row-del ovenRowDel" data-id="${oven.id}" title="Remove this oven setting">${ICON.trash}</button>` : ''}
+      <button class="row-del ovenRowDel" data-id="${oven.id}" title="Remove this oven setting">${ICON.trash}</button>
     </div>`).join('');
 
   return `<div id="ovenBlock">${rowsHtml}
@@ -2371,7 +2451,7 @@ function wireOvenBlock(r, editing){
   document.querySelectorAll('.ovenRowDel').forEach(btn=>{
     btn.addEventListener('click', ()=>{
       const idx = rows.findIndex(x=>x.id===btn.dataset.id);
-      if(idx>-1 && rows.length>1){ rows.splice(idx,1); refreshBody(r); }
+      if(idx>-1){ rows.splice(idx,1); refreshBody(r); }
     });
   });
   const addBtn = document.getElementById('addOvenRowBtn');
@@ -2616,29 +2696,74 @@ function openReferenceLightbox(src){
    KITCHEN / PRINT MODE
 ========================================================= */
 async function openKitchenMode(r, isPrintMode){
-  const factor = scaleFactor(r);
-  const ingredients = activeIngredients(r);
-  const instructions = activeInstructions(r);
-  const ovenRows = r.sectionsEnabled.oven ? activeOvenRows(r) : [];
-  const variant = activeVariantObj(r);
-
   const overlay = document.createElement('div');
   overlay.className = isPrintMode ? 'kitchen-overlay print-mode' : 'kitchen-overlay';
   overlay.id = 'kitchenOverlay';
 
-  const renderKitchenIng = (item) => {
-    const amt = item.amount !== null && item.amount !== '' && !isNaN(item.amount) ? formatAmount(item.amount*factor) : '';
-    return `<li><span class="amt">${escHtml(amt)}${item.unit?' '+escHtml(item.unit):''}</span><span>${parseAllLinks(item.name)}</span></li>`;
-  };
-  const requiredIng = ingredients.filter(i=>!i.optional);
-  const optionalIng = ingredients.filter(i=>i.optional);
-  let ingHtml = requiredIng.map(renderKitchenIng).join('');
-  if(optionalIng.length){
-    ingHtml += `<li style="margin-top:8px;"><span class="kitchen-section-title" style="margin:0;font-size:11px;">Optional</span></li>` + optionalIng.map(renderKitchenIng).join('');
+  function renderKitchenIngList(){
+    const factor = scaleFactor(r);
+    const ingredients = activeIngredients(r);
+    const renderKitchenIng = (item) => {
+      const amt = item.amount !== null && item.amount !== '' && !isNaN(item.amount) ? formatAmount(item.amount*factor) : '';
+      return `<li>
+        <button class="kitchen-check ${item.checked?'checked':''}" data-kind="ing" data-id="${item.id}">${ICON.check}</button>
+        <span class="amt ${item.checked?'kitchen-done':''}">${escHtml(amt)}${item.unit?' '+escHtml(item.unit):''}</span>
+        <span class="${item.checked?'kitchen-done':''}">${parseAllLinks(item.name)}</span>
+      </li>`;
+    };
+    const requiredIng = ingredients.filter(i=>!i.optional);
+    const optionalIng = ingredients.filter(i=>i.optional);
+    let html = requiredIng.map(renderKitchenIng).join('');
+    if(optionalIng.length){
+      html += `<li style="margin-top:8px;"><span class="kitchen-section-title" style="margin:0;font-size:11px;">Optional</span></li>` + optionalIng.map(renderKitchenIng).join('');
+    }
+    return html;
+  }
+  function renderKitchenInstrList(){
+    const instructions = activeInstructions(r);
+    return instructions.map((item,i)=>`<li>
+      <button class="kitchen-check kitchen-check-instr ${item.checked?'checked':''}" data-kind="instr" data-id="${item.id}">${ICON.check}</button>
+      <span class="kitchen-instr-num">${i+1}</span>
+      <span class="${item.checked?'kitchen-done':''}">${renderInstructionText(item.text)}</span>
+    </li>`).join('');
+  }
+  function wireKitchenChecks(){
+    overlay.querySelectorAll('.kitchen-check').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const list = btn.dataset.kind === 'ing' ? activeIngredients(r) : activeInstructions(r);
+        const item = list.find(x=>x.id===btn.dataset.id);
+        if(item){
+          item.checked = !item.checked;
+          markDirty();
+          refreshKitchenLists();
+        }
+      });
+    });
+    overlay.querySelectorAll('.recipe-link').forEach(el=>{
+      el.addEventListener('click', (e)=>{
+        e.preventDefault();
+        const id = el.dataset.goto;
+        closeKitchenMode();
+        openRecipe(id);
+      });
+    });
+    overlay.querySelectorAll('.pantry-link-ref').forEach(el=>{
+      el.addEventListener('click', (e)=>{
+        e.preventDefault();
+        const id = el.dataset.gotoPantry;
+        closeKitchenMode();
+        openPantryItem(id);
+      });
+    });
+  }
+  function refreshKitchenLists(){
+    overlay.querySelector('#kitchenIngList').innerHTML = renderKitchenIngList();
+    overlay.querySelector('#kitchenInstrList').innerHTML = renderKitchenInstrList();
+    wireKitchenChecks();
   }
 
-  const instrHtml = instructions.map((item,i)=>`<li><span class="kitchen-instr-num">${i+1}</span><span>${renderInstructionText(item.text)}</span></li>`).join('');
-
+  const ovenRows = r.sectionsEnabled.oven ? activeOvenRows(r) : [];
+  const variant = activeVariantObj(r);
   const showOvenLabels = ovenRows.length > 1;
   let ovenHtml = '';
   ovenRows.forEach(oven=>{
@@ -2661,36 +2786,21 @@ async function openKitchenMode(r, isPrintMode){
       ${r.image ? `<img class="kitchen-img" src="${r.image}" />` : ''}
       <div class="kitchen-title">${escHtml(r.name||'Untitled')}</div>
       ${variant ? `<div class="kitchen-variant">${escHtml(variant.name)} variant</div>` : ''}
-      <div class="kitchen-yield">${r.yield.na ? '⚪ Servings not specified' : `Makes ${ensureYieldSession(r)} ${escHtml(r.yield.unit)}`}</div>
+      <div class="kitchen-yield">${r.yield.na ? `⚪ Servings not specified${ensureMultiplierSession()!==1 ? ` (×${formatAmount(ensureMultiplierSession())})` : ''}` : `Makes ${ensureYieldSession(r)} ${escHtml(r.yield.unit)}`}</div>
 
       <div class="kitchen-section-title">Ingredients</div>
-      <ul class="kitchen-ing-list">${ingHtml}</ul>
+      <ul class="kitchen-ing-list" id="kitchenIngList">${renderKitchenIngList()}</ul>
 
       <div class="kitchen-section-title">Instructions</div>
       ${ovenHtml}
-      <ul class="kitchen-instr-list">${instrHtml}</ul>
+      <ul class="kitchen-instr-list" id="kitchenInstrList">${renderKitchenInstrList()}</ul>
 
       ${r.sourceLines && r.sourceLines.length ? `<div class="kitchen-source">${r.sourceLines.map(l=>`<div>${linkify(l.text)}</div>`).join('')}</div>` : ''}
     </div>
   `;
   document.body.appendChild(overlay);
   document.getElementById('kitchenCloseBtn').addEventListener('click', closeKitchenMode);
-  overlay.querySelectorAll('.recipe-link').forEach(el=>{
-    el.addEventListener('click', (e)=>{
-      e.preventDefault();
-      const id = el.dataset.goto;
-      closeKitchenMode();
-      openRecipe(id);
-    });
-  });
-  overlay.querySelectorAll('.pantry-link-ref').forEach(el=>{
-    el.addEventListener('click', (e)=>{
-      e.preventDefault();
-      const id = el.dataset.gotoPantry;
-      closeKitchenMode();
-      openPantryItem(id);
-    });
-  });
+  wireKitchenChecks();
 
   if(isPrintMode){
     setTimeout(()=>{ window.print(); }, 150);
@@ -2705,6 +2815,10 @@ function closeKitchenMode(){
   const overlay = document.getElementById('kitchenOverlay');
   if(overlay) document.body.removeChild(overlay);
   if(wakeLockRef){ wakeLockRef.release().catch(()=>{}); wakeLockRef = null; }
+  if(state.view === 'recipe'){
+    const r = getRecipe();
+    if(r) refreshBody(r);
+  }
 }
 
 /* =========================================================
@@ -2752,6 +2866,7 @@ function migrateRecipe(raw){
     return { id: i.id||uid(), amount:null, unit:'', name: i.text||'', checked: !!i.checked, optional:false };
   });
   if(!Array.isArray(r.instructions)) r.instructions = [];
+  r.instructions = r.instructions.map(i=>({ checked:false, ...i }));
   if(!r.yield) r.yield = { base:4, unit:'servings', na:false };
   if(typeof r.yield.na !== 'boolean') r.yield.na = false;
   if(!r.yield.base) r.yield.base = 4;
@@ -2774,6 +2889,7 @@ function migrateRecipe(raw){
         : [makeOvenRow()];
     }
     delete v.oven;
+    if(Array.isArray(v.instructions)) v.instructions = v.instructions.map(i=>({ checked:false, ...i }));
     return v;
   });
   if(!r.activeVariant) r.activeVariant = 'standard';
@@ -2853,6 +2969,15 @@ function resizeTitleInput(input){
 ========================================================= */
 const FRACTION_MAP = {'¼':0.25,'½':0.5,'¾':0.75,'⅓':1/3,'⅔':2/3,'⅕':0.2,'⅖':0.4,'⅗':0.6,'⅘':0.8,'⅙':1/6,'⅚':5/6,'⅛':0.125,'⅜':0.375,'⅝':0.625,'⅞':0.875};
 const FRAC_CLASS = '¼½¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞';
+function parseAmountInput(v){
+  v = v.trim();
+  let m = v.match(/^(\d+)\s+(\d+)\/(\d+)$/);
+  if(m){ const den = Number(m[3]); return den ? Number(m[1]) + Number(m[2])/den : Number(m[1]); }
+  m = v.match(/^(\d+)\/(\d+)$/);
+  if(m){ const den = Number(m[2]); return den ? Number(m[1])/den : null; }
+  const amt = parseFloat(v.replace(',', '.'));
+  return isNaN(amt) ? null : amt;
+}
 function extractIngredientAmount(line){
   let m = line.match(new RegExp(`^(\\d+)\\s*\\+\\s*([${FRAC_CLASS}])\\s*([a-zA-Zµ]*)\\.?\\s+(.*)$`));
   if(m) return { amount: parseFloat(m[1]) + FRACTION_MAP[m[2]], unit: m[3]||'', name: m[4].trim() };
@@ -2872,6 +2997,15 @@ function parseRecipeText(text){
   const ingredientsHeaderRe = /^ingredients?\b/i;
   const instructionsHeaderRe = /^(instructions?|directions?|method|steps|preparation)\b/i;
   const isBulletLine = l => /^[-*•●▪️○\u2022]\s*/.test(l);
+  const isNumberedLine = l => /^\d+[\.\)]\s*/.test(l) || /^step\s*\d+[:.]?/i.test(l);
+  const startsWithQty = l => new RegExp(`^[\\d${FRAC_CLASS}]`).test(l.replace(/^[-*•●▪️○\u2022]\s*/,''));
+  const isSentenceShaped = l => /[.!?]$/.test(l) && l.split(/\s+/).length >= 4;
+  const isShortLabelLine = l => !!l && l.split(/\s+/).length <= 4 && !/[.!?]$/.test(l);
+  const isIngredientShaped = l => {
+    if(isNumberedLine(l)) return false;
+    if(isBulletLine(l) || startsWithQty(l)) return true;
+    return !isSentenceShaped(l) && l.split(/\s+/).length <= 6;
+  };
 
   let ingIdx=-1, instrIdx=-1;
   rawLines.forEach((l,i)=>{
@@ -2886,16 +3020,26 @@ function parseRecipeText(text){
     while(i < hardEnd){
       const line = rawLines[i];
       if(!line){ i++; continue; }
-      if(isBulletLine(line)){ i++; continue; }
+      if(isNumberedLine(line)) break;
+      const isDirectIngredient = isBulletLine(line) || startsWithQty(line);
+      if(isDirectIngredient){ i++; continue; }
       const next = rawLines.slice(i+1, hardEnd).find(l=>l);
-      const isShortLabel = line.split(/\s+/).length <= 4 && !/[.!?]$/.test(line);
-      if(isShortLabel && next && isBulletLine(next)){ labelCount++; i++; continue; }
+      if(isShortLabelLine(line) && next && (isBulletLine(next) || startsWithQty(next))){ labelCount++; i++; continue; }
+      if(isIngredientShaped(line)){ i++; continue; }
       break;
     }
     return { end: i, labelCount };
   }
-  function isShortLabelLine(line){
-    return !!line && line.split(/\s+/).length <= 4 && !/[.!?]$/.test(line);
+  function findIngredientStart(from, hardEnd){
+    for(let i=from; i<hardEnd; i++){
+      const line = rawLines[i];
+      if(!line) continue;
+      if(isIngredientShaped(line)) return i;
+      const next = rawLines.slice(i+1, hardEnd).find(l=>l);
+      if(isShortLabelLine(line) && next && (isBulletLine(next) || isIngredientShaped(next))) return i;
+      return -1; // first non-empty content line doesn't look like an ingredient — bail
+    }
+    return -1;
   }
   function absorbLeadingLabel(idx, scanResult){
     if(scanResult.labelCount < 1) return idx;
@@ -2918,10 +3062,10 @@ function parseRecipeText(text){
     instrStart = ingEnd;
   } else if(instrIdx !== -1){
     instrStart = instrIdx+1;
-    const firstBulletIdx = rawLines.slice(0, instrIdx).findIndex(isBulletLine);
-    if(firstBulletIdx !== -1){
-      titleEndIdx = firstBulletIdx;
-      ingStart = firstBulletIdx;
+    const foundStart = findIngredientStart(1, instrIdx);
+    if(foundStart !== -1){
+      titleEndIdx = foundStart;
+      ingStart = foundStart;
       const scanResult = scanIngredientBlock(ingStart, instrIdx);
       ingEnd = scanResult.end;
       const absorbed = absorbLeadingLabel(titleEndIdx, scanResult);
@@ -2930,10 +3074,10 @@ function parseRecipeText(text){
       titleEndIdx = instrIdx;
     }
   } else {
-    const firstBulletIdx = rawLines.findIndex(isBulletLine);
-    if(firstBulletIdx !== -1){
-      titleEndIdx = firstBulletIdx;
-      ingStart = firstBulletIdx;
+    const foundStart = findIngredientStart(1, rawLines.length);
+    if(foundStart !== -1){
+      titleEndIdx = foundStart;
+      ingStart = foundStart;
       const scanResult = scanIngredientBlock(ingStart, rawLines.length);
       ingEnd = scanResult.end;
       instrStart = ingEnd;
@@ -2960,7 +3104,7 @@ function parseRecipeText(text){
 
   const instructions = instrLines.map(line=>{
     return line.replace(/^\d+[\.\)]\s*/, '').replace(/^step\s*\d+[:.]?\s*/i,'').trim();
-  }).filter(Boolean).map(text=>({ id: uid(), text }));
+  }).filter(Boolean).map(text=>({ id: uid(), text, checked:false }));
 
   return { name, description, ingredients, instructions };
 }
