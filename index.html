@@ -424,6 +424,15 @@
   .ing-static{ font-size:14.5px; }
   .ing-static .amt{ font-family:var(--font-mono); }
   .ing-static-name.checked{ color:var(--ink-faint); text-decoration: line-through; text-decoration-color: var(--hairline-strong); }
+  .ing-group-label{ font-size:12px; font-weight:600; color:var(--accent); margin: 16px 0 8px 0; letter-spacing:0.2px; }
+  .ing-group-label:first-child{ margin-top:0; }
+  .ing-group-header{ display:flex; align-items:center; gap:6px; margin: 16px 0 8px 0; }
+  .ing-group-prefix{ font-size:12px; font-weight:600; color:var(--accent); white-space:nowrap; }
+  .ing-group-name-input{
+    flex:1; border:none; border-bottom:1px dashed var(--hairline-strong); background:transparent;
+    font-size:13.5px; font-weight:600; color:var(--accent); padding:2px 0; outline:none;
+  }
+  .ing-group-del{ flex:0 0 auto; opacity:0.5; }
 
   /* Instructions */
   .instr-list{ list-style:none; margin:0; padding:0; }
@@ -536,7 +545,7 @@
 /* =========================================================
    CONSTANTS
 ========================================================= */
-const APP_VERSION = "v13";
+const APP_VERSION = "v14";
 const DEFAULT_CATEGORIES = ["Dessert","Dinner","Bites","Drinks","Side Dishes","Batch Cooking"];
 const ACCENTS = ["#7C5A6B","#6B7561","#A68A5B","#5C7A80","#8A8F5C","#9C6B54","#5E6B8A","#8B6F8C"];
 const OVEN_SETTINGS = ["With fan","Without fan","Turbo","Airfry","Other"];
@@ -613,7 +622,7 @@ function blankRecipe(cat){
     sectionsEnabled: { storage:false, prepPlan:false, oven:false, source:false },
     storageLines: [], prepPlan: [],
     yield: { base:4, unit:"servings", na:false },
-    ingredients: [], instructions: [],
+    ingredientGroups: [makeIngredientGroup()], instructions: [],
     ovenRows: [makeOvenRow()],
     variants: [], activeVariant: 'standard',
     archived: false
@@ -621,6 +630,7 @@ function blankRecipe(cat){
 }
 function makeOvenRow(){ return { id: uid(), label:'', temp:null, tempUnit:'C', time:null, timeUnit:'min', setting:'Without fan', settingOther:'' }; }
 function makeIngredient(){ return { id: uid(), amount:null, unit:'', name:'', checked:false, optional:false }; }
+function makeIngredientGroup(){ return { id: uid(), name:'', items: [] }; }
 function makeLine(){ return { id: uid(), text:'' }; }
 function makeInstr(){ return { id: uid(), text:'', checked:false }; }
 function makePantryItem(cat){ return { id: uid(), name:'', type:'', category: cat||'', image:null, brands:[], stores:[], notes:'' }; }
@@ -1414,7 +1424,8 @@ function activeVariantObj(r){
   if(r.activeVariant === 'standard') return null;
   return (r.variants||[]).find(v=>v.id===r.activeVariant) || null;
 }
-function activeIngredients(r){ const v = activeVariantObj(r); return v ? v.ingredients : r.ingredients; }
+function activeIngredientGroups(r){ const v = activeVariantObj(r); return v ? v.ingredientGroups : r.ingredientGroups; }
+function flatIngredients(r){ return activeIngredientGroups(r).flatMap(g=>g.items); }
 function activeInstructions(r){ const v = activeVariantObj(r); return v ? v.instructions : r.instructions; }
 function activeOvenRows(r){ const v = activeVariantObj(r); return v ? v.ovenRows : r.ovenRows; }
 
@@ -1512,10 +1523,10 @@ function renderInstructionText(text){
 function recipeTextsFor(rec){
   const texts = [];
   texts.push(rec.description||'');
-  (rec.ingredients||[]).forEach(i=>texts.push(i.name||''));
+  (rec.ingredientGroups||[]).forEach(g=>(g.items||[]).forEach(i=>texts.push(i.name||'')));
   (rec.instructions||[]).forEach(i=>texts.push(i.text||''));
   (rec.variants||[]).forEach(v=>{
-    (v.ingredients||[]).forEach(i=>texts.push(i.name||''));
+    (v.ingredientGroups||[]).forEach(g=>(g.items||[]).forEach(i=>texts.push(i.name||'')));
     (v.instructions||[]).forEach(i=>texts.push(i.text||''));
   });
   return texts.join(' \n ');
@@ -1738,7 +1749,7 @@ function duplicateRecipe(r){
   clone.id = uid();
   clone.name = 'Copy of ' + (r.name || 'Untitled');
   clone.archived = false;
-  clone.ingredients = clone.ingredients.map(i=>({...i, id: uid()}));
+  clone.ingredientGroups = clone.ingredientGroups.map(g=>({...g, id: uid(), items: g.items.map(i=>({...i, id: uid()}))}));
   clone.instructions = clone.instructions.map(i=>({...i, id: uid()}));
   clone.storageLines = clone.storageLines.map(i=>({...i, id: uid()}));
   clone.prepPlan = clone.prepPlan.map(i=>({...i, id: uid()}));
@@ -1747,7 +1758,7 @@ function duplicateRecipe(r){
   clone.referenceImages = (clone.referenceImages||[]).map(i=>({...i, id: uid()}));
   clone.variants = (clone.variants||[]).map(v=>({
     ...v, id: uid(),
-    ingredients: v.ingredients.map(i=>({...i, id: uid()})),
+    ingredientGroups: v.ingredientGroups.map(g=>({...g, id: uid(), items: g.items.map(i=>({...i, id: uid()}))})),
     instructions: v.instructions.map(i=>({...i, id: uid()})),
     ovenRows: (v.ovenRows||[]).map(i=>({...i, id: uid()}))
   }));
@@ -2235,7 +2246,7 @@ function openManageVariants(r){
     if(!val) return;
     const v = {
       id: uid(), name: val,
-      ingredients: r.ingredients.map(i=>({...i, id: uid()})),
+      ingredientGroups: r.ingredientGroups.map(g=>({...g, id: uid(), items: g.items.map(i=>({...i, id: uid()}))})),
       instructions: r.instructions.map(i=>({...i, id: uid()})),
       ovenRows: r.ovenRows.map(row=>({...row, id: uid()}))
     };
@@ -2252,62 +2263,92 @@ function openManageVariants(r){
 
 /* ---------- ingredients ---------- */
 function ingredientsBodyHTML(r, editing){
-  const list = activeIngredients(r);
+  const groups = activeIngredientGroups(r);
   const factor = scaleFactor(r);
-  if(!editing){
-    const renderItem = (item) => {
-      const amt = item.amount !== null && item.amount !== '' && !isNaN(item.amount) ? formatAmount(item.amount * factor) : '';
-      return `<li class="ing-item">
-        <button class="ing-check ${item.checked?'checked':''}" data-id="${item.id}">${ICON.check}</button>
-        <div class="ing-static">${amt?`<span class="amt ing-static-name${item.checked?' checked':''}">${escHtml(amt)}${item.unit?' '+escHtml(item.unit):''}</span> `:''}<span class="ing-static-name${item.checked?' checked':''}">${parseAllLinks(item.name)}</span></div>
-      </li>`;
-    };
-    const required = list.filter(i=>!i.optional);
-    const optional = list.filter(i=>i.optional);
-    let html = `<ul class="ing-list" id="ingList">${required.map(renderItem).join('')}</ul>`;
-    if(optional.length){
-      html += `<div class="pantry-sublabel" style="margin-top:14px;">Optional</div><ul class="ing-list">${optional.map(renderItem).join('')}</ul>`;
+  const showGroupNames = groups.length > 1;
+
+  const renderGroup = (group) => {
+    const list = group.items;
+    if(!editing){
+      const renderItem = (item) => {
+        const amt = item.amount !== null && item.amount !== '' && !isNaN(item.amount) ? formatAmount(item.amount * factor) : '';
+        return `<li class="ing-item">
+          <button class="ing-check ${item.checked?'checked':''}" data-id="${item.id}">${ICON.check}</button>
+          <div class="ing-static">${amt?`<span class="amt ing-static-name${item.checked?' checked':''}">${escHtml(amt)}${item.unit?' '+escHtml(item.unit):''}</span> `:''}<span class="ing-static-name${item.checked?' checked':''}">${parseAllLinks(item.name)}</span></div>
+        </li>`;
+      };
+      const required = list.filter(i=>!i.optional);
+      const optional = list.filter(i=>i.optional);
+      let html = showGroupNames ? `<div class="ing-group-label">Ingredients — ${escHtml(group.name||'Untitled')}</div>` : '';
+      html += `<ul class="ing-list">${required.map(renderItem).join('')}</ul>`;
+      if(optional.length){
+        html += `<div class="pantry-sublabel" style="margin-top:14px;">Optional</div><ul class="ing-list">${optional.map(renderItem).join('')}</ul>`;
+      }
+      return html;
     }
-    return html;
-  }
-  const rows = list.map(item => `
-    <li class="ing-item" data-id="${item.id}">
-      <button class="ing-check ${item.checked?'checked':''}" data-id="${item.id}">${ICON.check}</button>
-      <div class="ing-fields">
-        <input class="ing-amt" data-id="${item.id}" data-field="amount" type="text" inputmode="decimal" placeholder="amt" value="${item.amount===null?'':escAttr(String(item.amount))}" />
-        <input class="ing-unit" data-id="${item.id}" data-field="unit" placeholder="unit" value="${escAttr(item.unit)}" />
-        <div class="field-with-link">
-          <input class="ing-name" id="ingname_${item.id}" data-id="${item.id}" data-field="name" placeholder="ingredient" value="${escAttr(item.name)}" />
-          <button class="link-insert-btn" data-target="ingname_${item.id}" title="Link to a recipe">${ICON.link}</button>
+    const rows = list.map(item => `
+      <li class="ing-item" data-id="${item.id}">
+        <button class="ing-check ${item.checked?'checked':''}" data-id="${item.id}">${ICON.check}</button>
+        <div class="ing-fields">
+          <input class="ing-amt" data-id="${item.id}" data-field="amount" type="text" inputmode="decimal" placeholder="amt" value="${item.amount===null?'':escAttr(String(item.amount))}" />
+          <input class="ing-unit" data-id="${item.id}" data-field="unit" placeholder="unit" value="${escAttr(item.unit)}" />
+          <div class="field-with-link">
+            <input class="ing-name" id="ingname_${item.id}" data-id="${item.id}" data-field="name" placeholder="ingredient" value="${escAttr(item.name)}" />
+            <button class="link-insert-btn" data-target="ingname_${item.id}" title="Link to a recipe">${ICON.link}</button>
+          </div>
         </div>
-      </div>
-      <div class="row-actions">
-        <button class="opt-toggle-btn ${item.optional?'active':''}" data-kind="ing" data-id="${item.id}" title="Mark as optional">Opt</button>
-        <button class="row-add" data-kind="ing" data-id="${item.id}">${ICON.plus}</button>
-        <button class="row-del" data-kind="ing" data-id="${item.id}">${ICON.trash}</button>
-      </div>
-    </li>`).join('');
-  return `<ul class="ing-list" id="ingList">${rows}</ul>
-    <button class="add-row-btn" id="addIngRow">${ICON.plus} Add ingredient</button>`;
+        <div class="row-actions">
+          <button class="opt-toggle-btn ${item.optional?'active':''}" data-kind="ing" data-id="${item.id}" title="Mark as optional">Opt</button>
+          <button class="row-add" data-kind="ing" data-id="${item.id}">${ICON.plus}</button>
+          <button class="row-del" data-kind="ing" data-id="${item.id}">${ICON.trash}</button>
+        </div>
+      </li>`).join('');
+    const groupHeader = showGroupNames ? `
+      <div class="ing-group-header">
+        <span class="ing-group-prefix">Ingredients —</span>
+        <input type="text" class="ing-group-name-input" data-group="${group.id}" placeholder="Component name" value="${escAttr(group.name)}" />
+        <button class="row-del ing-group-del" data-group="${group.id}" title="Remove this list">${ICON.trash}</button>
+      </div>` : '';
+    return `${groupHeader}
+      <ul class="ing-list" data-group="${group.id}">${rows}</ul>
+      <button class="add-row-btn addIngRowBtn" data-group="${group.id}">${ICON.plus} Add ingredient</button>`;
+  };
+
+  let html = groups.map(renderGroup).join(editing ? '<div style="height:6px"></div>' : '<div style="height:4px"></div>');
+  if(editing){
+    html += `<button class="add-row-btn" id="addIngGroupBtn" style="margin-top:12px;">${ICON.plus} Add ingredient list</button>`;
+  }
+  return html;
 }
 function wireIngredients(r, editing){
-  const list = activeIngredients(r);
-  document.querySelectorAll('#ingList .ing-check').forEach(btn=>{
+  const groups = activeIngredientGroups(r);
+  function findItemAndGroup(id){
+    for(const g of groups){
+      const item = g.items.find(x=>x.id===id);
+      if(item) return { item, group: g };
+    }
+    return { item: null, group: null };
+  }
+  document.querySelectorAll('.ing-check').forEach(btn=>{
     btn.addEventListener('click', ()=>{
-      const item = list.find(x=>x.id===btn.dataset.id);
+      const { item } = findItemAndGroup(btn.dataset.id);
       if(item){ item.checked = !item.checked; refreshBody(r); }
     });
   });
   if(!editing) return;
-  const addBtn = document.getElementById('addIngRow');
-  if(addBtn) addBtn.addEventListener('click', ()=>{
-    list.push(makeIngredient());
-    refreshBody(r);
-    focusLast('#ingList .ing-name');
+  document.querySelectorAll('.addIngRowBtn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const group = groups.find(g=>g.id===btn.dataset.group);
+      if(group){
+        group.items.push(makeIngredient());
+        refreshBody(r);
+        focusLast(`.ing-list[data-group="${group.id}"] .ing-name`);
+      }
+    });
   });
-  document.querySelectorAll('#ingList input[data-field]').forEach(inp=>{
+  document.querySelectorAll('.ing-list input[data-field]').forEach(inp=>{
     inp.addEventListener('input', e=>{
-      const item = list.find(x=>x.id===e.target.dataset.id);
+      const { item } = findItemAndGroup(e.target.dataset.id);
       if(!item) return;
       const field = e.target.dataset.field;
       if(field === 'amount'){
@@ -2318,25 +2359,49 @@ function wireIngredients(r, editing){
       }
     });
   });
-  document.querySelectorAll('#ingList .opt-toggle-btn[data-kind="ing"]').forEach(btn=>{
+  document.querySelectorAll('.opt-toggle-btn[data-kind="ing"]').forEach(btn=>{
     btn.addEventListener('click', ()=>{
-      const item = list.find(x=>x.id===btn.dataset.id);
+      const { item } = findItemAndGroup(btn.dataset.id);
       if(item){ item.optional = !item.optional; refreshBody(r); }
     });
   });
-  document.querySelectorAll('#ingList .row-add[data-kind="ing"]').forEach(btn=>{
+  document.querySelectorAll('.row-add[data-kind="ing"]').forEach(btn=>{
     btn.addEventListener('click', ()=>{
-      const idx = list.findIndex(x=>x.id===btn.dataset.id);
-      list.splice(idx+1, 0, makeIngredient());
-      refreshBody(r);
+      const { group } = findItemAndGroup(btn.dataset.id);
+      if(group){
+        const idx = group.items.findIndex(x=>x.id===btn.dataset.id);
+        group.items.splice(idx+1, 0, makeIngredient());
+        refreshBody(r);
+      }
     });
   });
-  document.querySelectorAll('#ingList .row-del[data-kind="ing"]').forEach(btn=>{
+  document.querySelectorAll('.row-del[data-kind="ing"]').forEach(btn=>{
     btn.addEventListener('click', ()=>{
-      const idx = list.findIndex(x=>x.id===btn.dataset.id);
-      if(idx>-1) list.splice(idx,1);
-      refreshBody(r);
+      const { group } = findItemAndGroup(btn.dataset.id);
+      if(group){
+        const idx = group.items.findIndex(x=>x.id===btn.dataset.id);
+        if(idx>-1) group.items.splice(idx,1);
+        refreshBody(r);
+      }
     });
+  });
+  document.querySelectorAll('.ing-group-name-input').forEach(inp=>{
+    inp.addEventListener('input', e=>{
+      const g = groups.find(x=>x.id===e.target.dataset.group);
+      if(g) g.name = e.target.value;
+    });
+  });
+  document.querySelectorAll('.ing-group-del').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      if(groups.length <= 1) return;
+      const idx = groups.findIndex(g=>g.id===btn.dataset.group);
+      if(idx>-1){ groups.splice(idx,1); refreshBody(r); }
+    });
+  });
+  const addGroupBtn = document.getElementById('addIngGroupBtn');
+  if(addGroupBtn) addGroupBtn.addEventListener('click', ()=>{
+    groups.push(makeIngredientGroup());
+    refreshBody(r);
   });
 }
 
@@ -2702,7 +2767,8 @@ async function openKitchenMode(r, isPrintMode){
 
   function renderKitchenIngList(){
     const factor = scaleFactor(r);
-    const ingredients = activeIngredients(r);
+    const groups = activeIngredientGroups(r);
+    const showGroupNames = groups.length > 1;
     const renderKitchenIng = (item) => {
       const amt = item.amount !== null && item.amount !== '' && !isNaN(item.amount) ? formatAmount(item.amount*factor) : '';
       return `<li>
@@ -2711,12 +2777,18 @@ async function openKitchenMode(r, isPrintMode){
         <span class="${item.checked?'kitchen-done':''}">${parseAllLinks(item.name)}</span>
       </li>`;
     };
-    const requiredIng = ingredients.filter(i=>!i.optional);
-    const optionalIng = ingredients.filter(i=>i.optional);
-    let html = requiredIng.map(renderKitchenIng).join('');
-    if(optionalIng.length){
-      html += `<li style="margin-top:8px;"><span class="kitchen-section-title" style="margin:0;font-size:11px;">Optional</span></li>` + optionalIng.map(renderKitchenIng).join('');
-    }
+    let html = '';
+    groups.forEach(group=>{
+      const requiredIng = group.items.filter(i=>!i.optional);
+      const optionalIng = group.items.filter(i=>i.optional);
+      if(showGroupNames){
+        html += `<li class="kitchen-ing-group-label"><span class="kitchen-oven-label" style="margin:14px 0 2px 0;">Ingredients — ${escHtml(group.name||'Untitled')}</span></li>`;
+      }
+      html += requiredIng.map(renderKitchenIng).join('');
+      if(optionalIng.length){
+        html += `<li style="margin-top:8px;"><span class="kitchen-section-title" style="margin:0;font-size:11px;">Optional</span></li>` + optionalIng.map(renderKitchenIng).join('');
+      }
+    });
     return html;
   }
   function renderKitchenInstrList(){
@@ -2730,7 +2802,7 @@ async function openKitchenMode(r, isPrintMode){
   function wireKitchenChecks(){
     overlay.querySelectorAll('.kitchen-check').forEach(btn=>{
       btn.addEventListener('click', ()=>{
-        const list = btn.dataset.kind === 'ing' ? activeIngredients(r) : activeInstructions(r);
+        const list = btn.dataset.kind === 'ing' ? flatIngredients(r) : activeInstructions(r);
         const item = list.find(x=>x.id===btn.dataset.id);
         if(item){
           item.checked = !item.checked;
@@ -2859,12 +2931,18 @@ function migrateRecipe(raw){
   }
   if(!Array.isArray(r.prepPlan)) r.prepPlan = [];
   else if(raw.prepPlan && raw.prepPlan.length) r.sectionsEnabled = Object.assign({}, r.sectionsEnabled, {prepPlan:true});
-  if(!Array.isArray(r.ingredients)) r.ingredients = [];
-  // ingredients: migrate old free-text {id,text,checked} to {amount,unit,name,checked}
-  r.ingredients = r.ingredients.map(i=>{
-    if('name' in i) return { optional:false, ...i };
+  function normalizeIngItem(i){
+    if('name' in i) return { optional:false, checked:false, ...i };
     return { id: i.id||uid(), amount:null, unit:'', name: i.text||'', checked: !!i.checked, optional:false };
-  });
+  }
+  if(Array.isArray(raw.ingredientGroups)){
+    r.ingredientGroups = raw.ingredientGroups.map(g=>({
+      id: g.id||uid(), name: g.name||'',
+      items: (g.items||[]).map(normalizeIngItem)
+    }));
+  } else {
+    r.ingredientGroups = [{ id: uid(), name:'', items: (raw.ingredients||[]).map(normalizeIngItem) }];
+  }
   if(!Array.isArray(r.instructions)) r.instructions = [];
   r.instructions = r.instructions.map(i=>({ checked:false, ...i }));
   if(!r.yield) r.yield = { base:4, unit:'servings', na:false };
@@ -2889,6 +2967,10 @@ function migrateRecipe(raw){
         : [makeOvenRow()];
     }
     delete v.oven;
+    if(!Array.isArray(v.ingredientGroups)){
+      v.ingredientGroups = [{ id: uid(), name:'', items: (v.ingredients||[]).map(normalizeIngItem) }];
+    }
+    delete v.ingredients;
     if(Array.isArray(v.instructions)) v.instructions = v.instructions.map(i=>({ checked:false, ...i }));
     return v;
   });
@@ -3111,7 +3193,7 @@ function parseRecipeText(text){
 function applyParsedRecipe(r, parsed){
   if(parsed.name) r.name = parsed.name;
   if(parsed.description) r.description = parsed.description;
-  if(parsed.ingredients && parsed.ingredients.length) r.ingredients = parsed.ingredients;
+  if(parsed.ingredients && parsed.ingredients.length) r.ingredientGroups = [{ id: uid(), name:'', items: parsed.ingredients }];
   if(parsed.instructions && parsed.instructions.length) r.instructions = parsed.instructions;
   refreshBody(r);
 }
