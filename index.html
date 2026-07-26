@@ -89,6 +89,16 @@
     box-shadow: 0 0 0 2px var(--paper);
   }
 
+  /* ---------- Search ---------- */
+  .search-row{ padding: 14px 20px 0 20px; }
+  .search-input{
+    width:100%; border:1px solid var(--hairline-strong); background:var(--paper-raised);
+    border-radius:999px; padding:9px 16px; font-size:14px; outline:none; color:var(--ink);
+    box-sizing:border-box;
+  }
+  .search-input::placeholder{ color:var(--ink-faint); }
+  .search-input:focus{ border-color:var(--accent); }
+
   /* ---------- Category tabs ---------- */
   .cat-row-wrap{ display:flex; align-items:center; gap:8px; padding: 16px 20px 4px 20px; }
   .cat-row{
@@ -172,6 +182,17 @@
     cursor:pointer;
   }
   .list-row:active{ background: var(--paper-raised); }
+  .shop-add-btn{
+    flex:0 0 auto; width:34px; height:34px; border-radius:50%; border:1px solid var(--hairline-strong);
+    background:var(--paper-raised); font-size:15px; display:flex; align-items:center; justify-content:center;
+    opacity:0.6;
+  }
+  .shop-add-btn.active{ opacity:1; background:var(--accent); border-color:var(--accent); }
+  .tile-img-wrap{ position:relative; }
+  .tile-shop-btn{
+    position:absolute; top:8px; right:8px; width:32px; height:32px;
+    background:rgba(251,249,245,0.92); box-shadow: 0 1px 4px rgba(43,41,38,0.15);
+  }
   .list-thumb{
     width:52px; height:52px; border-radius:8px; object-fit:cover; flex:0 0 auto;
     background: linear-gradient(135deg, #E7E1D3, #DED6C3);
@@ -377,11 +398,32 @@
   .link-insert-btn svg{ width:13px; height:13px; stroke:var(--accent); fill:none; }
   a.recipe-link, a.pantry-link-ref{ color:var(--accent); text-decoration:underline; text-decoration-color: var(--hairline-strong); cursor:pointer; }
   .linked-from-row{ margin-top:14px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+
+  /* ---------- Shopping list ---------- */
+  .shop-list{ list-style:none; margin:0 0 6px 0; padding:0; }
+  .shop-item{ display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--hairline); }
+  .shop-check{
+    flex:0 0 auto; width:20px; height:20px; border-radius:6px;
+    border:1.5px solid var(--hairline-strong); background:var(--paper-raised); display:flex; align-items:center; justify-content:center;
+  }
+  .shop-check.checked{ background:var(--accent); border-color:var(--accent); }
+  .shop-check svg{ width:12px; height:12px; stroke:var(--paper); fill:none; opacity:0; }
+  .shop-check.checked svg{ opacity:1; }
+  .shop-line-text{ flex:1; font-size:14.5px; }
+  .shop-line-text .amt{ font-family:var(--font-mono); }
+  .shop-remove{ flex:0 0 auto; opacity:0.5; }
   .linked-from-pill{ font-size:12px; color:var(--ink-soft); background:var(--paper-raised); border:1px solid var(--hairline-strong); border-radius:999px; padding:5px 12px; cursor:pointer; }
 
   /* Recipe picker modal */
   .picker-search{ width:100%; border:1px solid var(--hairline-strong); background:var(--paper-raised); border-radius:8px; padding:9px 12px; font-size:14px; outline:none; margin-bottom:10px; }
   .picker-group-label{ font-size:10.5px; text-transform:uppercase; letter-spacing:0.6px; color:var(--ink-faint); font-weight:600; padding:10px 6px 4px 6px; }
+  .settings-menu{ display:flex; flex-direction:column; }
+  .settings-menu-item{
+    display:flex; align-items:center; gap:12px; border:none; background:none; width:100%;
+    text-align:left; padding:13px 4px; font-size:15px; color:var(--ink); border-bottom:1px solid var(--hairline);
+  }
+  .settings-menu-item:last-child{ border-bottom:none; }
+  .settings-menu-item svg{ width:18px; height:18px; stroke:var(--ink-soft); fill:none; flex:0 0 auto; }
   .picker-item{ padding:10px 6px; border-bottom:1px solid var(--hairline); font-size:14.5px; cursor:pointer; }
   .picker-item:active{ background:var(--paper-raised); }
   .picker-empty{ font-size:13.5px; color:var(--ink-faint); padding:14px 6px; text-align:center; }
@@ -424,13 +466,12 @@
   .ing-static{ font-size:14.5px; }
   .ing-static .amt{ font-family:var(--font-mono); }
   .ing-static-name.checked{ color:var(--ink-faint); text-decoration: line-through; text-decoration-color: var(--hairline-strong); }
-  .ing-group-label{ font-size:12px; font-weight:600; color:var(--accent); margin: 16px 0 8px 0; letter-spacing:0.2px; }
+  .ing-group-label{ font-family:var(--font-display); font-size:19px; font-weight:600; color:var(--ink); margin: 22px 0 10px 0; letter-spacing:0.1px; }
   .ing-group-label:first-child{ margin-top:0; }
-  .ing-group-header{ display:flex; align-items:center; gap:6px; margin: 16px 0 8px 0; }
-  .ing-group-prefix{ font-size:12px; font-weight:600; color:var(--accent); white-space:nowrap; }
+  .ing-group-header{ display:flex; align-items:center; gap:8px; margin: 22px 0 10px 0; }
   .ing-group-name-input{
     flex:1; border:none; border-bottom:1px dashed var(--hairline-strong); background:transparent;
-    font-size:13.5px; font-weight:600; color:var(--accent); padding:2px 0; outline:none;
+    font-family:var(--font-display); font-size:19px; font-weight:600; color:var(--ink); padding:2px 0; outline:none;
   }
   .ing-group-del{ flex:0 0 auto; opacity:0.5; }
 
@@ -510,6 +551,7 @@
   .kitchen-yield{ font-size:15px; color:var(--ink-soft); margin-top:8px; }
   .kitchen-section-title{ font-size:13px; text-transform:uppercase; letter-spacing:1.2px; color:var(--ink-soft); font-weight:700; margin:30px 0 14px 0; }
   .kitchen-oven-label{ font-size:13px; font-weight:700; color:var(--accent); margin: 10px 0 4px 0; letter-spacing:0.2px; }
+  .kitchen-ing-group-title{ font-family:var(--font-display); font-size:22px; font-weight:600; color:var(--ink); margin:18px 0 6px 0; display:block; }
   .kitchen-oven{ display:flex; gap:24px; flex-wrap:wrap; font-size:16px; color:var(--ink); margin-bottom:6px; }
   .kitchen-oven b{ display:block; font-size:12px; text-transform:uppercase; color:var(--ink-faint); font-weight:600; letter-spacing:0.4px; margin-bottom:3px; }
   .kitchen-ing-list{ list-style:none; margin:0; padding:0; }
@@ -545,7 +587,7 @@
 /* =========================================================
    CONSTANTS
 ========================================================= */
-const APP_VERSION = "v14";
+const APP_VERSION = "v19";
 const DEFAULT_CATEGORIES = ["Dessert","Dinner","Bites","Drinks","Side Dishes","Batch Cooking"];
 const ACCENTS = ["#7C5A6B","#6B7561","#A68A5B","#5C7A80","#8A8F5C","#9C6B54","#5E6B8A","#8B6F8C"];
 const OVEN_SETTINGS = ["With fan","Without fan","Turbo","Airfry","Other"];
@@ -556,6 +598,7 @@ const OVEN_SETTINGS = ["With fan","Without fan","Turbo","Airfry","Other"];
 let data = loadLocal() || { title:"Recipe Book", categories:[...DEFAULT_CATEGORIES], recipes:[], pantryCategories:[], pantry:[] };
 if(!Array.isArray(data.pantryCategories)) data.pantryCategories = [];
 if(!Array.isArray(data.pantry)) data.pantry = [];
+if(!Array.isArray(data.shoppingList)) data.shoppingList = [];
 data.pantry = data.pantry.map(migratePantryItem);
 let dirty = false;
 let draftRecipe = null; // holds an unsaved new recipe until first Save
@@ -582,6 +625,8 @@ let state = {
   currentMultiplier: null,
   linkPickerTarget: null,
   archiveViewMode: "tile",
+  homeSearchQuery: "",
+  pantrySearchQuery: "",
   recipeOrigin: "home"
 };
 
@@ -622,7 +667,7 @@ function blankRecipe(cat){
     sectionsEnabled: { storage:false, prepPlan:false, oven:false, source:false },
     storageLines: [], prepPlan: [],
     yield: { base:4, unit:"servings", na:false },
-    ingredientGroups: [makeIngredientGroup()], instructions: [],
+    ingredientGroups: [makeIngredientGroup()], instructionGroups: [makeInstructionGroup()],
     ovenRows: [makeOvenRow()],
     variants: [], activeVariant: 'standard',
     archived: false
@@ -631,6 +676,7 @@ function blankRecipe(cat){
 function makeOvenRow(){ return { id: uid(), label:'', temp:null, tempUnit:'C', time:null, timeUnit:'min', setting:'Without fan', settingOther:'' }; }
 function makeIngredient(){ return { id: uid(), amount:null, unit:'', name:'', checked:false, optional:false }; }
 function makeIngredientGroup(){ return { id: uid(), name:'', items: [] }; }
+function makeInstructionGroup(){ return { id: uid(), name:'', items: [] }; }
 function makeLine(){ return { id: uid(), text:'' }; }
 function makeInstr(){ return { id: uid(), text:'', checked:false }; }
 function makePantryItem(cat){ return { id: uid(), name:'', type:'', category: cat||'', image:null, brands:[], stores:[], notes:'' }; }
@@ -689,6 +735,8 @@ function render(){
     renderPantryItemView();
   } else if(state.view === 'archive'){
     renderArchiveView();
+  } else if(state.view === 'shoppingList'){
+    renderShoppingListView();
   } else {
     renderRecipeView();
   }
@@ -700,10 +748,12 @@ function render(){
 function homeHTML(){
   const cats = ["All", ...data.categories];
   const visibleRecipes = data.recipes.filter(r => !r.archived);
+  const q = state.homeSearchQuery.trim().toLowerCase();
   const filtered = (state.activeCategory === "All"
     ? visibleRecipes
     : visibleRecipes.filter(r => (r.categories||[]).includes(state.activeCategory))
-  ).slice().sort((a,b)=>(a.name||'').localeCompare(b.name||'', undefined, {sensitivity:'base'}));
+  ).filter(r => !q || (r.name||'').toLowerCase().includes(q))
+   .slice().sort((a,b)=>(a.name||'').localeCompare(b.name||'', undefined, {sensitivity:'base'}));
 
   const catTabs = cats.map(c => {
     const active = c === state.activeCategory;
@@ -725,7 +775,7 @@ function homeHTML(){
     body = `<div class="empty">
       ${ICON.book}
       <h3>Nothing here yet</h3>
-      <p>No recipes tagged ${escHtml(state.activeCategory)} yet.</p>
+      <p>${q ? `No recipes matching "${escHtml(state.homeSearchQuery.trim())}"` : `No recipes tagged ${escHtml(state.activeCategory)} yet.`}</p>
     </div>`;
   } else if(state.viewMode === 'tile'){
     body = `<div class="grid">${filtered.map(tileHTML).join('')}</div>`;
@@ -740,18 +790,19 @@ function homeHTML(){
         <span class="version-badge">${APP_VERSION}</span>
       </div>
       <div class="topbar-actions">
+        <button class="icon-btn" id="shoppingListBtn" title="Shopping list">🛒</button>
         <button class="icon-btn" id="pantryBtn" title="Pantry">🧺</button>
-        <button class="icon-btn" id="archiveBtn" title="Archive">🗄️</button>
-        <button class="icon-btn" id="importBtn" title="Import JSON">${ICON.upload}</button>
-        <button class="icon-btn" id="exportBtn" title="Export JSON">
-          ${ICON.download}
+        <button class="icon-btn" id="homeSettingsBtn" title="Settings">
+          ⚙️
           <span class="dirty-dot" id="dirtyDot" style="display:${dirty?'block':'none'}"></span>
         </button>
       </div>
     </div>
+    <div class="search-row">
+      <input type="text" id="homeSearchInput" class="search-input" placeholder="Search recipes…" value="${escAttr(state.homeSearchQuery)}" />
+    </div>
     <div class="cat-row-wrap">
       <div class="cat-row">${catTabs}</div>
-      <button class="pinned-manage-btn" id="manageCatsBtn" title="Manage tags">⚙️</button>
     </div>
     <div class="toolbar">
       <span class="count-label">${filtered.length} recipe${filtered.length===1?'':'s'}</span>
@@ -801,7 +852,6 @@ function attachHomeEvents(){
   document.querySelectorAll('.cat-tab[data-cat]').forEach(btn=>{
     btn.addEventListener('click', ()=>{ state.activeCategory = btn.dataset.cat; render(); });
   });
-  document.getElementById('manageCatsBtn').addEventListener('click', openManageCategories);
   document.querySelectorAll('.view-toggle button').forEach(btn=>{
     btn.addEventListener('click', ()=>{ state.viewMode = btn.dataset.mode; render(); });
   });
@@ -821,11 +871,49 @@ function attachHomeEvents(){
     markDirty();
   });
 
-  document.getElementById('exportBtn').addEventListener('click', exportJSON);
   document.getElementById('pantryBtn').addEventListener('click', ()=>{ state.view = 'pantry'; render(); });
-  document.getElementById('archiveBtn').addEventListener('click', ()=>{ state.view = 'archive'; render(); });
-  document.getElementById('importBtn').addEventListener('click', ()=> document.getElementById('importFile').click());
+  document.getElementById('shoppingListBtn').addEventListener('click', ()=>{ state.view = 'shoppingList'; render(); });
+  document.getElementById('homeSettingsBtn').addEventListener('click', openHomeSettingsMenu);
+  const searchInput = document.getElementById('homeSearchInput');
+  if(searchInput){
+    searchInput.addEventListener('input', e=>{
+      state.homeSearchQuery = e.target.value;
+      const cursorPos = e.target.selectionStart;
+      render();
+      const newInput = document.getElementById('homeSearchInput');
+      if(newInput){
+        newInput.focus();
+        newInput.setSelectionRange(cursorPos, cursorPos);
+      }
+    });
+  }
   document.getElementById('importFile').addEventListener('change', importJSON);
+}
+function openHomeSettingsMenu(){
+  const backdrop = document.createElement('div');
+  backdrop.className = 'modal-backdrop';
+  backdrop.innerHTML = `
+    <div class="modal">
+      <h3>Settings</h3>
+      <div class="settings-menu">
+        <button class="settings-menu-item" id="menuManageTags">${ICON.settings} Manage tags</button>
+        <button class="settings-menu-item" id="menuArchive">${ICON.archive} Archive</button>
+        <button class="settings-menu-item" id="menuExport">
+          ${ICON.download} Export data
+          ${dirty ? `<span class="dirty-dot" style="position:static;margin-left:6px;box-shadow:none;"></span>` : ''}
+        </button>
+        <button class="settings-menu-item" id="menuImport">${ICON.upload} Import data</button>
+      </div>
+      <button class="modal-close" id="closeSettingsMenu">Close</button>
+    </div>`;
+  document.body.appendChild(backdrop);
+  function close(){ document.body.removeChild(backdrop); }
+  backdrop.querySelector('#menuManageTags').addEventListener('click', ()=>{ close(); openManageCategories(); });
+  backdrop.querySelector('#menuArchive').addEventListener('click', ()=>{ close(); state.view='archive'; render(); });
+  backdrop.querySelector('#menuExport').addEventListener('click', ()=>{ close(); exportJSON(); });
+  backdrop.querySelector('#menuImport').addEventListener('click', ()=>{ close(); document.getElementById('importFile').click(); });
+  backdrop.querySelector('#closeSettingsMenu').addEventListener('click', close);
+  backdrop.addEventListener('click', e=>{ if(e.target === backdrop) close(); });
 }
 
 function addNewRecipe(){
@@ -937,10 +1025,12 @@ function openManageCategories(){
 function renderPantryView(){
   const app = document.getElementById('app');
   const cats = ["All", ...data.pantryCategories];
+  const q = state.pantrySearchQuery.trim().toLowerCase();
   const filtered = (state.pantryActiveCategory === "All"
     ? data.pantry
     : data.pantry.filter(p => p.category === state.pantryActiveCategory)
-  ).slice().sort((a,b)=>(a.name||'').localeCompare(b.name||'', undefined, {sensitivity:'base'}));
+  ).filter(p => !q || (p.name||'').toLowerCase().includes(q))
+   .slice().sort((a,b)=>(a.name||'').localeCompare(b.name||'', undefined, {sensitivity:'base'}));
 
   const catTabs = cats.map(c=>{
     const active = c === state.pantryActiveCategory;
@@ -954,7 +1044,7 @@ function renderPantryView(){
   if(data.pantry.length === 0){
     body = `<div class="empty">${ICON.book}<h3>No pantry items yet</h3><p>Add your staples, brands, and where to find them.</p></div>`;
   } else if(filtered.length === 0){
-    body = `<div class="empty">${ICON.book}<h3>Nothing here yet</h3><p>No pantry items tagged ${escHtml(state.pantryActiveCategory)} yet.</p></div>`;
+    body = `<div class="empty">${ICON.book}<h3>Nothing here yet</h3><p>${q ? `No pantry items matching "${escHtml(state.pantrySearchQuery.trim())}"` : `No pantry items tagged ${escHtml(state.pantryActiveCategory)} yet.`}</p></div>`;
   } else if(state.pantryViewMode === 'tile'){
     body = `<div class="grid">${filtered.map(pantryTileHTML).join('')}</div>`;
   } else {
@@ -968,7 +1058,11 @@ function renderPantryView(){
       </div>
       <div class="rv-header-right">
         <span style="font-family:var(--font-display);font-size:17px;">Pantry</span>
+        <button class="icon-btn" id="pantryShopListBtn" title="Shopping list">🛒</button>
       </div>
+    </div>
+    <div class="search-row">
+      <input type="text" id="pantrySearchInput" class="search-input" placeholder="Search pantry…" value="${escAttr(state.pantrySearchQuery)}" />
     </div>
     <div class="cat-row-wrap" style="padding:16px 20px 4px 20px;">
       <div class="cat-row">${catTabs}</div>
@@ -986,7 +1080,21 @@ function renderPantryView(){
   `;
 
   document.getElementById('pantryBack').addEventListener('click', ()=>{ state.view='home'; render(); });
+  document.getElementById('pantryShopListBtn').addEventListener('click', ()=>{ state.view='shoppingList'; render(); });
   document.getElementById('managePantryCatsBtn').addEventListener('click', openManagePantryCategories);
+  const pantrySearchInput = document.getElementById('pantrySearchInput');
+  if(pantrySearchInput){
+    pantrySearchInput.addEventListener('input', e=>{
+      state.pantrySearchQuery = e.target.value;
+      const cursorPos = e.target.selectionStart;
+      render();
+      const newInput = document.getElementById('pantrySearchInput');
+      if(newInput){
+        newInput.focus();
+        newInput.setSelectionRange(cursorPos, cursorPos);
+      }
+    });
+  }
   document.querySelectorAll('.cat-tab[data-pcat]').forEach(btn=>{
     btn.addEventListener('click', ()=>{ state.pantryActiveCategory = btn.dataset.pcat; render(); });
   });
@@ -995,6 +1103,13 @@ function renderPantryView(){
   });
   document.querySelectorAll('.tile[data-pid], .list-row[data-pid]').forEach(el=>{
     el.addEventListener('click', ()=> openPantryItem(el.dataset.pid));
+  });
+  document.querySelectorAll('.shop-add-btn').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      const item = data.pantry.find(x=>x.id===btn.dataset.pid);
+      if(item){ toggleShoppingListItem(item); render(); }
+    });
   });
   document.getElementById('pantryAdd').addEventListener('click', addNewPantryItem);
 }
@@ -1043,13 +1158,93 @@ function renderArchiveView(){
   });
 }
 
+/* =========================================================
+   SHOPPING LIST
+========================================================= */
+function isInShoppingList(pantryId){
+  return data.shoppingList.some(x=>x.pantryId===pantryId);
+}
+function toggleShoppingListItem(pantryItem){
+  const idx = data.shoppingList.findIndex(x=>x.pantryId===pantryItem.id);
+  if(idx > -1){
+    data.shoppingList.splice(idx,1);
+  } else {
+    data.shoppingList.push({ id: uid(), pantryId: pantryItem.id, name: pantryItem.name||'Untitled', checked:false });
+  }
+  markDirty();
+}
+function renderShoppingListView(){
+  const app = document.getElementById('app');
+  const items = data.shoppingList;
+
+  let listHtml;
+  if(items.length === 0){
+    listHtml = `<div class="empty">${ICON.book}<h3>Your list is empty</h3><p>Tap the cart icon on any pantry item to add it here.</p></div>`;
+  } else {
+    listHtml = `<ul class="shop-list">${items.map(item=>{
+      const pantryStillExists = data.pantry.some(p=>p.id===item.pantryId);
+      const nameHtml = pantryStillExists
+        ? `<a class="pantry-link-ref shop-pantry-link" data-goto-pantry="${escAttr(item.pantryId)}">${escHtml(item.name)}</a>`
+        : `<span>${escHtml(item.name)}</span>`;
+      return `
+      <li class="shop-item">
+        <button class="shop-check ${item.checked?'checked':''}" data-id="${item.id}">${ICON.check}</button>
+        <span class="shop-line-text ${item.checked?'kitchen-done':''}">${nameHtml}</span>
+        <button class="row-del shop-remove" data-id="${item.id}" title="Remove">${ICON.trash}</button>
+      </li>`;
+    }).join('')}</ul>
+      <button class="add-row-btn" id="clearCheckedBtn" style="margin-top:10px;">${ICON.trash} Clear checked items</button>`;
+  }
+
+  app.innerHTML = `
+    <div class="rv-header">
+      <div class="rv-header-left"><button class="back-btn" id="shopBack">${ICON.back} Recipes</button></div>
+      <div class="rv-header-right"><span style="font-family:var(--font-display);font-size:17px;">Shopping List</span></div>
+    </div>
+    <div class="rv-body">
+      ${listHtml}
+    </div>
+  `;
+
+  document.getElementById('shopBack').addEventListener('click', ()=>{ state.view='home'; render(); });
+  document.querySelectorAll('.shop-pantry-link').forEach(el=>{
+    el.addEventListener('click', (e)=>{
+      e.preventDefault();
+      openPantryItem(el.dataset.gotoPantry);
+    });
+  });
+  document.querySelectorAll('.shop-check').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const item = data.shoppingList.find(x=>x.id===btn.dataset.id);
+      if(item){ item.checked = !item.checked; markDirty(); render(); }
+    });
+  });
+  document.querySelectorAll('.shop-remove').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      data.shoppingList = data.shoppingList.filter(x=>x.id!==btn.dataset.id);
+      markDirty();
+      render();
+    });
+  });
+  const clearBtn = document.getElementById('clearCheckedBtn');
+  if(clearBtn) clearBtn.addEventListener('click', ()=>{
+    data.shoppingList = data.shoppingList.filter(x=>!x.checked);
+    markDirty();
+    render();
+  });
+}
+
 function pantryTileHTML(item){
   const img = item.image
     ? `<img class="tile-img" src="${item.image}" />`
     : `<div class="tile-img placeholder">${ICON.image}</div>`;
   const tag = item.category ? `<div class="tile-tags"><span class="dot" style="background:${pantryAccentFor(item.category)}"></span><span class="lbl">${escHtml(item.category)}</span></div>` : '';
+  const inList = isInShoppingList(item.id);
   return `<div class="tile" data-pid="${item.id}">
-    ${img}
+    <div class="tile-img-wrap">
+      ${img}
+      <button class="shop-add-btn tile-shop-btn ${inList?'active':''}" data-pid="${item.id}" title="${inList?'Remove from':'Add to'} shopping list">🛒</button>
+    </div>
     <div class="tile-body">
       <div class="tile-name">${escHtml(item.name || 'Untitled')}</div>
       ${tag}
@@ -1061,6 +1256,7 @@ function pantryListRowHTML(item){
     ? `<img class="list-thumb" src="${item.image}" />`
     : `<div class="list-thumb placeholder">${ICON.image}</div>`;
   const brandText = (item.brands||[]).map(b=>b.text).filter(Boolean).join(', ');
+  const inList = isInShoppingList(item.id);
   return `<div class="list-row" data-pid="${item.id}">
     ${img}
     <div class="list-info">
@@ -1070,6 +1266,7 @@ function pantryListRowHTML(item){
         ${item.type ? `<span class="pantry-list-type">${escHtml(item.type)}</span>` : ''}
       </div>
     </div>
+    <button class="shop-add-btn ${inList?'active':''}" data-pid="${item.id}" title="${inList?'Remove from':'Add to'} shopping list">🛒</button>
   </div>`;
 }
 function addNewPantryItem(){
@@ -1114,7 +1311,8 @@ function renderPantryItemView(){
       <div class="rv-header-right">
         ${editing
           ? `<button class="text-btn primary" id="piSave">Save</button>`
-          : `<button class="icon-btn" id="piEdit" title="Edit">${ICON.settings}</button>
+          : `<button class="icon-btn" id="piShopAdd" title="${isInShoppingList(item.id)?'Remove from':'Add to'} shopping list">🛒</button>
+             <button class="icon-btn" id="piEdit" title="Edit">${ICON.settings}</button>
              <button class="icon-btn danger" id="piDelete" title="Delete">${ICON.trash}</button>`
         }
       </div>
@@ -1128,6 +1326,10 @@ function renderPantryItemView(){
     document.getElementById('piSave').addEventListener('click', ()=> handlePantrySave(item));
   } else {
     document.getElementById('piBack').addEventListener('click', ()=>{ state.view='pantry'; render(); });
+    document.getElementById('piShopAdd').addEventListener('click', ()=>{
+      toggleShoppingListItem(item);
+      render();
+    });
     document.getElementById('piEdit').addEventListener('click', ()=>{
       state.pantryEditSnapshot = deepClone(item);
       state.pantryIsEditing = true;
@@ -1426,7 +1628,8 @@ function activeVariantObj(r){
 }
 function activeIngredientGroups(r){ const v = activeVariantObj(r); return v ? v.ingredientGroups : r.ingredientGroups; }
 function flatIngredients(r){ return activeIngredientGroups(r).flatMap(g=>g.items); }
-function activeInstructions(r){ const v = activeVariantObj(r); return v ? v.instructions : r.instructions; }
+function activeInstructionGroups(r){ const v = activeVariantObj(r); return v ? v.instructionGroups : r.instructionGroups; }
+function flatInstructions(r){ return activeInstructionGroups(r).flatMap(g=>g.items); }
 function activeOvenRows(r){ const v = activeVariantObj(r); return v ? v.ovenRows : r.ovenRows; }
 
 function ensureYieldSession(r){
@@ -1524,10 +1727,10 @@ function recipeTextsFor(rec){
   const texts = [];
   texts.push(rec.description||'');
   (rec.ingredientGroups||[]).forEach(g=>(g.items||[]).forEach(i=>texts.push(i.name||'')));
-  (rec.instructions||[]).forEach(i=>texts.push(i.text||''));
+  (rec.instructionGroups||[]).forEach(g=>(g.items||[]).forEach(i=>texts.push(i.text||'')));
   (rec.variants||[]).forEach(v=>{
     (v.ingredientGroups||[]).forEach(g=>(g.items||[]).forEach(i=>texts.push(i.name||'')));
-    (v.instructions||[]).forEach(i=>texts.push(i.text||''));
+    (v.instructionGroups||[]).forEach(g=>(g.items||[]).forEach(i=>texts.push(i.text||'')));
   });
   return texts.join(' \n ');
 }
@@ -1750,7 +1953,7 @@ function duplicateRecipe(r){
   clone.name = 'Copy of ' + (r.name || 'Untitled');
   clone.archived = false;
   clone.ingredientGroups = clone.ingredientGroups.map(g=>({...g, id: uid(), items: g.items.map(i=>({...i, id: uid()}))}));
-  clone.instructions = clone.instructions.map(i=>({...i, id: uid()}));
+  clone.instructionGroups = clone.instructionGroups.map(g=>({...g, id: uid(), items: g.items.map(i=>({...i, id: uid()}))}));
   clone.storageLines = clone.storageLines.map(i=>({...i, id: uid()}));
   clone.prepPlan = clone.prepPlan.map(i=>({...i, id: uid()}));
   clone.sourceLines = (clone.sourceLines||[]).map(i=>({...i, id: uid()}));
@@ -1759,7 +1962,7 @@ function duplicateRecipe(r){
   clone.variants = (clone.variants||[]).map(v=>({
     ...v, id: uid(),
     ingredientGroups: v.ingredientGroups.map(g=>({...g, id: uid(), items: g.items.map(i=>({...i, id: uid()}))})),
-    instructions: v.instructions.map(i=>({...i, id: uid()})),
+    instructionGroups: v.instructionGroups.map(g=>({...g, id: uid(), items: g.items.map(i=>({...i, id: uid()}))})),
     ovenRows: (v.ovenRows||[]).map(i=>({...i, id: uid()}))
   }));
   clone.activeVariant = 'standard';
@@ -2247,7 +2450,7 @@ function openManageVariants(r){
     const v = {
       id: uid(), name: val,
       ingredientGroups: r.ingredientGroups.map(g=>({...g, id: uid(), items: g.items.map(i=>({...i, id: uid()}))})),
-      instructions: r.instructions.map(i=>({...i, id: uid()})),
+      instructionGroups: r.instructionGroups.map(g=>({...g, id: uid(), items: g.items.map(i=>({...i, id: uid()}))})),
       ovenRows: r.ovenRows.map(row=>({...row, id: uid()}))
     };
     r.variants.push(v);
@@ -2279,7 +2482,7 @@ function ingredientsBodyHTML(r, editing){
       };
       const required = list.filter(i=>!i.optional);
       const optional = list.filter(i=>i.optional);
-      let html = showGroupNames ? `<div class="ing-group-label">Ingredients — ${escHtml(group.name||'Untitled')}</div>` : '';
+      let html = showGroupNames ? `<div class="ing-group-label">${escHtml(group.name||'Untitled')}</div>` : '';
       html += `<ul class="ing-list">${required.map(renderItem).join('')}</ul>`;
       if(optional.length){
         html += `<div class="pantry-sublabel" style="margin-top:14px;">Optional</div><ul class="ing-list">${optional.map(renderItem).join('')}</ul>`;
@@ -2291,7 +2494,7 @@ function ingredientsBodyHTML(r, editing){
         <button class="ing-check ${item.checked?'checked':''}" data-id="${item.id}">${ICON.check}</button>
         <div class="ing-fields">
           <input class="ing-amt" data-id="${item.id}" data-field="amount" type="text" inputmode="decimal" placeholder="amt" value="${item.amount===null?'':escAttr(String(item.amount))}" />
-          <input class="ing-unit" data-id="${item.id}" data-field="unit" placeholder="unit" value="${escAttr(item.unit)}" />
+          <input class="ing-unit" data-id="${item.id}" data-field="unit" placeholder="unit" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" value="${escAttr(item.unit)}" />
           <div class="field-with-link">
             <input class="ing-name" id="ingname_${item.id}" data-id="${item.id}" data-field="name" placeholder="ingredient" value="${escAttr(item.name)}" />
             <button class="link-insert-btn" data-target="ingname_${item.id}" title="Link to a recipe">${ICON.link}</button>
@@ -2305,7 +2508,6 @@ function ingredientsBodyHTML(r, editing){
       </li>`).join('');
     const groupHeader = showGroupNames ? `
       <div class="ing-group-header">
-        <span class="ing-group-prefix">Ingredients —</span>
         <input type="text" class="ing-group-name-input" data-group="${group.id}" placeholder="Component name" value="${escAttr(group.name)}" />
         <button class="row-del ing-group-del" data-group="${group.id}" title="Remove this list">${ICON.trash}</button>
       </div>` : '';
@@ -2527,34 +2729,52 @@ function wireOvenBlock(r, editing){
 }
 
 function instructionsBodyHTML(r, editing){
-  const list = activeInstructions(r);
+  const groups = activeInstructionGroups(r);
   const oven = ovenBlockHTML(r, editing);
-  if(!editing){
+  const showGroupNames = groups.length > 1;
+
+  const renderGroup = (group) => {
+    const list = group.items;
+    if(!editing){
+      const rows = list.map((item, i) => `
+        <li class="instr-item">
+          <span class="instr-num">${i+1}</span>
+          <div class="instr-static">${renderInstructionText(item.text)}</div>
+        </li>`).join('');
+      const label = showGroupNames ? `<div class="ing-group-label">${escHtml(group.name||'Untitled')}</div>` : '';
+      return `${label}<ul class="instr-list">${rows}</ul>`;
+    }
     const rows = list.map((item, i) => `
-      <li class="instr-item">
+      <li class="instr-item" data-id="${item.id}">
         <span class="instr-num">${i+1}</span>
-        <div class="instr-static">${renderInstructionText(item.text)}</div>
-      </li>`).join('');
-    return `${oven}<ul class="instr-list" id="instrList">${rows}</ul>`;
-  }
-  const rows = list.map((item, i) => `
-    <li class="instr-item" data-id="${item.id}">
-      <span class="instr-num">${i+1}</span>
-      <div class="field-with-link">
-        <div class="fmt-toolbar" id="fmttoolbar_${item.id}" style="display:none;">
-          <button data-fmt="**" title="Bold"><b>B</b></button>
-          <button data-fmt="*" title="Italic"><i>I</i></button>
+        <div class="field-with-link">
+          <div class="fmt-toolbar" id="fmttoolbar_${item.id}" style="display:none;">
+            <button data-fmt="**" title="Bold"><b>B</b></button>
+            <button data-fmt="*" title="Italic"><i>I</i></button>
+          </div>
+          <textarea class="instr-text" id="instrtext_${item.id}" data-id="${item.id}" placeholder="Describe this step…" rows="1">${escHtml(item.text)}</textarea>
+          <button class="link-insert-btn" data-target="instrtext_${item.id}" title="Link to a recipe">${ICON.link}</button>
         </div>
-        <textarea class="instr-text" id="instrtext_${item.id}" data-id="${item.id}" placeholder="Describe this step…" rows="1">${escHtml(item.text)}</textarea>
-        <button class="link-insert-btn" data-target="instrtext_${item.id}" title="Link to a recipe">${ICON.link}</button>
-      </div>
-      <div class="instr-actions">
-        <button class="row-add" data-kind="instr" data-id="${item.id}">${ICON.plus}</button>
-        <button class="row-del" data-kind="instr" data-id="${item.id}">${ICON.trash}</button>
-      </div>
-    </li>`).join('');
-  return `${oven}<ul class="instr-list" id="instrList">${rows}</ul>
-    <button class="add-row-btn" id="addInstrRow">${ICON.plus} Add step</button>`;
+        <div class="instr-actions">
+          <button class="row-add" data-kind="instr" data-id="${item.id}">${ICON.plus}</button>
+          <button class="row-del" data-kind="instr" data-id="${item.id}">${ICON.trash}</button>
+        </div>
+      </li>`).join('');
+    const groupHeader = showGroupNames ? `
+      <div class="ing-group-header">
+        <input type="text" class="instr-group-name-input" data-group="${group.id}" placeholder="Component name" value="${escAttr(group.name)}" />
+        <button class="row-del instr-group-del" data-group="${group.id}" title="Remove this list">${ICON.trash}</button>
+      </div>` : '';
+    return `${groupHeader}
+      <ul class="instr-list" data-group="${group.id}">${rows}</ul>
+      <button class="add-row-btn addInstrRowBtn" data-group="${group.id}">${ICON.plus} Add step</button>`;
+  };
+
+  let bodyHtml = groups.map(renderGroup).join(editing ? '<div style="height:6px"></div>' : '<div style="height:4px"></div>');
+  if(editing){
+    bodyHtml += `<button class="add-row-btn" id="addInstrGroupBtn" style="margin-top:12px;">${ICON.plus} Add instruction list</button>`;
+  }
+  return `${oven}${bodyHtml}`;
 }
 function applyInlineFormat(el, marker){
   const start = el.selectionStart, end = el.selectionEnd;
@@ -2590,36 +2810,71 @@ function wireFormatToolbar(item){
 function wireInstructions(r, editing){
   wireOvenBlock(r, editing);
   if(!editing) return;
-  const list = activeInstructions(r);
-  const addBtn = document.getElementById('addInstrRow');
-  if(addBtn) addBtn.addEventListener('click', ()=>{
-    list.push(makeInstr());
-    refreshBody(r);
-    focusLast('#instrList .instr-text');
+  const groups = activeInstructionGroups(r);
+  function findItemAndGroup(id){
+    for(const g of groups){
+      const item = g.items.find(x=>x.id===id);
+      if(item) return { item, group: g };
+    }
+    return { item: null, group: null };
+  }
+  document.querySelectorAll('.addInstrRowBtn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const group = groups.find(g=>g.id===btn.dataset.group);
+      if(group){
+        group.items.push(makeInstr());
+        refreshBody(r);
+        focusLast(`.instr-list[data-group="${group.id}"] .instr-text`);
+      }
+    });
   });
-  document.querySelectorAll('#instrList .instr-text').forEach(ta=>{
+  document.querySelectorAll('.instr-text').forEach(ta=>{
     autosize(ta);
     ta.addEventListener('input', e=>{
-      const item = list.find(x=>x.id===e.target.dataset.id);
+      const { item } = findItemAndGroup(e.target.dataset.id);
       if(item) item.text = e.target.value;
       autosize(e.target);
     });
   });
-  list.forEach(item => wireFormatToolbar(item));
-  document.querySelectorAll('#instrList .row-add[data-kind="instr"]').forEach(btn=>{
+  groups.forEach(g => g.items.forEach(item => wireFormatToolbar(item)));
+  document.querySelectorAll('.row-add[data-kind="instr"]').forEach(btn=>{
     btn.addEventListener('click', ()=>{
-      const idx = list.findIndex(x=>x.id===btn.dataset.id);
-      list.splice(idx+1, 0, makeInstr());
-      refreshBody(r);
-      focusLast('#instrList .instr-text');
+      const { group } = findItemAndGroup(btn.dataset.id);
+      if(group){
+        const idx = group.items.findIndex(x=>x.id===btn.dataset.id);
+        group.items.splice(idx+1, 0, makeInstr());
+        refreshBody(r);
+        focusLast(`.instr-list[data-group="${group.id}"] .instr-text`);
+      }
     });
   });
-  document.querySelectorAll('#instrList .row-del[data-kind="instr"]').forEach(btn=>{
+  document.querySelectorAll('.row-del[data-kind="instr"]').forEach(btn=>{
     btn.addEventListener('click', ()=>{
-      const idx = list.findIndex(x=>x.id===btn.dataset.id);
-      if(idx>-1) list.splice(idx,1);
-      refreshBody(r);
+      const { group } = findItemAndGroup(btn.dataset.id);
+      if(group){
+        const idx = group.items.findIndex(x=>x.id===btn.dataset.id);
+        if(idx>-1) group.items.splice(idx,1);
+        refreshBody(r);
+      }
     });
+  });
+  document.querySelectorAll('.instr-group-name-input').forEach(inp=>{
+    inp.addEventListener('input', e=>{
+      const g = groups.find(x=>x.id===e.target.dataset.group);
+      if(g) g.name = e.target.value;
+    });
+  });
+  document.querySelectorAll('.instr-group-del').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      if(groups.length <= 1) return;
+      const idx = groups.findIndex(g=>g.id===btn.dataset.group);
+      if(idx>-1){ groups.splice(idx,1); refreshBody(r); }
+    });
+  });
+  const addGroupBtn = document.getElementById('addInstrGroupBtn');
+  if(addGroupBtn) addGroupBtn.addEventListener('click', ()=>{
+    groups.push(makeInstructionGroup());
+    refreshBody(r);
   });
 }
 
@@ -2782,7 +3037,7 @@ async function openKitchenMode(r, isPrintMode){
       const requiredIng = group.items.filter(i=>!i.optional);
       const optionalIng = group.items.filter(i=>i.optional);
       if(showGroupNames){
-        html += `<li class="kitchen-ing-group-label"><span class="kitchen-oven-label" style="margin:14px 0 2px 0;">Ingredients — ${escHtml(group.name||'Untitled')}</span></li>`;
+        html += `<li class="kitchen-ing-group-label"><span class="kitchen-oven-label kitchen-ing-group-title">${escHtml(group.name||'Untitled')}</span></li>`;
       }
       html += requiredIng.map(renderKitchenIng).join('');
       if(optionalIng.length){
@@ -2792,17 +3047,25 @@ async function openKitchenMode(r, isPrintMode){
     return html;
   }
   function renderKitchenInstrList(){
-    const instructions = activeInstructions(r);
-    return instructions.map((item,i)=>`<li>
-      <button class="kitchen-check kitchen-check-instr ${item.checked?'checked':''}" data-kind="instr" data-id="${item.id}">${ICON.check}</button>
-      <span class="kitchen-instr-num">${i+1}</span>
-      <span class="${item.checked?'kitchen-done':''}">${renderInstructionText(item.text)}</span>
-    </li>`).join('');
+    const groups = activeInstructionGroups(r);
+    const showGroupNames = groups.length > 1;
+    let html = '';
+    groups.forEach(group=>{
+      if(showGroupNames){
+        html += `<li class="kitchen-ing-group-label"><span class="kitchen-ing-group-title">${escHtml(group.name||'Untitled')}</span></li>`;
+      }
+      html += group.items.map((item,i)=>`<li>
+        <button class="kitchen-check kitchen-check-instr ${item.checked?'checked':''}" data-kind="instr" data-id="${item.id}">${ICON.check}</button>
+        <span class="kitchen-instr-num">${i+1}</span>
+        <span class="${item.checked?'kitchen-done':''}">${renderInstructionText(item.text)}</span>
+      </li>`).join('');
+    });
+    return html;
   }
   function wireKitchenChecks(){
     overlay.querySelectorAll('.kitchen-check').forEach(btn=>{
       btn.addEventListener('click', ()=>{
-        const list = btn.dataset.kind === 'ing' ? flatIngredients(r) : activeInstructions(r);
+        const list = btn.dataset.kind === 'ing' ? flatIngredients(r) : flatInstructions(r);
         const item = list.find(x=>x.id===btn.dataset.id);
         if(item){
           item.checked = !item.checked;
@@ -2943,8 +3206,14 @@ function migrateRecipe(raw){
   } else {
     r.ingredientGroups = [{ id: uid(), name:'', items: (raw.ingredients||[]).map(normalizeIngItem) }];
   }
-  if(!Array.isArray(r.instructions)) r.instructions = [];
-  r.instructions = r.instructions.map(i=>({ checked:false, ...i }));
+  if(Array.isArray(raw.instructionGroups)){
+    r.instructionGroups = raw.instructionGroups.map(g=>({
+      id: g.id||uid(), name: g.name||'',
+      items: (g.items||[]).map(i=>({ checked:false, ...i }))
+    }));
+  } else {
+    r.instructionGroups = [{ id: uid(), name:'', items: (raw.instructions||[]).map(i=>({ checked:false, ...i })) }];
+  }
   if(!r.yield) r.yield = { base:4, unit:'servings', na:false };
   if(typeof r.yield.na !== 'boolean') r.yield.na = false;
   if(!r.yield.base) r.yield.base = 4;
@@ -2971,7 +3240,10 @@ function migrateRecipe(raw){
       v.ingredientGroups = [{ id: uid(), name:'', items: (v.ingredients||[]).map(normalizeIngItem) }];
     }
     delete v.ingredients;
-    if(Array.isArray(v.instructions)) v.instructions = v.instructions.map(i=>({ checked:false, ...i }));
+    if(!Array.isArray(v.instructionGroups)){
+      v.instructionGroups = [{ id: uid(), name:'', items: (v.instructions||[]).map(i=>({ checked:false, ...i })) }];
+    }
+    delete v.instructions;
     return v;
   });
   if(!r.activeVariant) r.activeVariant = 'standard';
@@ -3012,7 +3284,8 @@ function importJSON(e){
         categories: Array.isArray(parsed.categories) && parsed.categories.length ? parsed.categories : [...DEFAULT_CATEGORIES],
         recipes: parsed.recipes.map(migrateRecipe),
         pantryCategories: Array.isArray(parsed.pantryCategories) ? parsed.pantryCategories : [],
-        pantry: Array.isArray(parsed.pantry) ? parsed.pantry.map(migratePantryItem) : []
+        pantry: Array.isArray(parsed.pantry) ? parsed.pantry.map(migratePantryItem) : [],
+        shoppingList: Array.isArray(parsed.shoppingList) ? parsed.shoppingList : []
       };
       saveLocal();
       clearDirty();
@@ -3194,7 +3467,7 @@ function applyParsedRecipe(r, parsed){
   if(parsed.name) r.name = parsed.name;
   if(parsed.description) r.description = parsed.description;
   if(parsed.ingredients && parsed.ingredients.length) r.ingredientGroups = [{ id: uid(), name:'', items: parsed.ingredients }];
-  if(parsed.instructions && parsed.instructions.length) r.instructions = parsed.instructions;
+  if(parsed.instructions && parsed.instructions.length) r.instructionGroups = [{ id: uid(), name:'', items: parsed.instructions }];
   refreshBody(r);
 }
 
