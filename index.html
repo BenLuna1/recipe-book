@@ -602,7 +602,7 @@
 /* =========================================================
    CONSTANTS
 ========================================================= */
-const APP_VERSION = "v20";
+const APP_VERSION = "v21";
 const DEFAULT_CATEGORIES = ["Dessert","Dinner","Bites","Drinks","Side Dishes","Batch Cooking"];
 const ACCENTS = ["#7C5A6B","#6B7561","#A68A5B","#5C7A80","#8A8F5C","#9C6B54","#5E6B8A","#8B6F8C"];
 const OVEN_SETTINGS = ["With fan","Without fan","Turbo","Airfry","Other"];
@@ -670,6 +670,14 @@ function clearDirty(){
   if(d) d.style.display = 'none';
 }
 function deepClone(o){ return JSON.parse(JSON.stringify(o)); }
+function removeAllModals(){
+  document.querySelectorAll('.modal-backdrop').forEach(el=>{
+    if(el.parentNode) el.parentNode.removeChild(el);
+  });
+}
+function safeRemoveModal(el){
+  if(el && el.parentNode) el.parentNode.removeChild(el);
+}
 
 /* =========================================================
    RECIPE FACTORY
@@ -925,8 +933,9 @@ function openHomeSettingsMenu(){
       </div>
       <button class="modal-close" id="closeSettingsMenu">Close</button>
     </div>`;
+  removeAllModals();
   document.body.appendChild(backdrop);
-  function close(){ document.body.removeChild(backdrop); }
+  function close(){ safeRemoveModal(backdrop); }
   backdrop.querySelector('#menuManageTags').addEventListener('click', ()=>{ close(); openManageCategories(); });
   backdrop.querySelector('#menuArchive').addEventListener('click', ()=>{ close(); state.view='archive'; render(); });
   backdrop.querySelector('#menuExport').addEventListener('click', ()=>{ close(); exportJSON(); });
@@ -977,6 +986,7 @@ function openManageCategories(){
       <p class="hint">Deleting a tag removes it from any recipes that use it — their other tags are unaffected.</p>
       <button class="modal-close" id="closeModal">Done</button>
     </div>`;
+  removeAllModals();
   document.body.appendChild(backdrop);
 
   function renderCatList(){
@@ -1006,6 +1016,7 @@ function openManageCategories(){
       btn.addEventListener('click', ()=>{
         const idx = +btn.dataset.idx;
         const removed = data.categories[idx];
+        if(!confirm(`Delete the tag "${removed}"? This removes it from any recipes using it.`)) return;
         data.categories.splice(idx,1);
         data.recipes.forEach(r=>{
           if(Array.isArray(r.categories)) r.categories = r.categories.filter(t=>t!==removed);
@@ -1028,10 +1039,10 @@ function openManageCategories(){
     renderCatList();
   });
   backdrop.querySelector('#closeModal').addEventListener('click', ()=>{
-    document.body.removeChild(backdrop);
+    safeRemoveModal(backdrop);
     render();
   });
-  backdrop.addEventListener('click', e=>{ if(e.target === backdrop){ document.body.removeChild(backdrop); render(); } });
+  backdrop.addEventListener('click', e=>{ if(e.target === backdrop){ safeRemoveModal(backdrop); render(); } });
 }
 
 /* =========================================================
@@ -1240,6 +1251,8 @@ function renderShoppingListView(){
   });
   document.querySelectorAll('.shop-remove').forEach(btn=>{
     btn.addEventListener('click', ()=>{
+      const item = data.shoppingList.find(x=>x.id===btn.dataset.id);
+      if(!confirm(`Remove "${item?item.name:'this item'}" from your shopping list?`)) return;
       data.shoppingList = data.shoppingList.filter(x=>x.id!==btn.dataset.id);
       markDirty();
       render();
@@ -1247,6 +1260,9 @@ function renderShoppingListView(){
   });
   const clearBtn = document.getElementById('clearCheckedBtn');
   if(clearBtn) clearBtn.addEventListener('click', ()=>{
+    const count = data.shoppingList.filter(x=>x.checked).length;
+    if(count === 0) return;
+    if(!confirm(`Remove ${count} checked item${count===1?'':'s'} from your shopping list?`)) return;
     data.shoppingList = data.shoppingList.filter(x=>!x.checked);
     markDirty();
     render();
@@ -1338,7 +1354,6 @@ function renderPantryItemView(){
     </div>
     <div class="rv-body" id="piBodyContainer"></div>
   `;
-  renderPantryItemBody(item);
 
   if(editing){
     document.getElementById('piCancel').addEventListener('click', ()=> handlePantryCancel(item));
@@ -1362,6 +1377,16 @@ function renderPantryItemView(){
         render();
       }
     });
+  }
+
+  try{
+    renderPantryItemBody(item);
+  }catch(err){
+    console.error('Error rendering pantry item body:', err);
+    const container = document.getElementById('piBodyContainer');
+    if(container){
+      container.innerHTML = `<div class="empty"><h3>Something went wrong displaying this item</h3><p>Your changes are safe. Use ${editing?'Save or Cancel':'Back'} above to continue, then let me know what you were doing so I can fix it.</p></div>`;
+    }
   }
 }
 function handlePantryCancel(item){
@@ -1391,7 +1416,17 @@ function handlePantrySave(item){
   markDirty();
   render();
 }
-function refreshPantryBody(item){ renderPantryItemBody(item); }
+function refreshPantryBody(item){
+  try{
+    renderPantryItemBody(item);
+  }catch(err){
+    console.error('Error refreshing pantry item body:', err);
+    const container = document.getElementById('piBodyContainer');
+    if(container){
+      container.innerHTML = `<div class="empty"><h3>Something went wrong updating this item</h3><p>Your changes are safe. Use Save or Cancel above to continue, then let me know what you were doing so I can fix it.</p></div>`;
+    }
+  }
+}
 
 function renderPantryItemBody(item){
   const container = document.getElementById('piBodyContainer');
@@ -1584,6 +1619,7 @@ function openManagePantryCategories(){
       <p class="hint">Deleting a tag clears it from any pantry items using it.</p>
       <button class="modal-close" id="closePCatModal">Done</button>
     </div>`;
+  removeAllModals();
   document.body.appendChild(backdrop);
 
   function renderList(){
@@ -1608,6 +1644,7 @@ function openManagePantryCategories(){
       btn.addEventListener('click', ()=>{
         const idx = +btn.dataset.idx;
         const removed = data.pantryCategories[idx];
+        if(!confirm(`Delete the tag "${removed}"? This clears it from any pantry items using it.`)) return;
         data.pantryCategories.splice(idx,1);
         data.pantry.forEach(p=>{ if(p.category===removed) p.category=''; });
         if(state.pantryActiveCategory === removed) state.pantryActiveCategory = "All";
@@ -1628,10 +1665,10 @@ function openManagePantryCategories(){
     renderList();
   });
   backdrop.querySelector('#closePCatModal').addEventListener('click', ()=>{
-    document.body.removeChild(backdrop);
+    safeRemoveModal(backdrop);
     render();
   });
-  backdrop.addEventListener('click', e=>{ if(e.target === backdrop){ document.body.removeChild(backdrop); render(); } });
+  backdrop.addEventListener('click', e=>{ if(e.target === backdrop){ safeRemoveModal(backdrop); render(); } });
 }
 
 /* =========================================================
@@ -1827,6 +1864,7 @@ function openLinkPicker(targetEl, currentRecipeId, currentPantryId){
       <div id="linkPickerList"></div>
       <button class="modal-close" id="closeLinkPicker">Cancel</button>
     </div>`;
+  removeAllModals();
   document.body.appendChild(backdrop);
 
   function renderResults(query){
@@ -1853,14 +1891,14 @@ function openLinkPicker(targetEl, currentRecipeId, currentPantryId){
         } else {
           insertRecipeLinkIntoField(targetEl, item.dataset.id, item.dataset.name);
         }
-        document.body.removeChild(backdrop);
+        safeRemoveModal(backdrop);
       });
     });
   }
   renderResults('');
   backdrop.querySelector('#linkPickerSearch').addEventListener('input', e=> renderResults(e.target.value));
-  backdrop.querySelector('#closeLinkPicker').addEventListener('click', ()=> document.body.removeChild(backdrop));
-  backdrop.addEventListener('click', e=>{ if(e.target === backdrop) document.body.removeChild(backdrop); });
+  backdrop.querySelector('#closeLinkPicker').addEventListener('click', ()=> safeRemoveModal(backdrop));
+  backdrop.addEventListener('click', e=>{ if(e.target === backdrop) safeRemoveModal(backdrop); });
 }
 
 /* =========================================================
@@ -1902,8 +1940,8 @@ function renderRecipeView(){
     <div class="rv-body" id="rvBodyContainer"></div>
   `;
 
-  renderRecipeBody(r);
-
+  // Wire header controls FIRST, before rendering the (larger, riskier) body —
+  // so Save/Cancel/Back always work even if something below fails to render.
   if(editing){
     document.getElementById('rvCancel').addEventListener('click', ()=> handleCancel(r));
     document.getElementById('rvSave').addEventListener('click', ()=> handleSave(r));
@@ -1915,6 +1953,16 @@ function renderRecipeView(){
     document.getElementById('rvSettings').addEventListener('click', ()=> openRecipeSettingsMenu(r));
     document.getElementById('rvEdit').addEventListener('click', ()=> handleEdit(r));
     document.getElementById('rvDelete').addEventListener('click', ()=> handleDelete(r));
+  }
+
+  try{
+    renderRecipeBody(r);
+  }catch(err){
+    console.error('Error rendering recipe body:', err);
+    const container = document.getElementById('rvBodyContainer');
+    if(container){
+      container.innerHTML = `<div class="empty"><h3>Something went wrong displaying this recipe</h3><p>Your changes are safe. Use ${editing?'Save or Cancel':'Back'} above to continue, then let me know what you were doing so I can fix it.</p></div>`;
+    }
   }
 }
 function openRecipeSettingsMenu(r){
@@ -1929,8 +1977,9 @@ function openRecipeSettingsMenu(r){
       </div>
       <button class="modal-close" id="closeRecipeSettingsMenu">Close</button>
     </div>`;
+  removeAllModals();
   document.body.appendChild(backdrop);
-  function close(){ document.body.removeChild(backdrop); }
+  function close(){ safeRemoveModal(backdrop); }
   backdrop.querySelector('#menuPrint').addEventListener('click', ()=>{ close(); openKitchenMode(r, true); });
   backdrop.querySelector('#menuArchiveToggle').addEventListener('click', ()=>{ close(); handleToggleArchive(r); });
   backdrop.querySelector('#closeRecipeSettingsMenu').addEventListener('click', close);
@@ -2090,7 +2139,17 @@ function renderRecipeBody(r){
   autosizeAll();
 }
 
-function refreshBody(r){ renderRecipeBody(r); }
+function refreshBody(r){
+  try{
+    renderRecipeBody(r);
+  }catch(err){
+    console.error('Error refreshing recipe body:', err);
+    const container = document.getElementById('rvBodyContainer');
+    if(container){
+      container.innerHTML = `<div class="empty"><h3>Something went wrong updating this recipe</h3><p>Your changes are safe. Use Save or Cancel above to continue, then let me know what you were doing so I can fix it.</p></div>`;
+    }
+  }
+}
 
 /* ---------- image ---------- */
 function imageBlockHTML(r, editing){
@@ -2368,6 +2427,7 @@ function openVariantRenamePrompt(r, variantId){
       <div class="modal-add-row"><button id="saveVariantRenameBtn" style="flex:1;">Save</button></div>
       <button class="modal-close" id="cancelVariantRenameBtn">Cancel</button>
     </div>`;
+  removeAllModals();
   document.body.appendChild(backdrop);
   const input = document.getElementById('variantRenameInput');
   input.focus();
@@ -2375,11 +2435,11 @@ function openVariantRenamePrompt(r, variantId){
   document.getElementById('saveVariantRenameBtn').addEventListener('click', ()=>{
     const val = input.value.trim();
     if(val) v.name = val;
-    document.body.removeChild(backdrop);
+    safeRemoveModal(backdrop);
     refreshBody(r);
   });
-  document.getElementById('cancelVariantRenameBtn').addEventListener('click', ()=> document.body.removeChild(backdrop));
-  backdrop.addEventListener('click', e=>{ if(e.target===backdrop) document.body.removeChild(backdrop); });
+  document.getElementById('cancelVariantRenameBtn').addEventListener('click', ()=> safeRemoveModal(backdrop));
+  backdrop.addEventListener('click', e=>{ if(e.target===backdrop) safeRemoveModal(backdrop); });
 }
 function wireYieldAndVariant(r, editing){
   const stepper = document.getElementById('yieldStepper');
@@ -2458,6 +2518,7 @@ function openManageVariants(r){
       <p class="hint">A new variant starts as a full copy of the Standard ingredients, instructions, and oven details — edit it independently from there.</p>
       <button class="modal-close" id="closeVarModal">Done</button>
     </div>`;
+  removeAllModals();
   document.body.appendChild(backdrop);
 
   function renderVarList(){
@@ -2477,6 +2538,8 @@ function openManageVariants(r){
     });
     list.querySelectorAll('.varDelete').forEach(btn=>{
       btn.addEventListener('click', ()=>{
+        const v = r.variants.find(x=>x.id===btn.dataset.id);
+        if(!confirm(`Delete the "${v?v.name:'this'}" variant? Its own ingredients and instructions will be lost — the base recipe is unaffected.`)) return;
         r.variants = r.variants.filter(x=>x.id!==btn.dataset.id);
         if(r.activeVariant === btn.dataset.id) r.activeVariant = 'standard';
         renderVarList();
@@ -2500,10 +2563,10 @@ function openManageVariants(r){
     renderVarList();
   });
   backdrop.querySelector('#closeVarModal').addEventListener('click', ()=>{
-    document.body.removeChild(backdrop);
+    safeRemoveModal(backdrop);
     refreshBody(r);
   });
-  backdrop.addEventListener('click', e=>{ if(e.target === backdrop){ document.body.removeChild(backdrop); refreshBody(r); } });
+  backdrop.addEventListener('click', e=>{ if(e.target === backdrop){ safeRemoveModal(backdrop); refreshBody(r); } });
 }
 
 /* ---------- ingredients ---------- */
@@ -2639,7 +2702,11 @@ function wireIngredients(r, editing){
     btn.addEventListener('click', ()=>{
       if(groups.length <= 1) return;
       const idx = groups.findIndex(g=>g.id===btn.dataset.group);
-      if(idx>-1){ groups.splice(idx,1); refreshBody(r); }
+      if(idx<0) return;
+      const g = groups[idx];
+      if(!confirm(`Delete the "${g.name||'Untitled'}" ingredient list and all ${g.items.length} item(s) in it?`)) return;
+      groups.splice(idx,1);
+      refreshBody(r);
     });
   });
   const addGroupBtn = document.getElementById('addIngGroupBtn');
@@ -2910,7 +2977,11 @@ function wireInstructions(r, editing){
     btn.addEventListener('click', ()=>{
       if(groups.length <= 1) return;
       const idx = groups.findIndex(g=>g.id===btn.dataset.group);
-      if(idx>-1){ groups.splice(idx,1); refreshBody(r); }
+      if(idx<0) return;
+      const g = groups[idx];
+      if(!confirm(`Delete the "${g.name||'Untitled'}" instruction list and all ${g.items.length} step(s) in it?`)) return;
+      groups.splice(idx,1);
+      refreshBody(r);
     });
   });
   const addGroupBtn = document.getElementById('addInstrGroupBtn');
@@ -2982,6 +3053,7 @@ function openQuickNotesModal(r){
       <button class="add-row-btn" id="addQuickNoteBtn" style="margin-top:8px;">${ICON.plus} Add note</button>
       <button class="modal-close" id="closeQuickNotesModal">Close</button>
     </div>`;
+  removeAllModals();
   document.body.appendChild(backdrop);
 
   function renderList(){
@@ -3008,6 +3080,7 @@ function openQuickNotesModal(r){
     });
     list.querySelectorAll('.quicknote-del').forEach(btn=>{
       btn.addEventListener('click', ()=>{
+        if(!confirm('Delete this note?')) return;
         r.quickNotes = r.quickNotes.filter(x=>x.id!==btn.dataset.id);
         markDirty();
         renderList();
@@ -3026,9 +3099,9 @@ function openQuickNotesModal(r){
     if(firstTa) firstTa.focus();
   });
   backdrop.querySelector('#closeQuickNotesModal').addEventListener('click', ()=>{
-    document.body.removeChild(backdrop);
+    safeRemoveModal(backdrop);
   });
-  backdrop.addEventListener('click', e=>{ if(e.target === backdrop) document.body.removeChild(backdrop); });
+  backdrop.addEventListener('click', e=>{ if(e.target === backdrop) safeRemoveModal(backdrop); });
 }
 function updateNotesButtonBadge(r){
   document.querySelectorAll('.notes-badge').forEach(el=>{
@@ -3073,6 +3146,7 @@ function openReferenceGallery(r, editing){
     document.querySelectorAll('.reference-remove').forEach(btn=>{
       btn.addEventListener('click', (e)=>{
         e.stopPropagation();
+        if(!confirm('Delete this reference image?')) return;
         r.referenceImages = r.referenceImages.filter(x=>x.id!==btn.dataset.id);
         markDirty();
         refreshGallery();
@@ -3107,16 +3181,16 @@ function openReferenceGallery(r, editing){
   }
 
   document.getElementById('closeReferenceModal').addEventListener('click', ()=>{
-    document.body.removeChild(overlay);
+    safeRemoveModal(overlay);
   });
-  overlay.addEventListener('click', e=>{ if(e.target === overlay) document.body.removeChild(overlay); });
+  overlay.addEventListener('click', e=>{ if(e.target === overlay) safeRemoveModal(overlay); });
 }
 function openReferenceLightbox(src){
   const box = document.createElement('div');
   box.className = 'modal-backdrop';
   box.style.zIndex = '300';
   box.innerHTML = `<img src="${src}" style="max-width:92vw;max-height:88vh;border-radius:8px;" />`;
-  box.addEventListener('click', ()=> document.body.removeChild(box));
+  box.addEventListener('click', ()=> safeRemoveModal(box));
   document.body.appendChild(box);
 }
 
@@ -3263,7 +3337,7 @@ async function openKitchenMode(r, isPrintMode){
 }
 function closeKitchenMode(){
   const overlay = document.getElementById('kitchenOverlay');
-  if(overlay) document.body.removeChild(overlay);
+  if(overlay) safeRemoveModal(overlay);
   if(wakeLockRef){ wakeLockRef.release().catch(()=>{}); wakeLockRef = null; }
   if(state.view === 'recipe'){
     const r = getRecipe();
@@ -3600,16 +3674,17 @@ function openPasteTextModal(r){
       </div>
       <button class="modal-close" id="closePasteModal">Cancel</button>
     </div>`;
+  removeAllModals();
   document.body.appendChild(backdrop);
   document.getElementById('parsePasteBtn').addEventListener('click', ()=>{
     const text = document.getElementById('pasteTextArea').value;
-    if(!text.trim()){ document.body.removeChild(backdrop); return; }
+    if(!text.trim()){ safeRemoveModal(backdrop); return; }
     const parsed = parseRecipeText(text);
     applyParsedRecipe(r, parsed);
-    document.body.removeChild(backdrop);
+    safeRemoveModal(backdrop);
   });
-  document.getElementById('closePasteModal').addEventListener('click', ()=> document.body.removeChild(backdrop));
-  backdrop.addEventListener('click', e=>{ if(e.target === backdrop) document.body.removeChild(backdrop); });
+  document.getElementById('closePasteModal').addEventListener('click', ()=> safeRemoveModal(backdrop));
+  backdrop.addEventListener('click', e=>{ if(e.target === backdrop) safeRemoveModal(backdrop); });
 }
 
 let tesseractLoadPromise = null;
@@ -3653,12 +3728,12 @@ function openScanPhotoFlow(r){
       const worker = await Tesseract.createWorker('eng');
       const { data } = await worker.recognize(file);
       await worker.terminate();
-      document.body.removeChild(overlay);
+      safeRemoveModal(overlay);
       const parsed = parseRecipeText(data.text || '');
       applyParsedRecipe(r, parsed);
     }catch(err){
       const existingOverlay = document.getElementById('ocrOverlay');
-      if(existingOverlay) document.body.removeChild(existingOverlay);
+      if(existingOverlay) safeRemoveModal(existingOverlay);
       alert(err.message || 'Something went wrong reading that photo. Please try again.');
     }
   });
