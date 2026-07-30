@@ -454,6 +454,16 @@
   .shop-line-text{ flex:1; font-size:14.5px; }
   .shop-line-text .amt{ font-family:var(--font-mono); }
   .shop-remove{ flex:0 0 auto; opacity:0.5; }
+
+  /* ---------- Book mode ---------- */
+  .book-chapter{ margin-bottom:26px; }
+  .book-chapter-title{ font-family:var(--font-display); font-size:21px; font-weight:600; color:var(--ink); margin-bottom:8px; padding-bottom:6px; border-bottom:1px solid var(--hairline-strong); }
+  .book-chapter-list{ list-style:none; margin:0; padding:0; }
+  .book-toc-item{ display:flex; align-items:center; gap:12px; padding:8px 2px; font-size:15px; border-bottom:1px solid var(--hairline); cursor:pointer; }
+  .book-toc-thumb{ width:44px; height:44px; }
+  .book-toc-name{ flex:1; }
+  .book-toc-item:active{ background:var(--paper-raised); }
+  .book-position{ font-size:12px; color:var(--ink-soft); white-space:nowrap; margin-right:4px; }
   .linked-from-pill{ font-size:12px; color:var(--ink-soft); background:var(--paper-raised); border:1px solid var(--hairline-strong); border-radius:999px; padding:5px 12px; cursor:pointer; }
 
   /* Recipe picker modal */
@@ -654,7 +664,7 @@
 /* =========================================================
    CONSTANTS
 ========================================================= */
-const APP_VERSION = "v29";
+const APP_VERSION = "v31";
 const DEFAULT_CATEGORIES = ["Dessert","Dinner","Bites","Drinks","Side Dishes","Batch Cooking"];
 const ACCENTS = ["#7C5A6B","#6B7561","#A68A5B","#5C7A80","#8A8F5C","#9C6B54","#5E6B8A","#8B6F8C"];
 const OVEN_SETTINGS = ["With fan","Without fan","Turbo","Airfry","Other"];
@@ -754,7 +764,9 @@ let state = {
   archiveViewMode: "tile",
   homeSearchQuery: "",
   pantrySearchQuery: "",
-  recipeOrigin: "home"
+  recipeOrigin: "home",
+  bookOrder: [],
+  bookIndex: 0
 };
 
 function uid(){ return 'id_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,8); }
@@ -823,7 +835,7 @@ function blankRecipe(cat){
   };
 }
 function makeOvenRow(){ return { id: uid(), label:'', temp:null, tempUnit:'C', time:null, timeUnit:'min', setting:'Without fan', settingOther:'' }; }
-function makeQuickNote(){ return { id: uid(), date: new Date().toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}), text:'' }; }
+function makeQuickNote(){ return { id: uid(), date: new Date().toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}), text:'', images: [] }; }
 function makeRecipeImage(data){ return { id: uid(), data }; }
 function coverImage(r){ return (r.images && r.images[0]) ? r.images[0].data : null; }
 function makeIngredient(){ return { id: uid(), amount:null, unit:'', name:'', checked:false, optional:false }; }
@@ -891,6 +903,10 @@ function render(){
     renderArchiveView();
   } else if(state.view === 'shoppingList'){
     renderShoppingListView();
+  } else if(state.view === 'bookToc'){
+    renderBookTocView();
+  } else if(state.view === 'book'){
+    renderBookView();
   } else {
     renderRecipeView();
   }
@@ -963,6 +979,7 @@ function homeHTML(){
       <div class="view-toggle">
         <button class="${state.viewMode==='tile'?'active':''}" data-mode="tile">${ICON.grid}</button>
         <button class="${state.viewMode==='list'?'active':''}" data-mode="list">${ICON.list}</button>
+        <button id="bookModeBtn" title="Book mode">${ICON.book}</button>
       </div>
     </div>
     ${body}
@@ -1028,6 +1045,7 @@ function attachHomeEvents(){
   });
 
   document.getElementById('pantryBtn').addEventListener('click', ()=>{ state.view = 'pantry'; render(); });
+  document.getElementById('bookModeBtn').addEventListener('click', ()=>{ state.view = 'bookToc'; render(); });
   document.getElementById('shoppingListBtn').addEventListener('click', ()=>{ state.view = 'shoppingList'; render(); });
   document.getElementById('homeSettingsBtn').addEventListener('click', openHomeSettingsMenu);
   const searchInput = document.getElementById('homeSearchInput');
@@ -1341,6 +1359,140 @@ function toggleShoppingListItem(pantryItem){
   }
   markDirty();
 }
+/* =========================================================
+   BOOK MODE
+========================================================= */
+function computeBookChapters(){
+  const visibleRecipes = data.recipes.filter(r=>!r.archived);
+  const chapters = [];
+  const usedIds = new Set();
+  data.categories.forEach(tag=>{
+    const recipesInChapter = visibleRecipes
+      .filter(r => (r.categories && r.categories[0]) === tag)
+      .sort((a,b)=>(a.name||'').localeCompare(b.name||'', undefined, {sensitivity:'base'}));
+    if(recipesInChapter.length){
+      chapters.push({ tag, recipes: recipesInChapter });
+      recipesInChapter.forEach(r=> usedIds.add(r.id));
+    }
+  });
+  const uncategorized = visibleRecipes
+    .filter(r=>!usedIds.has(r.id))
+    .sort((a,b)=>(a.name||'').localeCompare(b.name||'', undefined, {sensitivity:'base'}));
+  if(uncategorized.length){
+    chapters.push({ tag: 'Uncategorized', recipes: uncategorized });
+  }
+  return chapters;
+}
+function flattenBookOrder(chapters){
+  const flat = [];
+  chapters.forEach(ch=>{
+    ch.recipes.forEach(r=> flat.push({ id: r.id, tag: ch.tag }));
+  });
+  return flat;
+}
+function openBookAt(recipeId){
+  const flat = flattenBookOrder(computeBookChapters());
+  const idx = flat.findIndex(x=>x.id===recipeId);
+  if(idx === -1) return;
+  state.bookOrder = flat;
+  state.bookIndex = idx;
+  state.view = 'book';
+  render();
+}
+function renderBookTocView(){
+  const app = document.getElementById('app');
+  const chapters = computeBookChapters();
+  let body;
+  if(chapters.length === 0){
+    body = `<div class="empty">${ICON.book}<h3>Nothing to show yet</h3><p>Add some recipes and tags to build your book.</p></div>`;
+  } else {
+    body = chapters.map(ch=>`
+      <div class="book-chapter">
+        <div class="book-chapter-title">${escHtml(ch.tag)}</div>
+        <ul class="book-chapter-list">
+          ${ch.recipes.map(r=>{
+            const cover = coverImage(r);
+            const thumb = cover
+              ? `<img class="list-thumb recipe-list-thumb book-toc-thumb" src="${cover}" />`
+              : `<div class="list-thumb recipe-list-thumb book-toc-thumb placeholder">${ICON.image}</div>`;
+            return `<li class="book-toc-item" data-id="${r.id}">${thumb}<span class="book-toc-name">${escHtml(r.name||'Untitled')}</span></li>`;
+          }).join('')}
+        </ul>
+      </div>`).join('');
+  }
+  app.innerHTML = `
+    <div class="rv-header">
+      <div class="rv-header-left"><button class="back-btn" id="bookTocBack">${ICON.back} Recipes</button></div>
+      <div class="rv-header-right"><span style="font-family:var(--font-display);font-size:17px;">Table of Contents</span></div>
+    </div>
+    <div class="rv-body">${body}</div>
+  `;
+  document.getElementById('bookTocBack').addEventListener('click', ()=>{ state.view='home'; render(); });
+  document.querySelectorAll('.book-toc-item').forEach(el=>{
+    el.addEventListener('click', ()=> openBookAt(el.dataset.id));
+  });
+}
+function bookNav(dir){
+  const len = state.bookOrder.length;
+  if(len === 0) return;
+  state.bookIndex = (state.bookIndex + dir + len) % len;
+  render();
+}
+function wireBookSwipe(container){
+  let startX = null, startY = null, startedInCarousel = false;
+  container.addEventListener('touchstart', e=>{
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    startedInCarousel = !!e.target.closest('.rv-carousel');
+  }, {passive:true});
+  container.addEventListener('touchend', e=>{
+    if(startX === null || startedInCarousel){ startX = null; return; }
+    const dx = e.changedTouches[0].clientX - startX;
+    const dy = e.changedTouches[0].clientY - startY;
+    if(Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy)*1.5){
+      bookNav(dx < 0 ? 1 : -1);
+    }
+    startX = null;
+  }, {passive:true});
+}
+function renderBookView(){
+  const app = document.getElementById('app');
+  if(!state.bookOrder.length){ state.view = 'bookToc'; render(); return; }
+  const entry = state.bookOrder[state.bookIndex];
+  const r = data.recipes.find(x=>x.id===entry.id);
+  if(!r){ state.view = 'bookToc'; render(); return; }
+  const chapterEntries = state.bookOrder.filter(x=>x.tag===entry.tag);
+  const posInChapter = chapterEntries.findIndex(x=>x.id===entry.id) + 1;
+
+  app.innerHTML = `
+    <div class="rv-header">
+      <div class="rv-header-left"><button class="back-btn" id="bookBack">${ICON.back} Contents</button></div>
+      <div class="rv-header-right">
+        <span class="book-position">${escHtml(entry.tag)} · ${posInChapter} of ${chapterEntries.length}</span>
+        <button class="icon-btn" id="bookKitchen" title="Kitchen mode">${ICON.chef}</button>
+        <button class="icon-btn" id="bookPrev" title="Previous recipe">‹</button>
+        <button class="icon-btn" id="bookNext" title="Next recipe">›</button>
+      </div>
+    </div>
+    <div class="rv-body" id="rvBodyContainer"></div>
+  `;
+  document.getElementById('bookBack').addEventListener('click', ()=>{ state.view='bookToc'; render(); });
+  document.getElementById('bookKitchen').addEventListener('click', ()=> openKitchenMode(r, false));
+  document.getElementById('bookPrev').addEventListener('click', ()=> bookNav(-1));
+  document.getElementById('bookNext').addEventListener('click', ()=> bookNav(1));
+
+  try{
+    renderRecipeBody(r);
+  }catch(err){
+    console.error('Error rendering book page:', err);
+    const container = document.getElementById('rvBodyContainer');
+    if(container){
+      container.innerHTML = `<div class="empty"><h3>Something went wrong displaying this recipe</h3><p>Use Contents or the arrows above to keep browsing.</p></div>`;
+    }
+  }
+  wireBookSwipe(app);
+}
+
 function renderShoppingListView(){
   const app = document.getElementById('app');
   const items = data.shoppingList;
@@ -2028,7 +2180,7 @@ function insertRecipeLinkIntoField(inputEl, recipeId, recipeName){
 function insertPantryLinkIntoField(inputEl, pantryId, pantryName){
   insertTokenIntoField(inputEl, `{{${pantryId}:${pantryName}}}`);
 }
-function openLinkPicker(targetEl, currentRecipeId, currentPantryId){
+function openLinkPicker(targetEl, currentRecipeId, currentPantryId, onInsert){
   const backdrop = document.createElement('div');
   backdrop.className = 'modal-backdrop';
   backdrop.innerHTML = `
@@ -2038,7 +2190,6 @@ function openLinkPicker(targetEl, currentRecipeId, currentPantryId){
       <div id="linkPickerList"></div>
       <button class="modal-close" id="closeLinkPicker">Cancel</button>
     </div>`;
-  removeAllModals();
   document.body.appendChild(backdrop);
 
   function renderResults(query){
@@ -2066,6 +2217,7 @@ function openLinkPicker(targetEl, currentRecipeId, currentPantryId){
           insertRecipeLinkIntoField(targetEl, item.dataset.id, item.dataset.name);
         }
         safeRemoveModal(backdrop);
+        if(typeof onInsert === 'function') onInsert();
       });
     });
   }
@@ -3349,20 +3501,95 @@ function openQuickNotesModal(r){
       list.innerHTML = `<p class="picker-empty">No notes yet.</p>`;
       return;
     }
-    list.innerHTML = r.quickNotes.map(n=>`
+    list.innerHTML = r.quickNotes.map(n=>{
+      const chips = extractLinkChips(n.text);
+      const chipsHtml = chips.length ? `<div class="quicknote-links">${chips.map(c=>`<button class="linked-from-pill quicknote-link-chip" data-kind="${c.kind}" data-id="${c.id}">🔗 ${escHtml(c.name)}</button>`).join('')}</div>` : '';
+      const photoGrid = (n.images && n.images.length) ? `<div class="instr-photo-grid">${n.images.map(img=>`
+        <div class="instr-photo-thumb-wrap">
+          <img class="instr-photo-thumb" src="${img.data}" data-lightbox-src="${escAttr(img.data)}" />
+          <button class="instr-photo-del" data-stepid="${n.id}" data-imgid="${img.id}" title="Remove photo">${ICON.trash}</button>
+        </div>`).join('')}</div>` : '';
+      return `
       <div class="quicknote-item" data-id="${n.id}">
         <div class="quicknote-date">${escHtml(n.date)}</div>
         <div class="quicknote-row">
-          <textarea class="quicknote-text" data-id="${n.id}" placeholder="What did you change, and how did it go?" rows="1">${escHtml(n.text)}</textarea>
+          <textarea class="quicknote-text" id="quicknotetext_${n.id}" data-id="${n.id}" placeholder="What did you change, and how did it go?" rows="1">${escHtml(n.text)}</textarea>
+          <button class="link-insert-btn" data-target="quicknotetext_${n.id}" title="Link to a recipe">${ICON.link}</button>
+          <button class="instr-photo-btn quicknote-photo-btn" data-id="${n.id}" title="Add photo">${ICON.camera}</button>
+          <input type="file" accept="image/*" multiple class="instr-photo-input quicknote-photo-input" data-id="${n.id}" style="display:none" />
           <button class="row-del quicknote-del" data-id="${n.id}">${ICON.trash}</button>
         </div>
-      </div>`).join('');
+        ${chipsHtml}
+        ${photoGrid}
+      </div>`;
+    }).join('');
     list.querySelectorAll('.quicknote-text').forEach(ta=>{
       ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px';
       ta.addEventListener('input', e=>{
         const note = r.quickNotes.find(x=>x.id===e.target.dataset.id);
         if(note){ note.text = e.target.value; markDirty(); }
         e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px';
+      });
+      ta.addEventListener('blur', ()=>{ renderList(); });
+    });
+    list.querySelectorAll('.quicknote-link-chip').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        safeRemoveModal(backdrop);
+        if(btn.dataset.kind === 'recipe') openRecipe(btn.dataset.id);
+        else openPantryItem(btn.dataset.id);
+      });
+    });
+    list.querySelectorAll('.instr-photo-thumb[data-lightbox-src]').forEach(img=>{
+      img.addEventListener('click', ()=> openReferenceLightbox(img.dataset.lightboxSrc));
+    });
+    list.querySelectorAll('.quicknote-photo-btn').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const input = list.querySelector(`.quicknote-photo-input[data-id="${btn.dataset.id}"]`);
+        if(input) input.click();
+      });
+    });
+    list.querySelectorAll('.quicknote-photo-input').forEach(input=>{
+      input.addEventListener('change', e=>{
+        const files = Array.from(e.target.files || []);
+        if(files.length === 0) return;
+        const note = r.quickNotes.find(x=>x.id===input.dataset.id);
+        if(!note) return;
+        let remaining = files.length;
+        let failures = 0;
+        files.forEach(file=>{
+          resizeImageToBase64(file, 1200, dataUrl=>{
+            if(dataUrl){
+              note.images = note.images || [];
+              note.images.push(makeRecipeImage(dataUrl));
+            } else {
+              failures++;
+            }
+            remaining--;
+            if(remaining === 0){
+              markDirty();
+              renderList();
+              if(failures > 0){
+                alert(`${failures} image${failures===1?'':'s'} couldn't be used — your browser may not support that file type (e.g. HEIC photos from an iPhone often need converting to JPEG or PNG first).`);
+              }
+            }
+          });
+        });
+      });
+    });
+    list.querySelectorAll('.instr-photo-del').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const note = r.quickNotes.find(x=>x.id===btn.dataset.stepid);
+        if(!note) return;
+        if(!confirm('Remove this photo?')) return;
+        note.images = (note.images||[]).filter(x=>x.id!==btn.dataset.imgid);
+        markDirty();
+        renderList();
+      });
+    });
+    list.querySelectorAll('.link-insert-btn').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const targetEl = document.getElementById(btn.dataset.target);
+        if(targetEl) openLinkPicker(targetEl, r.id, null, ()=> renderList());
       });
     });
     list.querySelectorAll('.quicknote-del').forEach(btn=>{
@@ -3389,6 +3616,22 @@ function openQuickNotesModal(r){
     safeRemoveModal(backdrop);
   });
   backdrop.addEventListener('click', e=>{ if(e.target === backdrop) safeRemoveModal(backdrop); });
+}
+function extractLinkChips(text){
+  if(!text) return [];
+  const chips = [];
+  const RE = /\[\[([a-zA-Z0-9_]+):([^\]]*)\]\]|\{\{([a-zA-Z0-9_]+):([^\}]*)\}\}/g;
+  let m;
+  while((m = RE.exec(text))){
+    if(m[1] !== undefined){
+      const rec = data.recipes.find(x=>x.id===m[1]);
+      chips.push({ kind:'recipe', id:m[1], name: rec ? (rec.name||'Untitled') : m[2] });
+    } else {
+      const p = data.pantry.find(x=>x.id===m[3]);
+      chips.push({ kind:'pantry', id:m[3], name: p ? (p.name||'Untitled') : m[4] });
+    }
+  }
+  return chips;
 }
 function updateNotesButtonBadge(r){
   document.querySelectorAll('.notes-badge').forEach(el=>{
@@ -3807,6 +4050,7 @@ function migrateRecipe(raw){
   if(!Array.isArray(r.referenceImages)) r.referenceImages = [];
   if(typeof r.archived !== 'boolean') r.archived = false;
   if(!Array.isArray(r.quickNotes)) r.quickNotes = [];
+  r.quickNotes = r.quickNotes.map(n=>({ images:[], ...n }));
   if(!Array.isArray(raw.images)){
     r.images = raw.image ? [{ id: uid(), data: raw.image }] : [];
   }
