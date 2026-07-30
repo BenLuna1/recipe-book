@@ -211,6 +211,10 @@
   .pantry-list-type{ font-size:12.5px; font-style:italic; color:var(--ink-soft); }
   .pantry-list-brand{ font-size:11px; text-transform:uppercase; letter-spacing:0.5px; color:var(--ink-faint); }
   .list-info .tile-tags{ margin-top:3px; }
+  .recipe-list-row{ padding: 14px 4px; gap:16px; }
+  .recipe-list-thumb{ width:68px; height:68px; }
+  .recipe-list-thumb.placeholder svg{ width:24px; height:24px; }
+  .recipe-list-name{ font-size:17.5px; }
 
   /* ---------- Empty state ---------- */
   .empty{
@@ -279,6 +283,35 @@
     background: rgba(43,41,38,0.72); color:var(--paper);
     font-size:11.5px; padding:5px 10px; border-radius:999px; letter-spacing:0.3px;
   }
+
+  .rv-carousel-outer{ margin: 14px 0 8px 0; }
+  .rv-carousel{
+    display:flex; overflow-x:auto; scroll-snap-type: x mandatory; gap:0;
+    border-radius: var(--radius-l); scrollbar-width:none;
+  }
+  .rv-carousel::-webkit-scrollbar{ display:none; }
+  .rv-carousel-slide{
+    flex: 0 0 100%; scroll-snap-align: center; aspect-ratio: 16/10;
+    background: linear-gradient(135deg, #E7E1D3, #DED6C3);
+    display:flex; align-items:center; justify-content:center;
+    position:relative; border-radius: var(--radius-l); overflow:hidden;
+    border:1px solid var(--hairline);
+  }
+  .rv-carousel-slide img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .rv-carousel-slide.rv-carousel-add{ cursor:pointer; }
+  .rv-carousel-slide.rv-carousel-add .upload-hint{
+    display:flex; flex-direction:column; align-items:center; gap:8px; color:var(--ink-faint);
+  }
+  .rv-carousel-slide.rv-carousel-add .upload-hint svg{ width:26px; height:26px; stroke:var(--ink-faint); fill:none; }
+  .rv-carousel-slide.rv-carousel-add .upload-hint span{ font-size:12.5px; letter-spacing:0.3px; }
+  .carousel-del{
+    position:absolute; top:10px; right:10px; width:30px; height:30px; border-radius:50%;
+    background:rgba(43,41,38,0.72); border:none; display:flex; align-items:center; justify-content:center;
+  }
+  .carousel-del svg{ width:14px; height:14px; stroke:var(--paper); fill:none; }
+  .rv-carousel-dots{ display:flex; justify-content:center; gap:6px; margin-top:8px; }
+  .rv-dot{ width:6px; height:6px; border-radius:50%; background:var(--hairline-strong); }
+  .rv-dot.active{ background:var(--accent); width:16px; border-radius:4px; transition: width .15s, background .15s; }
 
   .rv-title{
     font-family:var(--font-display); font-size:30px; font-weight:600; line-height:1.2;
@@ -407,6 +440,10 @@
   /* ---------- Shopping list ---------- */
   .shop-list{ list-style:none; margin:0 0 6px 0; padding:0; }
   .shop-item{ display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--hairline); }
+  .shop-thumb{ width:36px; height:36px; border-radius:7px; object-fit:cover; flex:0 0 auto; background: linear-gradient(135deg, #E7E1D3, #DED6C3); }
+  .shop-thumb.placeholder{ display:flex; align-items:center; justify-content:center; }
+  .shop-thumb.placeholder svg{ width:14px; height:14px; stroke:var(--ink-faint); fill:none; opacity:0.6; }
+  .shop-group-dot{ width:8px; height:8px; margin-right:8px; display:inline-block; }
   .shop-check{
     flex:0 0 auto; width:20px; height:20px; border-radius:6px;
     border:1.5px solid var(--hairline-strong); background:var(--paper-raised); display:flex; align-items:center; justify-content:center;
@@ -498,6 +535,18 @@
   .instr-text::placeholder{ color:var(--ink-faint); }
   .instr-static{ flex:1; font-size:14.5px; line-height:1.6; padding-top:2px; }
   .instr-actions{ display:flex; flex-direction:column; gap:2px; }
+  .instr-content-col{ flex:1; display:flex; flex-direction:column; gap:8px; min-width:0; }
+  .instr-photo-btn{ flex:0 0 auto; border:none; background:none; opacity:0.5; display:flex; align-items:center; justify-content:center; width:22px; height:22px; margin-top:1px; }
+  .instr-photo-btn svg{ width:15px; height:15px; stroke:var(--accent); fill:none; }
+  .instr-photo-grid{ display:flex; gap:8px; flex-wrap:wrap; }
+  .instr-photo-thumb-wrap{ position:relative; width:60px; height:60px; border-radius:8px; overflow:hidden; border:1px solid var(--hairline); }
+  .instr-photo-thumb{ width:60px; height:60px; object-fit:cover; display:block; cursor:pointer; border-radius:8px; }
+  .instr-photo-thumb-wrap .instr-photo-thumb{ border-radius:0; }
+  .instr-photo-del{
+    position:absolute; top:3px; right:3px; width:20px; height:20px; border-radius:50%;
+    background:rgba(43,41,38,0.72); border:none; display:flex; align-items:center; justify-content:center;
+  }
+  .instr-photo-del svg{ width:10px; height:10px; stroke:var(--paper); fill:none; }
 
   /* Oven block */
   .oven-row-edit{ display:flex; flex-wrap:wrap; gap:18px 34px; padding: 14px 0 18px 0; border-bottom:1px dashed var(--hairline-strong); margin-bottom:14px; position:relative; }
@@ -584,6 +633,9 @@
   .kitchen-check.checked svg{ opacity:1; }
   .kitchen-done{ color:var(--ink-faint); text-decoration:line-through; text-decoration-color: var(--hairline-strong); }
   .kitchen-source{ margin-top:36px; padding-top:16px; border-top:1px solid var(--hairline); font-size:13px; color:var(--ink-faint); }
+  .print-photos-toggle{ display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--ink-soft); white-space:nowrap; }
+  .print-photos-toggle input{ width:15px; height:15px; }
+  .kitchen-photo-thumb{ width:76px; height:76px; }
 
   @media print{
     body *{ visibility:hidden; }
@@ -602,19 +654,79 @@
 /* =========================================================
    CONSTANTS
 ========================================================= */
-const APP_VERSION = "v21";
+const APP_VERSION = "v29";
 const DEFAULT_CATEGORIES = ["Dessert","Dinner","Bites","Drinks","Side Dishes","Batch Cooking"];
 const ACCENTS = ["#7C5A6B","#6B7561","#A68A5B","#5C7A80","#8A8F5C","#9C6B54","#5E6B8A","#8B6F8C"];
 const OVEN_SETTINGS = ["With fan","Without fan","Turbo","Airfry","Other"];
 
 /* =========================================================
+   STORAGE — IndexedDB (with one-time migration from localStorage)
+========================================================= */
+const IDB_NAME = 'RecipeBookDB';
+const IDB_VERSION = 1;
+const IDB_STORE = 'appData';
+const IDB_KEY = 'recipeBookData';
+const LEGACY_LS_KEY = 'recipeBookData';
+let idbInstance = null;
+function openIDB(){
+  return new Promise((resolve, reject)=>{
+    if(idbInstance){ resolve(idbInstance); return; }
+    if(!('indexedDB' in window)){ reject(new Error('IndexedDB is not available in this browser')); return; }
+    const req = indexedDB.open(IDB_NAME, IDB_VERSION);
+    req.onupgradeneeded = (e)=>{
+      const db = e.target.result;
+      if(!db.objectStoreNames.contains(IDB_STORE)) db.createObjectStore(IDB_STORE);
+    };
+    req.onsuccess = (e)=>{ idbInstance = e.target.result; resolve(idbInstance); };
+    req.onerror = (e)=> reject(e.target.error);
+  });
+}
+function idbGet(key){
+  return openIDB().then(db=> new Promise((resolve, reject)=>{
+    const tx = db.transaction(IDB_STORE, 'readonly');
+    const store = tx.objectStore(IDB_STORE);
+    const req = store.get(key);
+    req.onsuccess = ()=> resolve(req.result);
+    req.onerror = ()=> reject(req.error);
+  }));
+}
+function idbSet(key, value){
+  return openIDB().then(db=> new Promise((resolve, reject)=>{
+    const tx = db.transaction(IDB_STORE, 'readwrite');
+    const store = tx.objectStore(IDB_STORE);
+    const req = store.put(value, key);
+    req.onsuccess = ()=> resolve();
+    req.onerror = ()=> reject(req.error);
+  }));
+}
+/* Loads app data at startup: tries IndexedDB first; if empty, migrates
+   any existing localStorage data over (one-time); falls back to defaults. */
+async function loadAppData(){
+  const defaults = { title:"Recipe Book", categories:[...DEFAULT_CATEGORIES], recipes:[], pantryCategories:[], pantry:[], shoppingList:[] };
+  try{
+    const fromIDB = await idbGet(IDB_KEY);
+    if(fromIDB) return fromIDB;
+  }catch(err){
+    console.error('IndexedDB read failed, will try localStorage fallback:', err);
+  }
+  try{
+    const raw = localStorage.getItem(LEGACY_LS_KEY);
+    if(raw){
+      const parsed = JSON.parse(raw);
+      idbSet(IDB_KEY, parsed).catch(err=> console.error('Migration write to IndexedDB failed:', err));
+      return parsed;
+    }
+  }catch(err){
+    console.error('LocalStorage fallback read failed:', err);
+  }
+  return defaults;
+}
+
+
+/* =========================================================
    DATA / STATE
 ========================================================= */
-let data = loadLocal() || { title:"Recipe Book", categories:[...DEFAULT_CATEGORIES], recipes:[], pantryCategories:[], pantry:[] };
-if(!Array.isArray(data.pantryCategories)) data.pantryCategories = [];
-if(!Array.isArray(data.pantry)) data.pantry = [];
-if(!Array.isArray(data.shoppingList)) data.shoppingList = [];
-data.pantry = data.pantry.map(migratePantryItem);
+let data = { title:"Recipe Book", categories:[...DEFAULT_CATEGORIES], recipes:[], pantryCategories:[], pantry:[], shoppingList:[] };
 let dirty = false;
 let draftRecipe = null; // holds an unsaved new recipe until first Save
 let draftPantryItem = null; // holds an unsaved new pantry item until first Save
@@ -654,15 +766,28 @@ function pantryAccentFor(cat){
   const idx = data.pantryCategories.indexOf(cat);
   return ACCENTS[(idx < 0 ? 0 : idx) % ACCENTS.length];
 }
-function saveLocal(){ localStorage.setItem('recipeBookData', JSON.stringify(data)); }
-function loadLocal(){
-  try{ const raw = localStorage.getItem('recipeBookData'); return raw ? JSON.parse(raw) : null; }
+function saveLocal(){
+  return idbSet(IDB_KEY, data).catch(err=>{
+    console.error('Error saving to IndexedDB:', err);
+    alert(`Your recipe book couldn't be saved (${err.name || 'error'}: ${err.message || 'unknown error'}). Please export a backup as soon as possible (Settings → Export data) so nothing is lost, and let me know what happened.`);
+  });
+}
+function currentStorageSizeKB(){
+  try{ return Math.round(new Blob([JSON.stringify(data)]).size / 1024); }
   catch(e){ return null; }
 }
+let saveDebounceTimer = null;
+function flushSave(){
+  clearTimeout(saveDebounceTimer);
+  saveDebounceTimer = null;
+  return saveLocal();
+}
 function markDirty(){
-  dirty = true; saveLocal();
+  dirty = true;
   const d = document.getElementById('dirtyDot');
   if(d) d.style.display = 'block';
+  clearTimeout(saveDebounceTimer);
+  saveDebounceTimer = setTimeout(()=>{ saveDebounceTimer = null; saveLocal(); }, 600);
 }
 function clearDirty(){
   dirty = false;
@@ -684,7 +809,7 @@ function safeRemoveModal(el){
 ========================================================= */
 function blankRecipe(cat){
   return {
-    id: uid(), name:"", categories: cat ? [cat] : [], image:null, description:"",
+    id: uid(), name:"", categories: cat ? [cat] : [], images: [], description:"",
     sourceLines: [],
     referenceImages: [],
     sectionsEnabled: { storage:false, prepPlan:false, oven:false, source:false },
@@ -699,11 +824,13 @@ function blankRecipe(cat){
 }
 function makeOvenRow(){ return { id: uid(), label:'', temp:null, tempUnit:'C', time:null, timeUnit:'min', setting:'Without fan', settingOther:'' }; }
 function makeQuickNote(){ return { id: uid(), date: new Date().toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}), text:'' }; }
+function makeRecipeImage(data){ return { id: uid(), data }; }
+function coverImage(r){ return (r.images && r.images[0]) ? r.images[0].data : null; }
 function makeIngredient(){ return { id: uid(), amount:null, unit:'', name:'', checked:false, optional:false }; }
 function makeIngredientGroup(){ return { id: uid(), name:'', items: [] }; }
 function makeInstructionGroup(){ return { id: uid(), name:'', items: [] }; }
 function makeLine(){ return { id: uid(), text:'' }; }
-function makeInstr(){ return { id: uid(), text:'', checked:false }; }
+function makeInstr(){ return { id: uid(), text:'', checked:false, images: [] }; }
 function makePantryItem(cat){ return { id: uid(), name:'', type:'', category: cat||'', image:null, brands:[], stores:[], notes:'' }; }
 function makeBrand(){ return { id: uid(), text:'' }; }
 function makeStore(){ return { id: uid(), name:'', url:'' }; }
@@ -851,8 +978,9 @@ function tagsRowHTML(r){
   return `<div class="tile-tags">${dots}<span class="lbl">${escHtml(tags.join(' · '))}</span></div>`;
 }
 function tileHTML(r){
-  const img = r.image
-    ? `<img class="tile-img" src="${r.image}" />`
+  const cover = coverImage(r);
+  const img = cover
+    ? `<img class="tile-img" src="${cover}" />`
     : `<div class="tile-img placeholder">${ICON.image}</div>`;
   return `<div class="tile" data-id="${r.id}">
     ${img}
@@ -863,13 +991,14 @@ function tileHTML(r){
   </div>`;
 }
 function listRowHTML(r){
-  const img = r.image
-    ? `<img class="list-thumb" src="${r.image}" />`
-    : `<div class="list-thumb placeholder">${ICON.image}</div>`;
-  return `<div class="list-row" data-id="${r.id}">
+  const cover = coverImage(r);
+  const img = cover
+    ? `<img class="list-thumb recipe-list-thumb" src="${cover}" />`
+    : `<div class="list-thumb recipe-list-thumb placeholder">${ICON.image}</div>`;
+  return `<div class="list-row recipe-list-row" data-id="${r.id}">
     ${img}
     <div class="list-info">
-      <div class="list-name">${escHtml(r.name || 'Untitled')}</div>
+      <div class="list-name recipe-list-name">${escHtml(r.name || 'Untitled')}</div>
       ${tagsRowHTML(r)}
     </div>
   </div>`;
@@ -919,6 +1048,8 @@ function attachHomeEvents(){
 function openHomeSettingsMenu(){
   const backdrop = document.createElement('div');
   backdrop.className = 'modal-backdrop';
+  const sizeKB = currentStorageSizeKB();
+  const sizeLabel = sizeKB === null ? '' : (sizeKB > 1024 ? `${(sizeKB/1024).toFixed(1)} MB` : `${sizeKB} KB`);
   backdrop.innerHTML = `
     <div class="modal">
       <h3>Settings</h3>
@@ -931,6 +1062,7 @@ function openHomeSettingsMenu(){
         </button>
         <button class="settings-menu-item" id="menuImport">${ICON.upload} Import data</button>
       </div>
+      ${sizeLabel ? `<p class="hint" style="margin-top:10px;">Storage used: ${sizeLabel}</p>` : ''}
       <button class="modal-close" id="closeSettingsMenu">Close</button>
     </div>`;
   removeAllModals();
@@ -1138,7 +1270,13 @@ function renderPantryView(){
     btn.addEventListener('click', (e)=>{
       e.stopPropagation();
       const item = data.pantry.find(x=>x.id===btn.dataset.pid);
-      if(item){ toggleShoppingListItem(item); render(); }
+      if(item){
+        toggleShoppingListItem(item);
+        const nowInList = isInShoppingList(item.id);
+        btn.classList.toggle('active', nowInList);
+        btn.title = nowInList ? 'Remove from shopping list' : 'Add to shopping list';
+        render();
+      }
     });
   });
   document.getElementById('pantryAdd').addEventListener('click', addNewPantryItem);
@@ -1207,36 +1345,64 @@ function renderShoppingListView(){
   const app = document.getElementById('app');
   const items = data.shoppingList;
 
-  let listHtml;
-  if(items.length === 0){
-    listHtml = `<div class="empty">${ICON.book}<h3>Your list is empty</h3><p>Tap the cart icon on any pantry item to add it here.</p></div>`;
-  } else {
-    listHtml = `<ul class="shop-list">${items.map(item=>{
-      const pantryStillExists = data.pantry.some(p=>p.id===item.pantryId);
-      const nameHtml = pantryStillExists
-        ? `<a class="pantry-link-ref shop-pantry-link" data-goto-pantry="${escAttr(item.pantryId)}">${escHtml(item.name)}</a>`
-        : `<span>${escHtml(item.name)}</span>`;
-      return `
+  function renderItemRow(item, pantryItem){
+    const pantryStillExists = !!pantryItem;
+    const nameHtml = pantryStillExists
+      ? `<a class="pantry-link-ref shop-pantry-link" data-goto-pantry="${escAttr(item.pantryId)}">${escHtml(item.name)}</a>`
+      : `<span>${escHtml(item.name)}</span>`;
+    const thumb = (pantryItem && pantryItem.image)
+      ? `<img class="shop-thumb" src="${pantryItem.image}" />`
+      : `<div class="shop-thumb placeholder">${ICON.image}</div>`;
+    return `
       <li class="shop-item">
+        ${thumb}
         <button class="shop-check ${item.checked?'checked':''}" data-id="${item.id}">${ICON.check}</button>
         <span class="shop-line-text ${item.checked?'kitchen-done':''}">${nameHtml}</span>
         <button class="row-del shop-remove" data-id="${item.id}" title="Remove">${ICON.trash}</button>
       </li>`;
-    }).join('')}</ul>
-      <button class="add-row-btn" id="clearCheckedBtn" style="margin-top:10px;">${ICON.trash} Clear checked items</button>`;
+  }
+
+  let bodyHtml;
+  if(items.length === 0){
+    bodyHtml = `<div class="empty">${ICON.book}<h3>Your list is empty</h3><p>Tap the cart icon on any pantry item to add it here.</p></div>`;
+  } else {
+    const groups = {};
+    const ungrouped = [];
+    items.forEach(item=>{
+      const pantryItem = data.pantry.find(p=>p.id===item.pantryId);
+      const cat = pantryItem ? (pantryItem.category||'') : '';
+      if(!cat){ ungrouped.push({item, pantryItem}); }
+      else{ (groups[cat] = groups[cat]||[]).push({item, pantryItem}); }
+    });
+
+    let html = '';
+    Object.keys(groups).sort((a,b)=>a.localeCompare(b, undefined, {sensitivity:'base'})).forEach(cat=>{
+      html += `<div class="ing-group-label"><span class="dot shop-group-dot" style="background:${pantryAccentFor(cat)};"></span>${escHtml(cat)}</div>`;
+      html += `<ul class="shop-list">${groups[cat].map(g=>renderItemRow(g.item, g.pantryItem)).join('')}</ul>`;
+    });
+    if(ungrouped.length){
+      html += `<div class="ing-group-label">${Object.keys(groups).length ? 'Other' : ''}</div>`;
+      html += `<ul class="shop-list">${ungrouped.map(g=>renderItemRow(g.item, g.pantryItem)).join('')}</ul>`;
+    }
+    html += `<button class="add-row-btn" id="clearCheckedBtn" style="margin-top:10px;">${ICON.trash} Clear checked items</button>`;
+    bodyHtml = html;
   }
 
   app.innerHTML = `
     <div class="rv-header">
       <div class="rv-header-left"><button class="back-btn" id="shopBack">${ICON.back} Recipes</button></div>
-      <div class="rv-header-right"><span style="font-family:var(--font-display);font-size:17px;">Shopping List</span></div>
+      <div class="rv-header-right">
+        <span style="font-family:var(--font-display);font-size:17px;">Shopping List</span>
+        <button class="icon-btn" id="shopPantryBtn" title="Pantry">🧺</button>
+      </div>
     </div>
     <div class="rv-body">
-      ${listHtml}
+      ${bodyHtml}
     </div>
   `;
 
   document.getElementById('shopBack').addEventListener('click', ()=>{ state.view='home'; render(); });
+  document.getElementById('shopPantryBtn').addEventListener('click', ()=>{ state.view='pantry'; render(); });
   document.querySelectorAll('.shop-pantry-link').forEach(el=>{
     el.addEventListener('click', (e)=>{
       e.preventDefault();
@@ -1360,8 +1526,10 @@ function renderPantryItemView(){
     document.getElementById('piSave').addEventListener('click', ()=> handlePantrySave(item));
   } else {
     document.getElementById('piBack').addEventListener('click', ()=>{ state.view='pantry'; render(); });
-    document.getElementById('piShopAdd').addEventListener('click', ()=>{
+    document.getElementById('piShopAdd').addEventListener('click', (e)=>{
       toggleShoppingListItem(item);
+      const nowInList = isInShoppingList(item.id);
+      e.currentTarget.title = nowInList ? 'Remove from shopping list' : 'Add to shopping list';
       render();
     });
     document.getElementById('piEdit').addEventListener('click', ()=>{
@@ -1414,6 +1582,7 @@ function handlePantrySave(item){
   state.pantryEditSnapshot = null;
   state.pantryIsEditing = false;
   markDirty();
+  flushSave();
   render();
 }
 function refreshPantryBody(item){
@@ -1517,7 +1686,12 @@ function wirePantryItemBody(item, editing){
     imgInput.addEventListener('change', e=>{
       const file = e.target.files[0];
       if(!file) return;
-      resizeImageToBase64(file, 1000, dataUrl=>{
+      resizeImageToBase64(file, 1200, dataUrl=>{
+        if(!dataUrl){
+          alert("This image couldn't be used — your browser may not support this file type (e.g. HEIC photos from an iPhone often need converting to JPEG or PNG first). Please try a different photo.");
+          imgInput.value = '';
+          return;
+        }
         item.image = dataUrl;
         refreshPantryBody(item);
       });
@@ -1930,9 +2104,9 @@ function renderRecipeView(){
             </button>
             <button class="icon-btn" id="rvKitchen" title="Kitchen mode">${ICON.chef}</button>
             <button class="icon-btn" id="rvDuplicate" title="Duplicate">${ICON.copy}</button>
-            <button class="icon-btn" id="rvSettings" title="Settings">⚙️</button>
             <button class="icon-btn" id="rvEdit" title="Edit">${ICON.edit}</button>
             <button class="icon-btn danger" id="rvDelete" title="Delete">${ICON.trash}</button>
+            <button class="icon-btn" id="rvSettings" title="Settings">⚙️</button>
           `
         }
       </div>
@@ -2026,6 +2200,7 @@ function handleSave(r){
   state.editSnapshot = null;
   state.isEditing = false;
   markDirty();
+  flushSave();
   render();
 }
 function handleDelete(r){
@@ -2043,8 +2218,9 @@ function duplicateRecipe(r){
   clone.name = 'Copy of ' + (r.name || 'Untitled');
   clone.archived = false;
   clone.quickNotes = [];
+  clone.images = (clone.images||[]).map(img=>({...img, id: uid()}));
   clone.ingredientGroups = clone.ingredientGroups.map(g=>({...g, id: uid(), items: g.items.map(i=>({...i, id: uid()}))}));
-  clone.instructionGroups = clone.instructionGroups.map(g=>({...g, id: uid(), items: g.items.map(i=>({...i, id: uid()}))}));
+  clone.instructionGroups = clone.instructionGroups.map(g=>({...g, id: uid(), items: g.items.map(i=>({...i, id: uid(), images:(i.images||[]).map(img=>({...img,id:uid()}))}))}));
   clone.storageLines = clone.storageLines.map(i=>({...i, id: uid()}));
   clone.prepPlan = clone.prepPlan.map(i=>({...i, id: uid()}));
   clone.sourceLines = (clone.sourceLines||[]).map(i=>({...i, id: uid()}));
@@ -2153,20 +2329,67 @@ function refreshBody(r){
 
 /* ---------- image ---------- */
 function imageBlockHTML(r, editing){
-  const inner = r.image ? `<img src="${r.image}" />` : `<div class="upload-hint">${ICON.camera}<span>${editing?'Add a photo':'No photo'}</span></div>`;
-  const overlay = (editing && r.image) ? `<span class="change-overlay">Change photo</span>` : '';
-  return `<div class="rv-image-wrap ${editing?'editable':''}" id="rvImageWrap">${inner}${overlay}</div>`;
+  const images = r.images || [];
+  if(images.length === 0 && !editing){
+    return `<div class="rv-image-wrap"><div class="upload-hint">${ICON.camera}<span>No photo</span></div></div>`;
+  }
+  if(images.length === 0 && editing){
+    return `<div class="rv-image-wrap editable" id="rvImageWrap"><div class="upload-hint">${ICON.camera}<span>Add photo</span></div></div>`;
+  }
+  const slides = images.map(img => `
+    <div class="rv-carousel-slide">
+      <img src="${img.data}" />
+      ${editing ? `<button class="carousel-del" data-id="${img.id}" title="Remove photo">${ICON.trash}</button>` : ''}
+    </div>`).join('');
+  const dots = images.length > 1 ? `<div class="rv-carousel-dots" id="rvCarouselDots">${images.map((_,i)=>`<span class="rv-dot ${i===0?'active':''}" data-idx="${i}"></span>`).join('')}</div>` : '';
+  const addBtn = editing ? `<button class="add-row-btn" id="rvImageWrap" style="margin-top:8px;">${ICON.plus} Add photo</button>` : '';
+  return `<div class="rv-carousel-outer">
+    <div class="rv-carousel" id="rvCarousel">${slides}</div>
+    ${dots}
+    ${addBtn}
+  </div>`;
+}
+function wireCarouselDots(carouselId, dotsId){
+  const carousel = document.getElementById(carouselId);
+  const dotsContainer = document.getElementById(dotsId);
+  if(!carousel || !dotsContainer) return;
+  const dots = dotsContainer.querySelectorAll('.rv-dot');
+  carousel.addEventListener('scroll', ()=>{
+    const idx = Math.round(carousel.scrollLeft / Math.max(1,carousel.clientWidth));
+    dots.forEach((d,i)=> d.classList.toggle('active', i===idx));
+  });
+  dots.forEach((d,i)=>{
+    d.addEventListener('click', ()=>{
+      carousel.scrollTo({ left: i * carousel.clientWidth, behavior:'smooth' });
+    });
+  });
 }
 function wireImage(r){
+  wireCarouselDots('rvCarousel', 'rvCarouselDots');
   if(!state.isEditing) return;
   const wrap = document.getElementById('rvImageWrap');
   const input = document.getElementById('rvImageInput');
-  wrap.addEventListener('click', ()=> input.click());
+  if(wrap) wrap.addEventListener('click', ()=> input.click());
   input.addEventListener('change', e=>{
     const file = e.target.files[0];
     if(!file) return;
-    resizeImageToBase64(file, 1000, dataUrl=>{
-      r.image = dataUrl;
+    resizeImageToBase64(file, 1200, dataUrl=>{
+      if(!dataUrl){
+        alert("This image couldn't be used — your browser may not support this file type (e.g. HEIC photos from an iPhone often need converting to JPEG or PNG first). Please try a different photo.");
+        input.value = '';
+        return;
+      }
+      r.images = r.images || [];
+      r.images.push(makeRecipeImage(dataUrl));
+      input.value = '';
+      refreshBody(r);
+    });
+  });
+  document.querySelectorAll('.carousel-del').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      if(!confirm('Remove this photo?')) return;
+      r.images = r.images.filter(x=>x.id!==btn.dataset.id);
       refreshBody(r);
     });
   });
@@ -2555,7 +2778,7 @@ function openManageVariants(r){
     const v = {
       id: uid(), name: val,
       ingredientGroups: r.ingredientGroups.map(g=>({...g, id: uid(), items: g.items.map(i=>({...i, id: uid()}))})),
-      instructionGroups: r.instructionGroups.map(g=>({...g, id: uid(), items: g.items.map(i=>({...i, id: uid()}))})),
+      instructionGroups: r.instructionGroups.map(g=>({...g, id: uid(), items: g.items.map(i=>({...i, id: uid(), images:(i.images||[]).map(img=>({...img,id:uid()}))}))})),
       ovenRows: r.ovenRows.map(row=>({...row, id: uid()}))
     };
     r.variants.push(v);
@@ -2845,30 +3068,48 @@ function instructionsBodyHTML(r, editing){
   const renderGroup = (group) => {
     const list = group.items;
     if(!editing){
-      const rows = list.map((item, i) => `
+      const rows = list.map((item, i) => {
+        const photoGrid = (item.images && item.images.length) ? `<div class="instr-photo-grid">${item.images.map(img=>`<img class="instr-photo-thumb" src="${img.data}" data-lightbox-src="${escAttr(img.data)}" />`).join('')}</div>` : '';
+        return `
         <li class="instr-item">
           <span class="instr-num">${i+1}</span>
-          <div class="instr-static">${renderInstructionText(item.text)}</div>
-        </li>`).join('');
+          <div class="instr-content-col">
+            <div class="instr-static">${renderInstructionText(item.text)}</div>
+            ${photoGrid}
+          </div>
+        </li>`;
+      }).join('');
       const label = showGroupNames ? `<div class="ing-group-label">${escHtml(group.name||'Untitled')}</div>` : '';
       return `${label}<ul class="instr-list">${rows}</ul>`;
     }
-    const rows = list.map((item, i) => `
+    const rows = list.map((item, i) => {
+      const photoGrid = (item.images && item.images.length) ? `<div class="instr-photo-grid">${item.images.map(img=>`
+        <div class="instr-photo-thumb-wrap">
+          <img class="instr-photo-thumb" src="${img.data}" data-lightbox-src="${escAttr(img.data)}" />
+          <button class="instr-photo-del" data-stepid="${item.id}" data-imgid="${img.id}" title="Remove photo">${ICON.trash}</button>
+        </div>`).join('')}</div>` : '';
+      return `
       <li class="instr-item" data-id="${item.id}">
         <span class="instr-num">${i+1}</span>
-        <div class="field-with-link">
-          <div class="fmt-toolbar" id="fmttoolbar_${item.id}" style="display:none;">
-            <button data-fmt="**" title="Bold"><b>B</b></button>
-            <button data-fmt="*" title="Italic"><i>I</i></button>
+        <div class="instr-content-col">
+          <div class="field-with-link">
+            <div class="fmt-toolbar" id="fmttoolbar_${item.id}" style="display:none;">
+              <button data-fmt="**" title="Bold"><b>B</b></button>
+              <button data-fmt="*" title="Italic"><i>I</i></button>
+            </div>
+            <textarea class="instr-text" id="instrtext_${item.id}" data-id="${item.id}" placeholder="Describe this step…" rows="1">${escHtml(item.text)}</textarea>
+            <button class="link-insert-btn" data-target="instrtext_${item.id}" title="Link to a recipe">${ICON.link}</button>
+            <button class="instr-photo-btn" data-id="${item.id}" title="Add photo">${ICON.camera}</button>
+            <input type="file" accept="image/*" multiple class="instr-photo-input" data-id="${item.id}" style="display:none" />
           </div>
-          <textarea class="instr-text" id="instrtext_${item.id}" data-id="${item.id}" placeholder="Describe this step…" rows="1">${escHtml(item.text)}</textarea>
-          <button class="link-insert-btn" data-target="instrtext_${item.id}" title="Link to a recipe">${ICON.link}</button>
+          ${photoGrid}
         </div>
         <div class="instr-actions">
           <button class="row-add" data-kind="instr" data-id="${item.id}">${ICON.plus}</button>
           <button class="row-del" data-kind="instr" data-id="${item.id}">${ICON.trash}</button>
         </div>
-      </li>`).join('');
+      </li>`;
+    }).join('');
     const groupHeader = showGroupNames ? `
       <div class="ing-group-header">
         <input type="text" class="instr-group-name-input" data-group="${group.id}" placeholder="Component name" value="${escAttr(group.name)}" />
@@ -2918,6 +3159,9 @@ function wireFormatToolbar(item){
 }
 function wireInstructions(r, editing){
   wireOvenBlock(r, editing);
+  document.querySelectorAll('.instr-photo-thumb[data-lightbox-src]').forEach(img=>{
+    img.addEventListener('click', ()=> openReferenceLightbox(img.dataset.lightboxSrc));
+  });
   if(!editing) return;
   const groups = activeInstructionGroups(r);
   function findItemAndGroup(id){
@@ -2988,6 +3232,49 @@ function wireInstructions(r, editing){
   if(addGroupBtn) addGroupBtn.addEventListener('click', ()=>{
     groups.push(makeInstructionGroup());
     refreshBody(r);
+  });
+  document.querySelectorAll('.instr-photo-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const input = document.querySelector(`.instr-photo-input[data-id="${btn.dataset.id}"]`);
+      if(input) input.click();
+    });
+  });
+  document.querySelectorAll('.instr-photo-input').forEach(input=>{
+    input.addEventListener('change', e=>{
+      const files = Array.from(e.target.files || []);
+      if(files.length === 0) return;
+      const { item } = findItemAndGroup(input.dataset.id);
+      if(!item) return;
+      let remaining = files.length;
+      let failures = 0;
+      files.forEach(file=>{
+        resizeImageToBase64(file, 1200, dataUrl=>{
+          if(dataUrl){
+            item.images = item.images || [];
+            item.images.push(makeRecipeImage(dataUrl));
+          } else {
+            failures++;
+          }
+          remaining--;
+          if(remaining === 0){
+            input.value = '';
+            refreshBody(r);
+            if(failures > 0){
+              alert(`${failures} image${failures===1?'':'s'} couldn't be used — your browser may not support that file type (e.g. HEIC photos from an iPhone often need converting to JPEG or PNG first).`);
+            }
+          }
+        });
+      });
+    });
+  });
+  document.querySelectorAll('.instr-photo-del').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const { item } = findItemAndGroup(btn.dataset.stepid);
+      if(!item) return;
+      if(!confirm('Remove this photo?')) return;
+      item.images = (item.images||[]).filter(x=>x.id!==btn.dataset.imgid);
+      refreshBody(r);
+    });
   });
 }
 
@@ -3111,6 +3398,7 @@ function updateNotesButtonBadge(r){
 }
 
 function openReferenceGallery(r, editing){
+  removeAllModals();
   const overlay = document.createElement('div');
   overlay.className = 'modal-backdrop';
   overlay.id = 'referenceOverlay';
@@ -3164,16 +3452,24 @@ function openReferenceGallery(r, editing){
     document.getElementById('referenceFileInput').addEventListener('change', e=>{
       const files = Array.from(e.target.files || []);
       let remaining = files.length;
+      let failures = 0;
       if(remaining === 0) return;
       files.forEach(file=>{
-        resizeImageToBase64(file, 1400, dataUrl=>{
-          r.referenceImages.push({ id: uid(), data: dataUrl });
-          markDirty();
+        resizeImageToBase64(file, 1600, dataUrl=>{
+          if(dataUrl){
+            r.referenceImages.push({ id: uid(), data: dataUrl });
+            markDirty();
+          } else {
+            failures++;
+          }
           remaining--;
           if(remaining === 0){
             refreshGallery();
             const mainRefBtn = document.getElementById('referenceBtn');
             if(mainRefBtn) mainRefBtn.textContent = `📎 Reference${r.referenceImages.length ? ` (${r.referenceImages.length})` : ''}`;
+            if(failures > 0){
+              alert(`${failures} image${failures===1?'':'s'} couldn't be used — your browser may not support that file type (e.g. HEIC photos from an iPhone often need converting to JPEG or PNG first).`);
+            }
           }
         });
       });
@@ -3186,6 +3482,7 @@ function openReferenceGallery(r, editing){
   overlay.addEventListener('click', e=>{ if(e.target === overlay) safeRemoveModal(overlay); });
 }
 function openReferenceLightbox(src){
+  removeAllModals();
   const box = document.createElement('div');
   box.className = 'modal-backdrop';
   box.style.zIndex = '300';
@@ -3201,6 +3498,7 @@ async function openKitchenMode(r, isPrintMode){
   const overlay = document.createElement('div');
   overlay.className = isPrintMode ? 'kitchen-overlay print-mode' : 'kitchen-overlay';
   overlay.id = 'kitchenOverlay';
+  let printIncludePhotos = true;
 
   function renderKitchenIngList(){
     const factor = scaleFactor(r);
@@ -3229,6 +3527,7 @@ async function openKitchenMode(r, isPrintMode){
     return html;
   }
   function renderKitchenInstrList(){
+    const showPhotos = !isPrintMode || printIncludePhotos;
     const groups = activeInstructionGroups(r);
     const showGroupNames = groups.length > 1;
     let html = '';
@@ -3236,11 +3535,18 @@ async function openKitchenMode(r, isPrintMode){
       if(showGroupNames){
         html += `<li class="kitchen-ing-group-label"><span class="kitchen-ing-group-title">${escHtml(group.name||'Untitled')}</span></li>`;
       }
-      html += group.items.map((item,i)=>`<li>
-        <button class="kitchen-check kitchen-check-instr ${item.checked?'checked':''}" data-kind="instr" data-id="${item.id}">${ICON.check}</button>
-        <span class="kitchen-instr-num">${i+1}</span>
-        <span class="${item.checked?'kitchen-done':''}">${renderInstructionText(item.text)}</span>
-      </li>`).join('');
+      html += group.items.map((item,i)=>{
+        const photoGrid = (showPhotos && item.images && item.images.length)
+          ? `<div class="instr-photo-grid" style="margin-top:8px;">${item.images.map(img=>`<img class="instr-photo-thumb kitchen-photo-thumb" src="${img.data}" data-lightbox-src="${escAttr(img.data)}" />`).join('')}</div>`
+          : '';
+        return `<li>
+          <button class="kitchen-check kitchen-check-instr ${item.checked?'checked':''}" data-kind="instr" data-id="${item.id}">${ICON.check}</button>
+          <div style="flex:1;min-width:0;">
+            <div><span class="kitchen-instr-num">${i+1}</span> <span class="${item.checked?'kitchen-done':''}">${renderInstructionText(item.text)}</span></div>
+            ${photoGrid}
+          </div>
+        </li>`;
+      }).join('');
     });
     return html;
   }
@@ -3294,19 +3600,38 @@ async function openKitchenMode(r, isPrintMode){
     ovenHtml += `${label}<div class="kitchen-oven">${bits.join('')}</div>`;
   });
 
+  const hasStepPhotos = activeInstructionGroups(r).some(g=>g.items.some(i=>i.images && i.images.length));
+
   overlay.innerHTML = `
     <div class="kitchen-header">
       <span style="font-family:var(--font-display);font-size:15px;">${isPrintMode ? 'Print preview' : 'Kitchen mode'}</span>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <button class="kitchen-close" id="kitchenNotesBtn" title="Quick notes">
-          ${ICON.notes}
-          <span class="notes-badge" style="display:${r.quickNotes.length?'flex':'none'};">${r.quickNotes.length||''}</span>
-        </button>
+      <div style="display:flex;align-items:center;gap:10px;">
+        ${isPrintMode ? `
+          ${hasStepPhotos ? `<label class="print-photos-toggle"><input type="checkbox" id="printIncludePhotos" checked /> Include step photos</label>` : ''}
+          <button class="text-btn primary" id="printNowBtn">Print</button>
+        ` : `
+          <button class="kitchen-close" id="kitchenNotesBtn" title="Quick notes">
+            ${ICON.notes}
+            <span class="notes-badge" style="display:${r.quickNotes.length?'flex':'none'};">${r.quickNotes.length||''}</span>
+          </button>
+        `}
         <button class="kitchen-close" id="kitchenCloseBtn">${ICON.back}</button>
       </div>
     </div>
     <div class="kitchen-body">
-      ${r.image ? `<img class="kitchen-img" src="${r.image}" />` : ''}
+      ${(()=>{
+        const images = r.images || [];
+        if(images.length === 0) return '';
+        if(isPrintMode || images.length === 1){
+          return `<img class="kitchen-img" src="${images[0].data}" />`;
+        }
+        const slides = images.map(img=>`<div class="rv-carousel-slide kitchen-carousel-slide"><img src="${img.data}" /></div>`).join('');
+        const dots = `<div class="rv-carousel-dots" id="kitchenCarouselDots">${images.map((_,i)=>`<span class="rv-dot ${i===0?'active':''}" data-idx="${i}"></span>`).join('')}</div>`;
+        return `<div class="rv-carousel-outer" style="margin-top:0;">
+          <div class="rv-carousel" id="kitchenCarousel">${slides}</div>
+          ${dots}
+        </div>`;
+      })()}
       <div class="kitchen-title">${escHtml(r.name||'Untitled')}</div>
       ${variant ? `<div class="kitchen-variant">${escHtml(variant.name)} variant</div>` : ''}
       <div class="kitchen-yield">${r.yield.na ? `⚪ Servings not specified${ensureMultiplierSession()!==1 ? ` (×${formatAmount(ensureMultiplierSession())})` : ''}` : `Makes ${ensureYieldSession(r)} ${escHtml(r.yield.unit)}`}</div>
@@ -3323,11 +3648,28 @@ async function openKitchenMode(r, isPrintMode){
   `;
   document.body.appendChild(overlay);
   document.getElementById('kitchenCloseBtn').addEventListener('click', closeKitchenMode);
-  document.getElementById('kitchenNotesBtn').addEventListener('click', ()=> openQuickNotesModal(r));
+  if(!isPrintMode){
+    document.getElementById('kitchenNotesBtn').addEventListener('click', ()=> openQuickNotesModal(r));
+  }
   wireKitchenChecks();
+  wireCarouselDots('kitchenCarousel', 'kitchenCarouselDots');
+  overlay.querySelectorAll('.instr-photo-thumb[data-lightbox-src]').forEach(img=>{
+    img.addEventListener('click', ()=> openReferenceLightbox(img.dataset.lightboxSrc));
+  });
+
 
   if(isPrintMode){
-    setTimeout(()=>{ window.print(); }, 150);
+    const photosToggle = document.getElementById('printIncludePhotos');
+    if(photosToggle){
+      photosToggle.addEventListener('change', e=>{
+        printIncludePhotos = e.target.checked;
+        overlay.querySelector('#kitchenInstrList').innerHTML = renderKitchenInstrList();
+        overlay.querySelectorAll('.instr-photo-thumb[data-lightbox-src]').forEach(img=>{
+          img.addEventListener('click', ()=> openReferenceLightbox(img.dataset.lightboxSrc));
+        });
+      });
+    }
+    document.getElementById('printNowBtn').addEventListener('click', ()=>{ window.print(); });
     return;
   }
 
@@ -3349,21 +3691,42 @@ function closeKitchenMode(){
    IMAGE RESIZE
 ========================================================= */
 function resizeImageToBase64(file, maxDim, cb){
-  const reader = new FileReader();
-  reader.onload = e=>{
-    const img = new Image();
-    img.onload = ()=>{
+  let settled = false;
+  let objectUrl = null;
+  const finish = (result)=>{
+    if(settled) return;
+    settled = true;
+    clearTimeout(safetyTimer);
+    if(objectUrl) URL.revokeObjectURL(objectUrl);
+    cb(result);
+  };
+  const safetyTimer = setTimeout(()=> finish(null), 15000);
+
+  try{
+    objectUrl = URL.createObjectURL(file);
+  }catch(err){
+    console.error('Error creating object URL for image:', err);
+    finish(null);
+    return;
+  }
+
+  const img = new Image();
+  img.onerror = ()=> finish(null);
+  img.onload = ()=>{
+    try{
       let w = img.width, h = img.height;
       if(w > h && w > maxDim){ h = h*(maxDim/w); w = maxDim; }
       else if(h > maxDim){ w = w*(maxDim/h); h = maxDim; }
       const canvas = document.createElement('canvas');
       canvas.width = w; canvas.height = h;
       canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-      cb(canvas.toDataURL('image/jpeg', 0.82));
-    };
-    img.src = e.target.result;
+      finish(canvas.toDataURL('image/jpeg', 0.85));
+    }catch(err){
+      console.error('Error processing image:', err);
+      finish(null);
+    }
   };
-  reader.readAsDataURL(file);
+  img.src = objectUrl;
 }
 
 /* =========================================================
@@ -3398,10 +3761,10 @@ function migrateRecipe(raw){
   if(Array.isArray(raw.instructionGroups)){
     r.instructionGroups = raw.instructionGroups.map(g=>({
       id: g.id||uid(), name: g.name||'',
-      items: (g.items||[]).map(i=>({ checked:false, ...i }))
+      items: (g.items||[]).map(i=>({ checked:false, images:[], ...i }))
     }));
   } else {
-    r.instructionGroups = [{ id: uid(), name:'', items: (raw.instructions||[]).map(i=>({ checked:false, ...i })) }];
+    r.instructionGroups = [{ id: uid(), name:'', items: (raw.instructions||[]).map(i=>({ checked:false, images:[], ...i })) }];
   }
   if(!r.yield) r.yield = { base:4, unit:'servings', na:false };
   if(typeof r.yield.na !== 'boolean') r.yield.na = false;
@@ -3430,7 +3793,7 @@ function migrateRecipe(raw){
     }
     delete v.ingredients;
     if(!Array.isArray(v.instructionGroups)){
-      v.instructionGroups = [{ id: uid(), name:'', items: (v.instructions||[]).map(i=>({ checked:false, ...i })) }];
+      v.instructionGroups = [{ id: uid(), name:'', items: (v.instructions||[]).map(i=>({ checked:false, images:[], ...i })) }];
     }
     delete v.instructions;
     return v;
@@ -3444,6 +3807,9 @@ function migrateRecipe(raw){
   if(!Array.isArray(r.referenceImages)) r.referenceImages = [];
   if(typeof r.archived !== 'boolean') r.archived = false;
   if(!Array.isArray(r.quickNotes)) r.quickNotes = [];
+  if(!Array.isArray(raw.images)){
+    r.images = raw.image ? [{ id: uid(), data: raw.image }] : [];
+  }
   return r;
 }
 
@@ -3459,7 +3825,7 @@ function exportJSON(){
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
   clearDirty();
-  saveLocal();
+  flushSave();
 }
 function importJSON(e){
   const file = e.target.files[0];
@@ -3649,7 +4015,7 @@ function parseRecipeText(text){
 
   const instructions = instrLines.map(line=>{
     return line.replace(/^\d+[\.\)]\s*/, '').replace(/^step\s*\d+[:.]?\s*/i,'').trim();
-  }).filter(Boolean).map(text=>({ id: uid(), text, checked:false }));
+  }).filter(Boolean).map(text=>({ id: uid(), text, checked:false, images: [] }));
 
   return { name, description, ingredients, instructions };
 }
@@ -3712,6 +4078,7 @@ function openScanPhotoFlow(r){
     if(!file) return;
 
     const overlay = document.createElement('div');
+    removeAllModals();
     overlay.className = 'modal-backdrop';
     overlay.id = 'ocrOverlay';
     overlay.innerHTML = `
@@ -3747,12 +4114,30 @@ function autosize(el){ el.style.height = 'auto'; el.style.height = (el.scrollHei
 function autosizeAll(){ document.querySelectorAll('textarea').forEach(autosize); }
 
 /* =========================================================
-   INIT — migrate any locally-stored data from older versions
+   INIT — load data (IndexedDB, migrating from localStorage if needed), then render
 ========================================================= */
-if(data.recipes && data.recipes.length){
-  data.recipes = data.recipes.map(migrateRecipe);
+async function bootstrap(){
+  try{
+    data = await loadAppData();
+  }catch(err){
+    console.error('Fatal error loading app data:', err);
+  }
+  if(!Array.isArray(data.pantryCategories)) data.pantryCategories = [];
+  if(!Array.isArray(data.pantry)) data.pantry = [];
+  if(!Array.isArray(data.shoppingList)) data.shoppingList = [];
+  data.pantry = data.pantry.map(migratePantryItem);
+  if(data.recipes && data.recipes.length){
+    data.recipes = data.recipes.map(migrateRecipe);
+  }
+  document.addEventListener('visibilitychange', ()=>{
+    if(document.visibilityState === 'hidden' && saveDebounceTimer) flushSave();
+  });
+  window.addEventListener('beforeunload', ()=>{
+    if(saveDebounceTimer) flushSave();
+  });
+  render();
 }
-render();
+bootstrap();
 </script>
 </body>
 </html>
