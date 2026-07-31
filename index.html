@@ -172,6 +172,12 @@
   }
   .tile-img.placeholder{ display:flex; align-items:center; justify-content:center; }
   .tile-img.placeholder svg{ width:26px; height:26px; stroke:var(--ink-faint); fill:none; opacity:0.6; }
+  .cover-collage{ background:none; padding:0; overflow:hidden; }
+  .cover-collage.cover-collage-2{ display:flex; flex-direction:row; gap:2px; }
+  .cover-collage.cover-collage-2 img{ width:calc(50% - 1px); height:100%; object-fit:cover; display:block; }
+  .cover-collage.cover-collage-grid{ display:flex; flex-wrap:wrap; gap:2px; align-content:flex-start; }
+  .cover-collage.cover-collage-grid img{ width:calc(50% - 1px); height:calc(50% - 1px); object-fit:cover; display:block; }
+  .list-thumb.cover-collage{ border-radius:8px; }
   .tile-body{ padding:10px 12px 12px 12px; }
   .tile-name{ font-family:var(--font-display); font-size:15px; line-height:1.3; }
   .tile-tags{ margin-top:5px; display:flex; align-items:center; gap:5px; flex-wrap:wrap; }
@@ -714,7 +720,7 @@
 /* =========================================================
    CONSTANTS
 ========================================================= */
-const APP_VERSION = "v36";
+const APP_VERSION = "v37";
 const DEFAULT_CATEGORIES = ["Dessert","Dinner","Bites","Drinks","Side Dishes","Batch Cooking"];
 const ACCENTS = ["#7C5A6B","#6B7561","#A68A5B","#5C7A80","#8A8F5C","#9C6B54","#5E6B8A","#8B6F8C"];
 const OVEN_SETTINGS = ["With fan","Without fan","Turbo","Airfry","Other"];
@@ -1107,13 +1113,29 @@ function tagsRowHTML(r){
   const dots = tags.map(t=>`<span class="dot" style="background:${accentFor(t)}"></span>`).join('');
   return `<div class="tile-tags">${dots}<span class="lbl">${escHtml(tags.join(' · '))}</span></div>`;
 }
+function recipeCoverImages(r){
+  const covers = [];
+  if(r.images && r.images[0]) covers.push(r.images[0].data);
+  (r.variants||[]).forEach(v=>{
+    if(covers.length >= 4) return;
+    if(v.images && v.images[0]) covers.push(v.images[0].data);
+  });
+  return covers.slice(0,4);
+}
+function coverCollageHTML(r, baseClass){
+  const covers = recipeCoverImages(r);
+  if(covers.length === 0){
+    return `<div class="${baseClass} placeholder">${ICON.image}</div>`;
+  }
+  if(covers.length === 1){
+    return `<img class="${baseClass}" src="${covers[0]}" />`;
+  }
+  const layoutClass = covers.length === 2 ? 'cover-collage-2' : 'cover-collage-grid';
+  return `<div class="${baseClass} cover-collage ${layoutClass}">${covers.map(c=>`<img src="${c}" />`).join('')}</div>`;
+}
 function tileHTML(r){
-  const cover = coverImage(r);
-  const img = cover
-    ? `<img class="tile-img" src="${cover}" />`
-    : `<div class="tile-img placeholder">${ICON.image}</div>`;
   return `<div class="tile" data-id="${r.id}">
-    ${img}
+    ${coverCollageHTML(r, 'tile-img')}
     <div class="tile-body">
       <div class="tile-name">${escHtml(r.name || 'Untitled')}</div>
       ${tagsRowHTML(r)}
@@ -1121,12 +1143,8 @@ function tileHTML(r){
   </div>`;
 }
 function listRowHTML(r){
-  const cover = coverImage(r);
-  const img = cover
-    ? `<img class="list-thumb recipe-list-thumb" src="${cover}" />`
-    : `<div class="list-thumb recipe-list-thumb placeholder">${ICON.image}</div>`;
   return `<div class="list-row recipe-list-row" data-id="${r.id}">
-    ${img}
+    ${coverCollageHTML(r, 'list-thumb recipe-list-thumb')}
     <div class="list-info">
       <div class="list-name recipe-list-name">${escHtml(r.name || 'Untitled')}</div>
       ${tagsRowHTML(r)}
@@ -2187,6 +2205,7 @@ function flatIngredients(r){ return activeIngredientGroups(r).flatMap(g=>g.items
 function activeInstructionGroups(r){ const v = activeVariantObj(r); return v ? v.instructionGroups : r.instructionGroups; }
 function flatInstructions(r){ return activeInstructionGroups(r).flatMap(g=>g.items); }
 function activeOvenRows(r){ const v = activeVariantObj(r); return v ? v.ovenRows : r.ovenRows; }
+function activeImages(r){ const v = activeVariantObj(r); return v ? v.images : r.images; }
 
 function ensureYieldSession(r){
   if(state.currentYield === null || state.currentYield === undefined){
@@ -2564,6 +2583,7 @@ function duplicateRecipe(r){
   clone.referenceImages = (clone.referenceImages||[]).map(i=>({...i, id: uid()}));
   clone.variants = (clone.variants||[]).map(v=>({
     ...v, id: uid(),
+    images: (v.images||[]).map(img=>({...img, id: uid()})),
     ingredientGroups: v.ingredientGroups.map(g=>({...g, id: uid(), items: g.items.map(i=>({...i, id: uid()}))})),
     instructionGroups: v.instructionGroups.map(g=>({...g, id: uid(), items: g.items.map(i=>({...i, id: uid()}))})),
     ovenRows: (v.ovenRows||[]).map(i=>({...i, id: uid()}))
@@ -2670,7 +2690,7 @@ function refreshBody(r){
 
 /* ---------- image ---------- */
 function imageBlockHTML(r, editing){
-  const images = r.images || [];
+  const images = activeImages(r) || [];
   if(images.length === 0 && !editing){
     return `<div class="rv-image-wrap"><div class="upload-hint">${ICON.camera}<span>No photo</span></div></div>`;
   }
@@ -2723,8 +2743,10 @@ function wireImage(r){
         input.value = '';
         return;
       }
-      r.images = r.images || [];
-      r.images.push(makeRecipeImage(dataUrl));
+      const v = activeVariantObj(r);
+      const target = v || r;
+      target.images = target.images || [];
+      target.images.push(makeRecipeImage(dataUrl));
       input.value = '';
       refreshBody(r);
     });
@@ -2733,7 +2755,9 @@ function wireImage(r){
     btn.addEventListener('click', (e)=>{
       e.stopPropagation();
       if(!confirm('Remove this photo?')) return;
-      r.images = r.images.filter(x=>x.id!==btn.dataset.id);
+      const v = activeVariantObj(r);
+      const target = v || r;
+      target.images = target.images.filter(x=>x.id!==btn.dataset.id);
       refreshBody(r);
     });
   });
@@ -3121,6 +3145,7 @@ function openManageVariants(r){
     if(!val) return;
     const v = {
       id: uid(), name: val,
+      images: (r.images||[]).map(img=>({...img, id: uid()})),
       ingredientGroups: r.ingredientGroups.map(g=>({...g, id: uid(), items: g.items.map(i=>({...i, id: uid()}))})),
       instructionGroups: r.instructionGroups.map(g=>({...g, id: uid(), items: g.items.map(i=>({...i, id: uid(), images:(i.images||[]).map(img=>({...img,id:uid()}))}))})),
       ovenRows: r.ovenRows.map(row=>({...row, id: uid()}))
@@ -4117,6 +4142,7 @@ function migrateRecipe(raw){
       v.instructionGroups = [{ id: uid(), name:'', items: (v.instructions||[]).map(i=>({ checked:false, images:[], ...i })) }];
     }
     delete v.instructions;
+    if(!Array.isArray(v.images)) v.images = [];
     return v;
   });
   if(!r.activeVariant) r.activeVariant = 'standard';
