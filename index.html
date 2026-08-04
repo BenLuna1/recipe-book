@@ -216,6 +216,15 @@
   .pantry-list-meta{ display:flex; align-items:baseline; gap:8px; margin-top:3px; flex-wrap:wrap; }
   .pantry-list-type{ font-size:12.5px; font-style:italic; color:var(--ink-soft); }
   .pantry-list-brand{ font-size:11px; text-transform:uppercase; letter-spacing:0.5px; color:var(--ink-faint); }
+  .pantry-list-price{ font-size:12.5px; color:var(--accent); font-weight:600; }
+  .pantry-list-qty{ font-size:12.5px; color:var(--ink-soft); }
+  .pantry-pq-row{ display:flex; gap:10px; margin-top:8px; }
+  .pantry-pq-input{
+    flex:1; border:1px solid var(--hairline-strong); background:var(--paper-raised); border-radius:8px;
+    padding:9px 12px; font-size:14px; outline:none;
+  }
+  .pantry-pq-static{ margin-top:8px; font-size:14px; color:var(--ink-soft); }
+  .pantry-pq-static span:first-child{ color:var(--accent); font-weight:600; }
   .list-info .tile-tags{ margin-top:3px; }
   .recipe-list-row{ padding: 14px 4px; gap:16px; }
   .recipe-list-thumb{ width:68px; height:68px; }
@@ -261,6 +270,7 @@
   .back-btn svg{ width:17px; height:17px; stroke:var(--ink-soft); fill:none; }
   .text-btn{ border:none; background:none; font-size:14.5px; padding:6px 8px; color:var(--ink-soft); }
   .text-btn.primary{ color:var(--ink); font-weight:600; }
+  .text-btn.primary:disabled{ color:var(--ink-faint); font-weight:400; }
   .text-btn.danger{ color:var(--danger); }
   .rv-body{ max-width:640px; margin:0 auto; padding: 8px 20px 60px 20px; }
 
@@ -473,8 +483,11 @@
   .fmt-toolbar button:active{ background:var(--ink); color:var(--paper); }
   .link-insert-btn{ border:none; background:none; opacity:0.7; display:flex; align-items:center; justify-content:center; width:26px; height:26px; flex:0 0 auto; margin-top:1px; }
   .link-insert-btn svg{ width:13px; height:13px; stroke:var(--accent); fill:none; }
-  a.recipe-link, a.pantry-link-ref{ color:var(--accent); text-decoration:underline; text-decoration-color: var(--hairline-strong); cursor:pointer; }
-  .linked-from-row{ margin-top:14px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  a.recipe-link, a.pantry-link-ref, a.equipment-link-ref{ color:var(--accent); text-decoration:underline; text-decoration-color: var(--hairline-strong); cursor:pointer; }
+  .linked-from-label{ margin-top:18px; font-size:11.5px; text-transform:uppercase; letter-spacing:0.4px; color:var(--ink-faint); font-weight:600; }
+  .settings-block-title{ margin-top:0; margin-bottom:8px; }
+  #ovenStaticWrap + #equipmentStaticWrap{ margin-top:16px; }
+  .linked-from-row{ margin-top:8px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
 
   /* ---------- Shopping list ---------- */
   .shop-list{ list-style:none; margin:0 0 6px 0; padding:0; }
@@ -504,7 +517,16 @@
   .book-toc-item:active{ background:var(--paper-raised); }
   .book-position{ font-size:12px; color:var(--ink-soft); white-space:nowrap; margin-right:4px; }
   .book-page-left .rv-image-wrap, .book-page-left .rv-carousel-outer{ margin-top:0; }
-  .linked-from-pill{ font-size:12px; color:var(--ink-soft); background:var(--paper-raised); border:1px solid var(--hairline-strong); border-radius:999px; padding:5px 12px; cursor:pointer; }
+  .linked-from-pill{
+    font-size:12px; color:var(--ink-soft); background:var(--paper-raised); border:1px solid var(--hairline-strong);
+    border-radius:999px; padding:4px 12px 4px 4px; cursor:pointer; display:inline-flex; align-items:center; gap:7px;
+  }
+  .linked-from-thumb{
+    width:22px; height:22px; border-radius:50%; object-fit:cover; flex:0 0 auto;
+    background: linear-gradient(135deg, #E7E1D3, #DED6C3);
+  }
+  .linked-from-thumb.placeholder{ display:flex; align-items:center; justify-content:center; }
+  .linked-from-thumb.placeholder svg{ width:10px; height:10px; stroke:var(--ink-faint); fill:none; opacity:0.6; }
 
   /* Recipe picker modal */
   .picker-search{ width:100%; border:1px solid var(--hairline-strong); background:var(--paper-raised); border-radius:8px; padding:9px 12px; font-size:14px; outline:none; margin-bottom:10px; }
@@ -628,8 +650,16 @@
   .unit-toggle button.active{ background:var(--ink); color:var(--paper); }
   .oven-row-group{ padding-bottom:2px; }
   .oven-row-label{ font-size:12px; font-weight:600; color:var(--accent); margin-bottom:6px; letter-spacing:0.2px; }
-  .oven-static{ display:flex; gap:18px; flex-wrap:wrap; padding-bottom:18px; border-bottom:1px dashed var(--hairline-strong); margin-bottom:16px; font-size:13.5px; color:var(--ink-soft); }
+  .oven-static{ display:flex; gap:18px; flex-wrap:wrap; font-size:13.5px; color:var(--ink-soft); }
   .oven-static b{ color:var(--ink); font-weight:600; margin-right:8px; }
+  .equipment-row-edit{ display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px dashed var(--hairline-strong); }
+  .equipment-row-edit:last-of-type{ border-bottom:none; }
+  .equipmentTypeSelect{ flex:0 0 auto; max-width:160px; border:1px solid var(--hairline-strong); background:var(--paper-raised); border-radius:8px; padding:8px 10px; font-size:13px; outline:none; }
+  .equipmentDetailInput{ width:100%; border:none; outline:none; background:transparent; font-size:14px; padding:0; }
+  .equipment-row-static{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding-top:10px; font-size:13.5px; color:var(--ink-soft); }
+  .settings-combined-wrap{ padding-bottom:18px; border-bottom:1px dashed var(--hairline-strong); margin-bottom:16px; }
+  .equipment-row-static b{ color:var(--ink); font-weight:600; margin-right:8px; }
+  .equipment-row-thumb{ cursor:pointer; }
 
   /* Source line */
   .source-row{ margin-top:26px; padding-top:14px; border-top:1px solid var(--hairline); font-size:12.5px; color:var(--ink-faint); }
@@ -720,10 +750,11 @@
 /* =========================================================
    CONSTANTS
 ========================================================= */
-const APP_VERSION = "v37";
+const APP_VERSION = "v46";
 const DEFAULT_CATEGORIES = ["Dessert","Dinner","Bites","Drinks","Side Dishes","Batch Cooking"];
 const ACCENTS = ["#7C5A6B","#6B7561","#A68A5B","#5C7A80","#8A8F5C","#9C6B54","#5E6B8A","#8B6F8C"];
 const OVEN_SETTINGS = ["With fan","Without fan","Turbo","Airfry","Other"];
+const DEFAULT_EQUIPMENT_TYPES = ["Oven (Smeg)","Oven (Other)","Airfryer","Microwave","Frying pan","Perforated baking sheet","Baking sheet"];
 
 /* =========================================================
    STORAGE — IndexedDB (with one-time migration from localStorage)
@@ -802,7 +833,7 @@ function idbSet(key, value, isRetry){
 /* Loads app data at startup: tries IndexedDB first; if empty, migrates
    any existing localStorage data over (one-time); falls back to defaults. */
 async function loadAppData(){
-  const defaults = { title:"Recipe Book", categories:[...DEFAULT_CATEGORIES], recipes:[], pantryCategories:[], pantry:[], shoppingList:[] };
+  const defaults = { title:"Recipe Book", categories:[...DEFAULT_CATEGORIES], recipes:[], pantryCategories:[], pantry:[], shoppingList:[], equipmentCategories:[], equipment:[], equipmentTypes:[...DEFAULT_EQUIPMENT_TYPES] };
   try{
     const fromIDB = await idbGet(IDB_KEY);
     if(fromIDB) return fromIDB;
@@ -826,7 +857,7 @@ async function loadAppData(){
 /* =========================================================
    DATA / STATE
 ========================================================= */
-let data = { title:"Recipe Book", categories:[...DEFAULT_CATEGORIES], recipes:[], pantryCategories:[], pantry:[], shoppingList:[] };
+let data = { title:"Recipe Book", categories:[...DEFAULT_CATEGORIES], recipes:[], pantryCategories:[], pantry:[], shoppingList:[], equipmentCategories:[], equipment:[], equipmentTypes:[...DEFAULT_EQUIPMENT_TYPES] };
 let dirty = false;
 let draftRecipe = null; // holds an unsaved new recipe until first Save
 let draftPantryItem = null; // holds an unsaved new pantry item until first Save
@@ -854,10 +885,18 @@ let state = {
   archiveViewMode: "tile",
   homeSearchQuery: "",
   pantrySearchQuery: "",
+  equipmentActiveCategory: "All",
+  equipmentViewMode: "tile",
+  equipmentItemId: null,
+  equipmentIsNew: false,
+  equipmentIsEditing: false,
+  equipmentEditSnapshot: null,
+  equipmentSearchQuery: "",
   recipeOrigin: "home",
   bookOrder: [],
   bookIndex: 0
 };
+let draftEquipmentItem = null;
 
 function uid(){ return 'id_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,8); }
 function accentFor(cat){
@@ -866,6 +905,10 @@ function accentFor(cat){
 }
 function pantryAccentFor(cat){
   const idx = data.pantryCategories.indexOf(cat);
+  return ACCENTS[(idx < 0 ? 0 : idx) % ACCENTS.length];
+}
+function equipmentAccentFor(cat){
+  const idx = data.equipmentCategories.indexOf(cat);
   return ACCENTS[(idx < 0 ? 0 : idx) % ACCENTS.length];
 }
 function saveLocal(){
@@ -914,17 +957,19 @@ function blankRecipe(cat){
     id: uid(), name:"", categories: cat ? [cat] : [], images: [], description:"",
     sourceLines: [],
     referenceImages: [],
-    sectionsEnabled: { storage:false, prepPlan:false, oven:false, source:false },
+    sectionsEnabled: { storage:false, prepPlan:false, oven:false, equipment:false, source:false },
     storageLines: [], prepPlan: [],
     yield: { base:4, unit:"servings", na:false },
     ingredientGroups: [makeIngredientGroup()], instructionGroups: [makeInstructionGroup()],
     ovenRows: [makeOvenRow()],
+    equipmentRows: [makeEquipmentRow()],
     variants: [], activeVariant: 'standard',
     archived: false,
     quickNotes: []
   };
 }
 function makeOvenRow(){ return { id: uid(), label:'', temp:null, tempUnit:'C', time:null, timeUnit:'min', setting:'Without fan', settingOther:'' }; }
+function makeEquipmentRow(){ return { id: uid(), type: (data.equipmentTypes && data.equipmentTypes[0]) || '', detail:'' }; }
 function makeQuickNote(){ return { id: uid(), date: new Date().toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}), text:'', images: [] }; }
 function makeRecipeImage(data){ return { id: uid(), data }; }
 function coverImage(r){ return (r.images && r.images[0]) ? r.images[0].data : null; }
@@ -933,19 +978,41 @@ function makeIngredientGroup(){ return { id: uid(), name:'', items: [] }; }
 function makeInstructionGroup(){ return { id: uid(), name:'', items: [] }; }
 function makeLine(){ return { id: uid(), text:'' }; }
 function makeInstr(){ return { id: uid(), text:'', checked:false, images: [] }; }
-function makePantryItem(cat){ return { id: uid(), name:'', type:'', category: cat||'', image:null, brands:[], stores:[], notes:'' }; }
+function makePantryItem(cat){ return { id: uid(), name:'', type:'', category: cat||'', image:null, brands:[], stores:[], notes:'', price:'', quantity:'' }; }
 function makeBrand(){ return { id: uid(), text:'' }; }
 function makeStore(){ return { id: uid(), name:'', url:'' }; }
 function migratePantryItem(raw){
   if(Array.isArray(raw.brands) && Array.isArray(raw.stores)){
     if(!('image' in raw)) raw.image = null;
     if(!('type' in raw)) raw.type = '';
+    if(!('price' in raw)) raw.price = '';
+    if(!('quantity' in raw)) raw.quantity = '';
     return raw;
   }
-  const item = { id: raw.id||uid(), name: raw.name||'', type: raw.type||'', category: raw.category||'', image: raw.image||null, brands: [], stores: [], notes: raw.notes||'' };
+  const item = { id: raw.id||uid(), name: raw.name||'', type: raw.type||'', category: raw.category||'', image: raw.image||null, brands: [], stores: [], notes: raw.notes||'', price: raw.price||'', quantity: raw.quantity||'' };
   if(raw.brand) item.brands.push({ id: uid(), text: raw.brand });
   if(raw.link) item.stores.push({ id: uid(), name:'', url: raw.link });
   return item;
+}
+function makeEquipmentItem(cat){ return { id: uid(), name:'', type:'', category: cat||'', image:null, brand:'', model:'', brands:[], stores:[], notes:'', price:'', quantity:'' }; }
+function migrateEquipmentItem(raw){
+  return {
+    id: raw.id||uid(), name: raw.name||'', type: raw.type||'', category: raw.category||'',
+    image: raw.image||null,
+    brand: raw.brand || (Array.isArray(raw.brands) && raw.brands[0] ? raw.brands[0].text : '') || '',
+    model: raw.model || '',
+    brands: Array.isArray(raw.brands) ? raw.brands : [],
+    stores: Array.isArray(raw.stores) ? raw.stores : [],
+    notes: raw.notes||'', price: raw.price||'', quantity: raw.quantity||''
+  };
+}
+function equipmentDisplayName(item){
+  const bm = [item.brand, item.model].filter(Boolean).join(' ');
+  if(bm && item.type) return `${bm} (${item.type})`;
+  if(bm) return bm;
+  if(item.type) return item.type;
+  if(item.name) return item.name;
+  return 'Untitled';
 }
 
 /* =========================================================
@@ -957,6 +1024,7 @@ const ICON = {
   list:  `<svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>`,
   image: `<svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>`,
   camera:`<svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v12H4z"/><circle cx="12" cy="14" r="3.5"/></svg>`,
+  whisk:`<svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M12 2v4"/><path d="M8 6c-2 3-2 8 0 11 1 1.5 2.5 2 4 2s3-.5 4-2c2-3 2-8 0-11"/><path d="M9.3 6c-1.3 3-1.3 8 0 11"/><path d="M14.7 6c1.3 3 1.3 8 0 11"/><path d="M12 6v11"/></svg>`,
   back:  `<svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>`,
   chev:  `<svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>`,
   trash: `<svg viewBox="0 0 24 24" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2m-7 0v12a2 2 0 002 2h6a2 2 0 002-2V7"/></svg>`,
@@ -1014,6 +1082,10 @@ function render(){
     renderPantryView();
   } else if(state.view === 'pantryItem'){
     renderPantryItemView();
+  } else if(state.view === 'equipment'){
+    renderEquipmentView();
+  } else if(state.view === 'equipmentItem'){
+    renderEquipmentItemView();
   } else if(state.view === 'archive'){
     renderArchiveView();
   } else if(state.view === 'shoppingList'){
@@ -1081,6 +1153,7 @@ function homeHTML(){
       <div class="topbar-actions">
         <button class="icon-btn" id="shoppingListBtn" title="Shopping list">🛒</button>
         <button class="icon-btn" id="pantryBtn" title="Pantry">🧺</button>
+        <button class="icon-btn" id="equipmentBtn" title="Equipment">${ICON.whisk}</button>
         <button class="icon-btn" id="homeSettingsBtn" title="Settings">
           ⚙️
           <span class="dirty-dot" id="dirtyDot" style="display:${dirty?'block':'none'}"></span>
@@ -1176,6 +1249,7 @@ function attachHomeEvents(){
   });
 
   document.getElementById('pantryBtn').addEventListener('click', ()=>{ state.view = 'pantry'; render(); });
+  document.getElementById('equipmentBtn').addEventListener('click', ()=>{ state.view = 'equipment'; render(); });
   document.getElementById('bookModeBtn').addEventListener('click', ()=>{ state.view = 'bookToc'; render(); });
   document.getElementById('shoppingListBtn').addEventListener('click', ()=>{ state.view = 'shoppingList'; render(); });
   document.getElementById('homeSettingsBtn').addEventListener('click', openHomeSettingsMenu);
@@ -1431,6 +1505,357 @@ function renderPantryView(){
   document.getElementById('pantryAdd').addEventListener('click', addNewPantryItem);
 }
 /* =========================================================
+   EQUIPMENT
+========================================================= */
+function renderEquipmentView(){
+  const app = document.getElementById('app');
+  const q = state.equipmentSearchQuery.trim().toLowerCase();
+  const filtered = data.equipment
+   .filter(p => !q || equipmentDisplayName(p).toLowerCase().includes(q))
+   .slice().sort((a,b)=>equipmentDisplayName(a).localeCompare(equipmentDisplayName(b), undefined, {sensitivity:'base'}));
+
+  let body;
+  if(data.equipment.length === 0){
+    body = `<div class="empty">${ICON.book}<h3>No equipment yet</h3><p>Log your appliances and tools, what you paid, and how many you have.</p></div>`;
+  } else if(filtered.length === 0){
+    body = `<div class="empty">${ICON.book}<h3>Nothing here yet</h3><p>No equipment matching "${escHtml(state.equipmentSearchQuery.trim())}"</p></div>`;
+  } else if(state.equipmentViewMode === 'tile'){
+    body = `<div class="grid">${filtered.map(equipmentTileHTML).join('')}</div>`;
+  } else {
+    body = `<div class="list">${filtered.map(equipmentListRowHTML).join('')}</div>`;
+  }
+
+  app.innerHTML = `
+    <div class="rv-header">
+      <div class="rv-header-left">
+        <button class="back-btn" id="equipmentBack">${ICON.back} Recipes</button>
+      </div>
+      <div class="rv-header-right">
+        <span style="font-family:var(--font-display);font-size:17px;">Equipment</span>
+      </div>
+    </div>
+    <div class="search-row">
+      <input type="text" id="equipmentSearchInput" class="search-input" placeholder="Search equipment…" value="${escAttr(state.equipmentSearchQuery)}" />
+    </div>
+    <div class="toolbar" style="margin-top:8px;">
+      <span class="count-label">${filtered.length} item${filtered.length===1?'':'s'}</span>
+      <div class="view-toggle">
+        <button class="${state.equipmentViewMode==='tile'?'active':''}" data-emode="tile">${ICON.grid}</button>
+        <button class="${state.equipmentViewMode==='list'?'active':''}" data-emode="list">${ICON.list}</button>
+      </div>
+    </div>
+    ${body}
+    <button class="fab" id="equipmentAdd">${ICON.plus}</button>
+  `;
+
+  document.getElementById('equipmentBack').addEventListener('click', ()=>{ state.viewMode='tile'; state.view='home'; render(); });
+  const equipmentSearchInput = document.getElementById('equipmentSearchInput');
+  if(equipmentSearchInput){
+    equipmentSearchInput.addEventListener('input', e=>{
+      state.equipmentSearchQuery = e.target.value;
+      const cursorPos = e.target.selectionStart;
+      render();
+      const newInput = document.getElementById('equipmentSearchInput');
+      if(newInput){
+        newInput.focus();
+        newInput.setSelectionRange(cursorPos, cursorPos);
+      }
+    });
+  }
+  document.querySelectorAll('.view-toggle button[data-emode]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{ state.equipmentViewMode = btn.dataset.emode; render(); });
+  });
+  document.querySelectorAll('.tile[data-eid], .list-row[data-eid]').forEach(el=>{
+    el.addEventListener('click', ()=> openEquipmentItem(el.dataset.eid));
+  });
+  document.getElementById('equipmentAdd').addEventListener('click', addNewEquipmentItem);
+}
+function equipmentTileHTML(item){
+  const img = item.image
+    ? `<img class="tile-img" src="${item.image}" />`
+    : `<div class="tile-img placeholder">${ICON.image}</div>`;
+  return `<div class="tile" data-eid="${item.id}">
+    ${img}
+    <div class="tile-body">
+      <div class="tile-name">${escHtml(equipmentDisplayName(item))}</div>
+    </div>
+  </div>`;
+}
+function equipmentListRowHTML(item){
+  const img = item.image
+    ? `<img class="list-thumb" src="${item.image}" />`
+    : `<div class="list-thumb placeholder">${ICON.image}</div>`;
+  return `<div class="list-row" data-eid="${item.id}">
+    ${img}
+    <div class="list-info">
+      <div class="pantry-list-name">${escHtml(equipmentDisplayName(item))}</div>
+      <div class="pantry-list-meta">
+        ${item.price ? `<span class="pantry-list-price">${escHtml(item.price)}</span>` : ''}
+        ${item.quantity ? `<span class="pantry-list-qty">${escHtml(item.quantity)}</span>` : ''}
+      </div>
+    </div>
+  </div>`;
+}
+function addNewEquipmentItem(){
+  draftEquipmentItem = makeEquipmentItem('');
+  state.equipmentItemId = draftEquipmentItem.id;
+  state.equipmentIsNew = true;
+  state.equipmentIsEditing = true;
+  state.view = 'equipmentItem';
+  render();
+}
+function openEquipmentItem(id){
+  state.equipmentItemId = id;
+  state.equipmentIsNew = false;
+  state.equipmentIsEditing = false;
+  state.equipmentEditSnapshot = null;
+  state.view = 'equipmentItem';
+  render();
+}
+function getEquipmentItem(){
+  if(state.equipmentIsNew && draftEquipmentItem) return draftEquipmentItem;
+  return data.equipment.find(x => x.id === state.equipmentItemId);
+}
+function renderEquipmentItemView(){
+  const item = getEquipmentItem();
+  const app = document.getElementById('app');
+  if(!item){ state.view='equipment'; render(); return; }
+  const editing = state.equipmentIsEditing;
+
+  app.innerHTML = `
+    <div class="rv-header">
+      <div class="rv-header-left">
+        ${editing
+          ? `<button class="text-btn" id="eqCancel">Cancel</button>`
+          : `<button class="back-btn" id="eqBack">${ICON.back} Equipment</button>`
+        }
+      </div>
+      <div class="rv-header-right">
+        ${editing
+          ? `<button class="text-btn primary" id="eqSave">Save</button>`
+          : `<button class="icon-btn" id="eqEdit" title="Edit">${ICON.edit}</button>
+             <button class="icon-btn danger" id="eqDelete" title="Delete">${ICON.trash}</button>`
+        }
+      </div>
+    </div>
+    <div class="rv-body" id="eqBodyContainer"></div>
+  `;
+
+  if(editing){
+    document.getElementById('eqCancel').addEventListener('click', ()=> handleEquipmentCancel(item));
+    document.getElementById('eqSave').addEventListener('click', ()=> handleEquipmentSave(item));
+  } else {
+    document.getElementById('eqBack').addEventListener('click', ()=>{ state.view='equipment'; render(); });
+    document.getElementById('eqEdit').addEventListener('click', ()=>{
+      state.equipmentEditSnapshot = deepClone(item);
+      state.equipmentIsEditing = true;
+      render();
+    });
+    document.getElementById('eqDelete').addEventListener('click', ()=>{
+      if(confirm('Delete this equipment item? This cannot be undone.')){
+        data.equipment = data.equipment.filter(x=>x.id!==item.id);
+        markDirty();
+        state.view = 'equipment';
+        render();
+      }
+    });
+  }
+
+  try{
+    renderEquipmentItemBody(item);
+  }catch(err){
+    console.error('Error rendering equipment item body:', err);
+    const container = document.getElementById('eqBodyContainer');
+    if(container){
+      container.innerHTML = `<div class="empty"><h3>Something went wrong displaying this item</h3><p>Your changes are safe. Use ${editing?'Save or Cancel':'Back'} above to continue, then let me know what you were doing so I can fix it.</p></div>`;
+    }
+  }
+}
+function handleEquipmentCancel(item){
+  if(state.equipmentIsNew){
+    draftEquipmentItem = null;
+    state.equipmentIsNew = false;
+    state.equipmentIsEditing = false;
+    state.view = 'equipment';
+    render();
+    return;
+  }
+  const idx = data.equipment.findIndex(x=>x.id===item.id);
+  if(idx > -1 && state.equipmentEditSnapshot) data.equipment[idx] = state.equipmentEditSnapshot;
+  state.equipmentEditSnapshot = null;
+  state.equipmentIsEditing = false;
+  saveLocal();
+  render();
+}
+function handleEquipmentSave(item){
+  if(state.equipmentIsNew){
+    data.equipment.push(item);
+    draftEquipmentItem = null;
+    state.equipmentIsNew = false;
+  }
+  state.equipmentEditSnapshot = null;
+  state.equipmentIsEditing = false;
+  markDirty();
+  flushSave();
+  render();
+}
+function refreshEquipmentBody(item){
+  try{
+    renderEquipmentItemBody(item);
+  }catch(err){
+    console.error('Error refreshing equipment item body:', err);
+    const container = document.getElementById('eqBodyContainer');
+    if(container){
+      container.innerHTML = `<div class="empty"><h3>Something went wrong updating this item</h3><p>Your changes are safe. Use Save or Cancel above to continue, then let me know what you were doing so I can fix it.</p></div>`;
+    }
+  }
+}
+function renderEquipmentItemBody(item){
+  const container = document.getElementById('eqBodyContainer');
+  const editing = state.equipmentIsEditing;
+
+  const typeOptions = data.equipmentTypes.map(t=>`<option value="${escAttr(t)}" ${item.type===t?'selected':''}>${escHtml(t)}</option>`).join('');
+
+  const storesInner = (item.stores||[]).length === 0 && !editing
+    ? ''
+    : editing
+      ? `<div id="eqStoresList">${item.stores.map(s=>`
+          <div class="pantry-store-row" data-id="${s.id}">
+            <input type="text" class="eq-store-name" data-id="${s.id}" placeholder="Store name" value="${escAttr(s.name)}" />
+            <input type="text" class="eq-store-url" data-id="${s.id}" placeholder="https://…" value="${escAttr(s.url)}" />
+            <button class="eq-open-link" data-url="${escAttr(s.url)}" title="Open link">${ICON.link}</button>
+            <button class="row-add" data-kind="eqstore" data-id="${s.id}">${ICON.plus}</button>
+            <button class="row-del" data-kind="eqstore" data-id="${s.id}">${ICON.trash}</button>
+          </div>`).join('')}</div>
+        <button class="add-row-btn" id="addEqStoreRow">${ICON.plus} Add store</button>`
+      : `<div class="pantry-store-view-list">${item.stores.map(s=>{
+          let url = s.url||'';
+          if(url && !/^https?:\/\//i.test(url)) url = 'https://'+url;
+          return `<div class="pantry-store-view-row">${s.name?`<span>${escHtml(s.name)}</span> `:''}${url?`<a href="${escAttr(url)}" target="_blank" rel="noopener">${escHtml(s.url)}</a>`:''}</div>`;
+        }).join('')}</div>`;
+
+  const showStoresSection = editing || (item.stores||[]).length > 0;
+  const showNotesSection = editing || !!item.notes;
+
+  container.innerHTML = `
+    ${imageBlockHTMLGeneric(item, editing, 'eqImageWrap')}
+    <input type="file" accept="image/*" id="eqImageInput" style="display:none" />
+
+    ${editing
+      ? `<div class="rv-cat-select" style="margin-top:14px; display:flex; align-items:center; gap:8px;"><select id="eqType" style="flex:1;"><option value="">Select equipment type…</option>${typeOptions}</select><button class="icon-btn" id="manageEqTypesFromItemBtn" title="Manage equipment types">⚙️</button></div>`
+      : `<div class="rv-title-static">${escHtml(equipmentDisplayName(item))}</div>`
+    }
+    ${editing
+      ? `<input class="pantry-type-input" id="eqBrand" placeholder="Brand (e.g. KitchenAid)" value="${escAttr(item.brand)}" />`
+      : ''
+    }
+    ${editing
+      ? `<input class="pantry-type-input" id="eqModel" placeholder="Model (e.g. Artisan)" value="${escAttr(item.model)}" />`
+      : ''
+    }
+    ${editing
+      ? `<div class="pantry-pq-row"><input type="text" class="pantry-pq-input" id="eqPrice" placeholder="Price paid (e.g. €249)" value="${escAttr(item.price)}" /><input type="text" class="pantry-pq-input" id="eqQuantity" placeholder="Quantity" value="${escAttr(item.quantity)}" /></div>`
+      : (item.price || item.quantity) ? `<div class="pantry-pq-static">${item.price?`<span>${escHtml(item.price)}</span>`:''}${item.price&&item.quantity?' · ':''}${item.quantity?`<span>${escHtml(item.quantity)}</span>`:''}</div>` : ''
+    }
+
+    ${showStoresSection ? `<div class="section" style="margin-top:20px;"><div class="pantry-sublabel">Where to buy</div>${storesInner}</div>` : ''}
+    ${showNotesSection ? `<div class="section"><div class="pantry-sublabel">Notes</div>${editing ? `<div class="field-with-link"><textarea class="storage-text" id="eqNotes" style="margin-top:0;" placeholder="Notes…">${escHtml(item.notes)}</textarea><button class="link-insert-btn" data-target="eqNotes" title="Link to a recipe">${ICON.link}</button></div>` : `<div class="rv-desc-static">${parseAllLinks(item.notes)}</div>`}</div>` : ''}
+  `;
+
+  wireEquipmentItemBody(item, editing);
+  wireRecipeLinkClicks(container);
+  if(editing){
+    const notesLinkBtn = document.querySelector('.link-insert-btn[data-target="eqNotes"]');
+    if(notesLinkBtn) notesLinkBtn.addEventListener('click', ()=>{
+      const targetEl = document.getElementById('eqNotes');
+      if(targetEl) openLinkPicker(targetEl, null, null, null, item.id);
+    });
+    const manageTypesBtn = document.getElementById('manageEqTypesFromItemBtn');
+    if(manageTypesBtn) manageTypesBtn.addEventListener('click', ()=> openManageEquipmentTypes(()=> refreshEquipmentBody(item)));
+  }
+  autosizeAll();
+}
+function wireEquipmentItemBody(item, editing){
+  const wrap = document.getElementById('eqImageWrap');
+  const imgInput = document.getElementById('eqImageInput');
+  if(editing && wrap && imgInput){
+    wrap.addEventListener('click', ()=> imgInput.click());
+    imgInput.addEventListener('change', e=>{
+      const file = e.target.files[0];
+      if(!file) return;
+      const saveBtn = document.getElementById('eqSave');
+      if(saveBtn){ saveBtn.disabled = true; saveBtn.textContent = 'Processing photo…'; }
+      resizeImageToBase64(file, 1200, dataUrl=>{
+        const btn = document.getElementById('eqSave');
+        if(btn){ btn.disabled = false; btn.textContent = 'Save'; }
+        if(!dataUrl){
+          alert("This image couldn't be used — your browser may not support this file type (e.g. HEIC photos from an iPhone often need converting to JPEG or PNG first). Please try a different photo.");
+          imgInput.value = '';
+          return;
+        }
+        item.image = dataUrl;
+        refreshEquipmentBody(item);
+      });
+    });
+  }
+
+  if(editing){
+    const typeSelect = document.getElementById('eqType');
+    if(typeSelect) typeSelect.addEventListener('change', e=>{ item.type = e.target.value; });
+    const brandInput = document.getElementById('eqBrand');
+    if(brandInput) brandInput.addEventListener('input', e=>{ item.brand = e.target.value; });
+    const modelInput = document.getElementById('eqModel');
+    if(modelInput) modelInput.addEventListener('input', e=>{ item.model = e.target.value; });
+    const priceInput = document.getElementById('eqPrice');
+    if(priceInput) priceInput.addEventListener('input', e=>{ item.price = e.target.value; });
+    const qtyInput = document.getElementById('eqQuantity');
+    if(qtyInput) qtyInput.addEventListener('input', e=>{ item.quantity = e.target.value; });
+    const notes = document.getElementById('eqNotes');
+    if(notes) notes.addEventListener('input', e=>{ item.notes = e.target.value; autosize(e.target); });
+
+    const addStoreBtn = document.getElementById('addEqStoreRow');
+    if(addStoreBtn) addStoreBtn.addEventListener('click', ()=>{
+      item.stores.push(makeStore());
+      refreshEquipmentBody(item);
+      focusLast('#eqStoresList .eq-store-name');
+    });
+    document.querySelectorAll('.eq-store-name, .eq-store-url').forEach(inp=>{
+      const field = inp.classList.contains('eq-store-name') ? 'name' : 'url';
+      inp.addEventListener('input', e=>{
+        const s = item.stores.find(x=>x.id===e.target.dataset.id);
+        if(s) s[field] = e.target.value;
+        if(field==='url'){
+          const row = e.target.closest('.pantry-store-row');
+          const openBtn = row && row.querySelector('.eq-open-link');
+          if(openBtn) openBtn.dataset.url = e.target.value;
+        }
+      });
+    });
+    document.querySelectorAll('#eqStoresList .row-add[data-kind="eqstore"]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const idx = item.stores.findIndex(x=>x.id===btn.dataset.id);
+        item.stores.splice(idx+1, 0, makeStore());
+        refreshEquipmentBody(item);
+      });
+    });
+    document.querySelectorAll('#eqStoresList .row-del[data-kind="eqstore"]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        item.stores = item.stores.filter(x=>x.id!==btn.dataset.id);
+        refreshEquipmentBody(item);
+      });
+    });
+  }
+
+  document.querySelectorAll('.eq-open-link').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      let url = btn.dataset.url || '';
+      if(!url) return;
+      if(!/^https?:\/\//i.test(url)) url = 'https://' + url;
+      window.open(url, '_blank', 'noopener');
+    });
+  });
+}
+/* =========================================================
    ARCHIVE
 ========================================================= */
 function renderArchiveView(){
@@ -1662,10 +2087,11 @@ function renderBookPages(r){
       ${(r.sectionsEnabled.prepPlan) ? sectionHTML('prep','Preparation plan', prepPlanBodyHTML(r, false), false) : ''}
       <div class="yv-strip book-yv-strip">${yieldRowHTML(r, false)}</div>
       ${(r.sectionsEnabled.storage) ? sectionHTML('storage','Storage instructions', storageBodyHTML(r, false), false) : ''}
+      ${(r.sectionsEnabled.equipment) ? sectionHTML('equipment','Equipment', equipmentBlockHTML(r, false), false) : ''}
       ${notesSectionHTML(r)}
+      ${linkedFromHTML(r)}
       ${(r.sectionsEnabled.source) ? sectionHTML('source','Source', sourceSectionBodyHTML(r, false), false) : ''}
       ${referenceRowHTML(r)}
-      ${linkedFromHTML(r)}
     </div>
   `;
   rightContainer.innerHTML = `
@@ -1679,6 +2105,7 @@ function renderBookPages(r){
   wireInstructions(r, false);
   wireSourceSection(r, false);
   wireReferenceRow(r, false);
+  wireEquipmentBlock(r, false);
   wireQuickNotes(r);
   wireRecipeLinkClicks(leftContainer);
   wireRecipeLinkClicks(rightContainer);
@@ -1809,6 +2236,8 @@ function pantryListRowHTML(item){
       <div class="pantry-list-meta">
         ${brandText ? `<span class="pantry-list-brand">${escHtml(brandText)}</span>` : ''}
         ${item.type ? `<span class="pantry-list-type">${escHtml(item.type)}</span>` : ''}
+        ${item.price ? `<span class="pantry-list-price">${escHtml(item.price)}</span>` : ''}
+        ${item.quantity ? `<span class="pantry-list-qty">${escHtml(item.quantity)}</span>` : ''}
       </div>
     </div>
     <button class="shop-add-btn ${inList?'active':''}" data-pid="${item.id}" title="${inList?'Remove from':'Add to'} shopping list">🛒</button>
@@ -1999,6 +2428,10 @@ function renderPantryItemBody(item){
       : (item.type ? `<div class="pantry-type-static">${escHtml(item.type)}</div>` : '')
     }
     ${catRow}
+    ${editing
+      ? `<div class="pantry-pq-row"><input type="text" class="pantry-pq-input" id="piPrice" placeholder="Price paid (e.g. €4.50)" value="${escAttr(item.price)}" /><input type="text" class="pantry-pq-input" id="piQuantity" placeholder="Quantity" value="${escAttr(item.quantity)}" /></div>`
+      : (item.price || item.quantity) ? `<div class="pantry-pq-static">${item.price?`<span>${escHtml(item.price)}</span>`:''}${item.price&&item.quantity?' · ':''}${item.quantity?`<span>${escHtml(item.quantity)}</span>`:''}</div>` : ''
+    }
 
     ${showBrandsSection ? `<div class="section" style="margin-top:20px;"><div class="pantry-sublabel">Brands</div>${brandsInner}</div>` : ''}
     ${showStoresSection ? `<div class="section"><div class="pantry-sublabel">Where to buy</div>${storesInner}</div>` : ''}
@@ -2030,7 +2463,11 @@ function wirePantryItemBody(item, editing){
     imgInput.addEventListener('change', e=>{
       const file = e.target.files[0];
       if(!file) return;
+      const saveBtn = document.getElementById('piSave');
+      if(saveBtn){ saveBtn.disabled = true; saveBtn.textContent = 'Processing photo…'; }
       resizeImageToBase64(file, 1200, dataUrl=>{
+        const btn = document.getElementById('piSave');
+        if(btn){ btn.disabled = false; btn.textContent = 'Save'; }
         if(!dataUrl){
           alert("This image couldn't be used — your browser may not support this file type (e.g. HEIC photos from an iPhone often need converting to JPEG or PNG first). Please try a different photo.");
           imgInput.value = '';
@@ -2047,6 +2484,10 @@ function wirePantryItemBody(item, editing){
     if(nameInput) nameInput.addEventListener('input', e=>{ item.name = e.target.value; });
     const typeInput = document.getElementById('piType');
     if(typeInput) typeInput.addEventListener('input', e=>{ item.type = e.target.value; });
+    const priceInput = document.getElementById('piPrice');
+    if(priceInput) priceInput.addEventListener('input', e=>{ item.price = e.target.value; });
+    const qtyInput = document.getElementById('piQuantity');
+    if(qtyInput) qtyInput.addEventListener('input', e=>{ item.quantity = e.target.value; });
     const catSelect = document.getElementById('piCategory');
     if(catSelect) catSelect.addEventListener('change', e=>{ item.category = e.target.value; });
     const notes = document.getElementById('piNotes');
@@ -2188,6 +2629,134 @@ function openManagePantryCategories(){
   });
   backdrop.addEventListener('click', e=>{ if(e.target === backdrop){ safeRemoveModal(backdrop); render(); } });
 }
+function openManageEquipmentCategories(){
+  const backdrop = document.createElement('div');
+  backdrop.className = 'modal-backdrop';
+  backdrop.innerHTML = `
+    <div class="modal">
+      <h3>Manage equipment tags</h3>
+      <div id="ecatList"></div>
+      <div class="modal-add-row">
+        <input type="text" id="newECatInput" placeholder="New tag name" />
+        <button id="addECatBtn">Add</button>
+      </div>
+      <p class="hint">Deleting a tag clears it from any equipment using it.</p>
+      <button class="modal-close" id="closeECatModal">Done</button>
+    </div>`;
+  removeAllModals();
+  document.body.appendChild(backdrop);
+
+  function renderList(){
+    const list = backdrop.querySelector('#ecatList');
+    list.innerHTML = data.equipmentCategories.map((c,i)=>`
+      <div class="modal-row" data-idx="${i}">
+        <span class="dot" style="background:${ACCENTS[i%ACCENTS.length]}"></span>
+        <input type="text" value="${escAttr(c)}" data-idx="${i}" class="ecatRename" />
+        <button class="ecatDelete" data-idx="${i}">${ICON.trash}</button>
+      </div>`).join('');
+    list.querySelectorAll('.ecatRename').forEach(inp=>{
+      inp.addEventListener('input', e=>{
+        const idx = +e.target.dataset.idx;
+        const oldName = data.equipmentCategories[idx];
+        const newName = e.target.value;
+        data.equipmentCategories[idx] = newName;
+        data.equipment.forEach(p=>{ if(p.category===oldName) p.category = newName; });
+        markDirty();
+      });
+    });
+    list.querySelectorAll('.ecatDelete').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const idx = +btn.dataset.idx;
+        const removed = data.equipmentCategories[idx];
+        if(!confirm(`Delete the tag "${removed}"? This clears it from any equipment using it.`)) return;
+        data.equipmentCategories.splice(idx,1);
+        data.equipment.forEach(p=>{ if(p.category===removed) p.category=''; });
+        if(state.equipmentActiveCategory === removed) state.equipmentActiveCategory = "All";
+        markDirty();
+        renderList();
+      });
+    });
+  }
+  renderList();
+
+  backdrop.querySelector('#addECatBtn').addEventListener('click', ()=>{
+    const input = backdrop.querySelector('#newECatInput');
+    const val = input.value.trim();
+    if(!val || data.equipmentCategories.includes(val)){ input.value=''; return; }
+    data.equipmentCategories.push(val);
+    markDirty();
+    input.value = '';
+    renderList();
+  });
+  backdrop.querySelector('#closeECatModal').addEventListener('click', ()=>{
+    safeRemoveModal(backdrop);
+    render();
+  });
+  backdrop.addEventListener('click', e=>{ if(e.target === backdrop){ safeRemoveModal(backdrop); render(); } });
+}
+function openManageEquipmentTypes(onClose){
+  const backdrop = document.createElement('div');
+  backdrop.className = 'modal-backdrop';
+  backdrop.innerHTML = `
+    <div class="modal">
+      <h3>Manage equipment types</h3>
+      <p class="hint" style="margin-top:0;">These are the options in the equipment dropdown within a recipe's instructions.</p>
+      <div id="etypeList"></div>
+      <div class="modal-add-row">
+        <input type="text" id="newETypeInput" placeholder="New equipment type" />
+        <button id="addETypeBtn">Add</button>
+      </div>
+      <button class="modal-close" id="closeETypeModal">Done</button>
+    </div>`;
+  removeAllModals();
+  document.body.appendChild(backdrop);
+
+  function renderList(){
+    const list = backdrop.querySelector('#etypeList');
+    list.innerHTML = data.equipmentTypes.map((t,i)=>`
+      <div class="modal-row" data-idx="${i}">
+        <input type="text" value="${escAttr(t)}" data-idx="${i}" class="etypeRename" />
+        <button class="etypeDelete" data-idx="${i}">${ICON.trash}</button>
+      </div>`).join('');
+    list.querySelectorAll('.etypeRename').forEach(inp=>{
+      inp.addEventListener('input', e=>{
+        const idx = +e.target.dataset.idx;
+        data.equipmentTypes[idx] = e.target.value;
+        markDirty();
+      });
+    });
+    list.querySelectorAll('.etypeDelete').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const idx = +btn.dataset.idx;
+        if(!confirm(`Delete "${data.equipmentTypes[idx]}" from the equipment type list?`)) return;
+        data.equipmentTypes.splice(idx,1);
+        markDirty();
+        renderList();
+      });
+    });
+  }
+  renderList();
+
+  backdrop.querySelector('#addETypeBtn').addEventListener('click', ()=>{
+    const input = backdrop.querySelector('#newETypeInput');
+    const val = input.value.trim();
+    if(!val || data.equipmentTypes.includes(val)){ input.value=''; return; }
+    data.equipmentTypes.push(val);
+    markDirty();
+    input.value = '';
+    renderList();
+  });
+  backdrop.querySelector('#closeETypeModal').addEventListener('click', ()=>{
+    safeRemoveModal(backdrop);
+    if(typeof onClose === 'function') onClose();
+  });
+  backdrop.addEventListener('click', e=>{
+    if(e.target === backdrop){
+      safeRemoveModal(backdrop);
+      if(typeof onClose === 'function') onClose();
+    }
+  });
+}
 
 /* =========================================================
    RECIPE ACCESSORS
@@ -2205,6 +2774,7 @@ function flatIngredients(r){ return activeIngredientGroups(r).flatMap(g=>g.items
 function activeInstructionGroups(r){ const v = activeVariantObj(r); return v ? v.instructionGroups : r.instructionGroups; }
 function flatInstructions(r){ return activeInstructionGroups(r).flatMap(g=>g.items); }
 function activeOvenRows(r){ const v = activeVariantObj(r); return v ? v.ovenRows : r.ovenRows; }
+function activeEquipmentRows(r){ const v = activeVariantObj(r); return v ? v.equipmentRows : r.equipmentRows; }
 function activeImages(r){ const v = activeVariantObj(r); return v ? v.images : r.images; }
 
 function ensureYieldSession(r){
@@ -2264,7 +2834,7 @@ function parseRecipeLinks(text){
 }
 function parseAllLinks(text){
   if(!text) return '';
-  const COMBINED_RE = /\[\[([a-zA-Z0-9_]+):([^\]]*)\]\]|\{\{([a-zA-Z0-9_]+):([^\}]*)\}\}/g;
+  const COMBINED_RE = /\[\[([a-zA-Z0-9_]+):([^\]]*)\]\]|\{\{([a-zA-Z0-9_]+):([^\}]*)\}\}|\(\(([a-zA-Z0-9_]+):([^\)]*)\)\)/g;
   let result = '';
   let lastIndex = 0;
   let match;
@@ -2278,13 +2848,21 @@ function parseAllLinks(text){
       } else {
         result += escHtml(match[2]);
       }
-    } else {
+    } else if(match[3] !== undefined){
       const targetId = match[3];
       const target = data.pantry.find(x=>x.id===targetId);
       if(target){
         result += `<a class="pantry-link-ref" data-goto-pantry="${escAttr(targetId)}">${escHtml(target.name||'Untitled')}</a>`;
       } else {
         result += escHtml(match[4]);
+      }
+    } else {
+      const targetId = match[5];
+      const target = data.equipment.find(x=>x.id===targetId);
+      if(target){
+        result += `<a class="equipment-link-ref" data-goto-equipment="${escAttr(targetId)}">${escHtml(target.name||'Untitled')}</a>`;
+      } else {
+        result += escHtml(match[6]);
       }
     }
     lastIndex = COMBINED_RE.lastIndex;
@@ -2303,9 +2881,11 @@ function recipeTextsFor(rec){
   texts.push(rec.description||'');
   (rec.ingredientGroups||[]).forEach(g=>(g.items||[]).forEach(i=>texts.push(i.name||'')));
   (rec.instructionGroups||[]).forEach(g=>(g.items||[]).forEach(i=>texts.push(i.text||'')));
+  (rec.equipmentRows||[]).forEach(row=>texts.push(row.detail||''));
   (rec.variants||[]).forEach(v=>{
     (v.ingredientGroups||[]).forEach(g=>(g.items||[]).forEach(i=>texts.push(i.name||'')));
     (v.instructionGroups||[]).forEach(g=>(g.items||[]).forEach(i=>texts.push(i.text||'')));
+    (v.equipmentRows||[]).forEach(row=>texts.push(row.detail||''));
   });
   return texts.join(' \n ');
 }
@@ -2324,15 +2904,39 @@ function findRecipesLinkingToPantry(pantryId){
   });
   return found;
 }
+function findRecipesLinkingToEquipment(equipId){
+  const found = [];
+  data.recipes.forEach(rec=>{
+    if(recipeTextsFor(rec).includes(`((${equipId}:`)) found.push(rec);
+  });
+  return found;
+}
+function equipmentLinkedFromHTML(item){
+  const sources = findRecipesLinkingToEquipment(item.id);
+  if(sources.length === 0) return '';
+  return `<div class="linked-from-label">Linked from recipe(s):</div><div class="linked-from-row">${sources.map(s=>{
+    const cover = coverImage(s);
+    const thumb = cover ? `<img class="linked-from-thumb" src="${cover}" />` : `<span class="linked-from-thumb placeholder">${ICON.image}</span>`;
+    return `<button class="linked-from-pill" data-goto="${escAttr(s.id)}">${thumb}${escHtml(s.name||'Untitled')}</button>`;
+  }).join('')}</div>`;
+}
 function pantryLinkedFromHTML(item){
   const sources = findRecipesLinkingToPantry(item.id);
   if(sources.length === 0) return '';
-  return `<div class="linked-from-row">${sources.map(s=>`<button class="linked-from-pill" data-goto="${escAttr(s.id)}">Linked from: ${escHtml(s.name||'Untitled')}</button>`).join('')}</div>`;
+  return `<div class="linked-from-label">Linked from recipe(s):</div><div class="linked-from-row">${sources.map(s=>{
+    const cover = coverImage(s);
+    const thumb = cover ? `<img class="linked-from-thumb" src="${cover}" />` : `<span class="linked-from-thumb placeholder">${ICON.image}</span>`;
+    return `<button class="linked-from-pill" data-goto="${escAttr(s.id)}">${thumb}${escHtml(s.name||'Untitled')}</button>`;
+  }).join('')}</div>`;
 }
 function linkedFromHTML(r){
   const sources = findLinkedFromRecipes(r.id);
   if(sources.length === 0) return '';
-  return `<div class="linked-from-row">${sources.map(s=>`<button class="linked-from-pill" data-goto="${escAttr(s.id)}">Linked from: ${escHtml(s.name||'Untitled')}</button>`).join('')}</div>`;
+  return `<div class="linked-from-label">Linked from recipe(s):</div><div class="linked-from-row">${sources.map(s=>{
+    const cover = coverImage(s);
+    const thumb = cover ? `<img class="linked-from-thumb" src="${cover}" />` : `<span class="linked-from-thumb placeholder">${ICON.image}</span>`;
+    return `<button class="linked-from-pill" data-goto="${escAttr(s.id)}">${thumb}${escHtml(s.name||'Untitled')}</button>`;
+  }).join('')}</div>`;
 }
 function wireRecipeLinkClicks(container){
   container.querySelectorAll('[data-goto]').forEach(el=>{
@@ -2347,9 +2951,16 @@ function wireRecipeLinkClicks(container){
       openPantryItem(el.dataset.gotoPantry);
     });
   });
+  container.querySelectorAll('[data-goto-equipment]').forEach(el=>{
+    el.addEventListener('click', (e)=>{
+      e.preventDefault();
+      openEquipmentItem(el.dataset.gotoEquipment);
+    });
+  });
 }
 function wireRecipeLinkButtons(r){
   document.querySelectorAll('.link-insert-btn').forEach(btn=>{
+    if(btn.dataset.target && btn.dataset.target.startsWith('eqdetail_')) return;
     btn.addEventListener('click', ()=>{
       const targetEl = document.getElementById(btn.dataset.target);
       if(targetEl) openLinkPicker(targetEl, r.id, null);
@@ -2373,12 +2984,15 @@ function insertRecipeLinkIntoField(inputEl, recipeId, recipeName){
 function insertPantryLinkIntoField(inputEl, pantryId, pantryName){
   insertTokenIntoField(inputEl, `{{${pantryId}:${pantryName}}}`);
 }
-function openLinkPicker(targetEl, currentRecipeId, currentPantryId, onInsert){
+function insertEquipmentLinkIntoField(inputEl, equipId, equipName){
+  insertTokenIntoField(inputEl, `((${equipId}:${equipName}))`);
+}
+function openLinkPicker(targetEl, currentRecipeId, currentPantryId, onInsert, currentEquipmentId){
   const backdrop = document.createElement('div');
   backdrop.className = 'modal-backdrop';
   backdrop.innerHTML = `
     <div class="modal">
-      <h3>Link to a recipe or pantry item</h3>
+      <h3>Link to a recipe, pantry item, or equipment</h3>
       <input type="text" class="picker-search" id="linkPickerSearch" placeholder="Search…" />
       <div id="linkPickerList"></div>
       <button class="modal-close" id="closeLinkPicker">Cancel</button>
@@ -2390,7 +3004,8 @@ function openLinkPicker(targetEl, currentRecipeId, currentPantryId, onInsert){
     const q = (query||'').trim().toLowerCase();
     const recipeOptions = data.recipes.filter(rec => rec.id !== currentRecipeId && (!q || (rec.name||'').toLowerCase().includes(q)));
     const pantryOptions = data.pantry.filter(p => p.id !== currentPantryId && (!q || (p.name||'').toLowerCase().includes(q)));
-    if(recipeOptions.length === 0 && pantryOptions.length === 0){
+    const equipmentOptions = data.equipment.filter(eq => eq.id !== currentEquipmentId && (!q || (eq.name||'').toLowerCase().includes(q)));
+    if(recipeOptions.length === 0 && pantryOptions.length === 0 && equipmentOptions.length === 0){
       list.innerHTML = `<div class="picker-empty">No matches</div>`;
       return;
     }
@@ -2401,11 +3016,16 @@ function openLinkPicker(targetEl, currentRecipeId, currentPantryId, onInsert){
     if(pantryOptions.length){
       html += `<div class="picker-group-label">Pantry items</div>` + pantryOptions.map(p=>`<div class="picker-item" data-kind="pantry" data-id="${p.id}" data-name="${escAttr(p.name||'Untitled')}">${escHtml(p.name||'Untitled')}</div>`).join('');
     }
+    if(equipmentOptions.length){
+      html += `<div class="picker-group-label">Equipment</div>` + equipmentOptions.map(eq=>`<div class="picker-item" data-kind="equipment" data-id="${eq.id}" data-name="${escAttr(eq.name||'Untitled')}">${escHtml(eq.name||'Untitled')}</div>`).join('');
+    }
     list.innerHTML = html;
     list.querySelectorAll('.picker-item').forEach(item=>{
       item.addEventListener('click', ()=>{
         if(item.dataset.kind === 'pantry'){
           insertPantryLinkIntoField(targetEl, item.dataset.id, item.dataset.name);
+        } else if(item.dataset.kind === 'equipment'){
+          insertEquipmentLinkIntoField(targetEl, item.dataset.id, item.dataset.name);
         } else {
           insertRecipeLinkIntoField(targetEl, item.dataset.id, item.dataset.name);
         }
@@ -2580,13 +3200,15 @@ function duplicateRecipe(r){
   clone.prepPlan = clone.prepPlan.map(i=>({...i, id: uid()}));
   clone.sourceLines = (clone.sourceLines||[]).map(i=>({...i, id: uid()}));
   clone.ovenRows = (clone.ovenRows||[]).map(i=>({...i, id: uid()}));
+  clone.equipmentRows = (clone.equipmentRows||[]).map(i=>({...i, id: uid()}));
   clone.referenceImages = (clone.referenceImages||[]).map(i=>({...i, id: uid()}));
   clone.variants = (clone.variants||[]).map(v=>({
     ...v, id: uid(),
     images: (v.images||[]).map(img=>({...img, id: uid()})),
     ingredientGroups: v.ingredientGroups.map(g=>({...g, id: uid(), items: g.items.map(i=>({...i, id: uid()}))})),
     instructionGroups: v.instructionGroups.map(g=>({...g, id: uid(), items: g.items.map(i=>({...i, id: uid()}))})),
-    ovenRows: (v.ovenRows||[]).map(i=>({...i, id: uid()}))
+    ovenRows: (v.ovenRows||[]).map(i=>({...i, id: uid()})),
+    equipmentRows: (v.equipmentRows||[]).map(i=>({...i, id: uid()}))
   }));
   clone.activeVariant = 'standard';
   data.recipes.push(clone);
@@ -2737,7 +3359,11 @@ function wireImage(r){
   input.addEventListener('change', e=>{
     const file = e.target.files[0];
     if(!file) return;
+    const saveBtn = document.getElementById('rvSave');
+    if(saveBtn){ saveBtn.disabled = true; saveBtn.textContent = 'Processing photo…'; }
     resizeImageToBase64(file, 1200, dataUrl=>{
+      const btn = document.getElementById('rvSave');
+      if(btn){ btn.disabled = false; btn.textContent = 'Save'; }
       if(!dataUrl){
         alert("This image couldn't be used — your browser may not support this file type (e.g. HEIC photos from an iPhone often need converting to JPEG or PNG first). Please try a different photo.");
         input.value = '';
@@ -2798,6 +3424,7 @@ function optionalChipsHTML(r){
     {key:'storage', label:'Storage instructions'},
     {key:'prepPlan', label:'Preparation plan'},
     {key:'oven', label:'Oven details'},
+    {key:'equipment', label:'Equipment'},
     {key:'source', label:'Source'}
   ].filter(o => !r.sectionsEnabled[o.key]);
   if(opts.length === 0) return '';
@@ -3148,7 +3775,8 @@ function openManageVariants(r){
       images: (r.images||[]).map(img=>({...img, id: uid()})),
       ingredientGroups: r.ingredientGroups.map(g=>({...g, id: uid(), items: g.items.map(i=>({...i, id: uid()}))})),
       instructionGroups: r.instructionGroups.map(g=>({...g, id: uid(), items: g.items.map(i=>({...i, id: uid(), images:(i.images||[]).map(img=>({...img,id:uid()}))}))})),
-      ovenRows: r.ovenRows.map(row=>({...row, id: uid()}))
+      ovenRows: r.ovenRows.map(row=>({...row, id: uid()})),
+      equipmentRows: r.equipmentRows.map(row=>({...row, id: uid()}))
     };
     r.variants.push(v);
     input.value = '';
@@ -3317,22 +3945,22 @@ function ovenBlockHTML(r, editing){
   if(!editing){
     const rowsHtml = rows.map(oven=>{
       const parts = [];
-      if(oven.temp) parts.push(`<div><b>Preheat</b>${oven.temp}°${oven.tempUnit}</div>`);
+      if(oven.temp) parts.push(`<div><b>Oven temp</b>${oven.temp}°${oven.tempUnit}</div>`);
       const settingLabel = oven.setting === 'Other' ? (oven.settingOther||'Other') : oven.setting;
-      if(settingLabel) parts.push(`<div><b>Oven setting</b>${escHtml(settingLabel)}</div>`);
+      if(settingLabel) parts.push(`<div><b>Oven function</b>${escHtml(settingLabel)}</div>`);
       if(oven.time) parts.push(`<div><b>Bake time</b>${escHtml(String(oven.time))} ${oven.timeUnit}</div>`);
       if(parts.length===0) return '';
       const label = (showLabels && oven.label) ? `<div class="oven-row-label">${escHtml(oven.label)}</div>` : '';
       return `<div class="oven-row-group">${label}<div class="oven-static">${parts.join('')}</div></div>`;
     }).join('');
-    return rowsHtml ? `<div id="ovenStaticWrap">${rowsHtml}</div>` : '';
+    return rowsHtml ? `<div id="ovenStaticWrap"><div class="linked-from-label settings-block-title">Oven settings</div>${rowsHtml}</div>` : '';
   }
 
   const rowsHtml = rows.map((oven,idx)=>`
     <div class="oven-row-edit" data-id="${oven.id}">
       ${showLabels ? `<div class="oven-field" style="flex-basis:100%;"><label>Component label</label><input type="text" class="ovenLabelInput" data-id="${oven.id}" placeholder="e.g. Feuilletine" value="${escAttr(oven.label)}" /></div>` : ''}
       <div class="oven-field">
-        <label>Preheat temp</label>
+        <label>Oven temp</label>
         <div class="row">
           <input type="number" class="ovenTempInput" data-id="${oven.id}" value="${oven.temp===null?'':oven.temp}" />
           <div class="unit-toggle tempUnitToggle" data-id="${oven.id}">
@@ -3342,7 +3970,7 @@ function ovenBlockHTML(r, editing){
         </div>
       </div>
       <div class="oven-field">
-        <label>Oven setting</label>
+        <label>Oven function</label>
         <select class="ovenSettingSelect" data-id="${oven.id}">
           ${OVEN_SETTINGS.map(s=>`<option value="${s}" ${oven.setting===s?'selected':''}>${s}</option>`).join('')}
         </select>
@@ -3428,10 +4056,111 @@ function wireOvenBlock(r, editing){
     refreshBody(r);
   });
 }
+function extractFirstEquipmentLink(text){
+  if(!text) return null;
+  const m = text.match(/\(\(([a-zA-Z0-9_]+):/);
+  return m ? m[1] : null;
+}
+function equipmentBlockHTML(r, editing){
+  if(!r.sectionsEnabled.equipment) return '';
+  const rows = activeEquipmentRows(r);
+
+  if(!editing){
+    const rowsHtml = rows.map(row=>{
+      if(!row.type && !row.detail) return '';
+      const linkedId = extractFirstEquipmentLink(row.detail);
+      const linkedItem = linkedId ? data.equipment.find(x=>x.id===linkedId) : null;
+
+      if(linkedItem){
+        const cover = linkedItem.image;
+        const thumb = cover
+          ? `<img class="linked-from-thumb equipment-row-thumb" src="${cover}" data-goto-equipment="${escAttr(linkedItem.id)}" />`
+          : `<span class="linked-from-thumb equipment-row-thumb placeholder" data-goto-equipment="${escAttr(linkedItem.id)}">${ICON.image}</span>`;
+        const typeLabel = linkedItem.type || row.type;
+        const bm = [linkedItem.brand, linkedItem.model].filter(Boolean).join(' ');
+        return `<div class="equipment-row-static">
+          <div>${typeLabel?`<b>${escHtml(typeLabel)}</b>`:''}${bm?`<span>${escHtml(bm)}</span>`:''}</div>
+          ${thumb}
+        </div>`;
+      }
+      return `<div class="equipment-row-static">
+        <div>${row.type?`<b>${escHtml(row.type)}</b>`:''}${row.detail?`<span>${parseAllLinks(row.detail)}</span>`:''}</div>
+      </div>`;
+    }).join('');
+    return rowsHtml ? `<div id="equipmentStaticWrap">${rowsHtml}</div>` : '';
+  }
+
+  const typeOptions = data.equipmentTypes.map(t=>`<option value="${escAttr(t)}">${escHtml(t)}</option>`).join('');
+  const rowsHtml = rows.map(row=>`
+    <div class="equipment-row-edit" data-id="${row.id}">
+      <select class="equipmentTypeSelect" data-id="${row.id}">
+        <option value="">Select…</option>
+        ${typeOptions}
+      </select>
+      <div class="field-with-link">
+        <input type="text" class="equipmentDetailInput" id="eqdetail_${row.id}" data-id="${row.id}" placeholder="Additional detail (optional)" value="${escAttr(row.detail)}" />
+        <button class="link-insert-btn" data-target="eqdetail_${row.id}" title="Link to a recipe, pantry item, or equipment">${ICON.link}</button>
+      </div>
+      <button class="row-del equipmentRowDel" data-id="${row.id}" title="Remove this equipment">${ICON.trash}</button>
+    </div>`).join('');
+
+  return `<div id="equipmentBlock">${rowsHtml}
+    <div style="display:flex;gap:8px;align-items:center;">
+      <button class="add-row-btn" id="addEquipmentRowBtn" style="flex:1;">${ICON.plus} Add equipment</button>
+      <button class="icon-btn" id="manageEquipmentTypesBtn" title="Manage equipment types">⚙️</button>
+    </div>
+  </div>`;
+}
+function wireEquipmentBlock(r, editing){
+  if(!r.sectionsEnabled.equipment) return;
+  const rows = activeEquipmentRows(r);
+  document.querySelectorAll('.equipment-row-thumb[data-goto-equipment]').forEach(el=>{
+    el.addEventListener('click', ()=> openEquipmentItem(el.dataset.gotoEquipment));
+  });
+  if(!editing) return;
+
+  document.querySelectorAll('.equipmentTypeSelect').forEach(sel=>{
+    const row = rows.find(x=>x.id===sel.dataset.id);
+    if(row) sel.value = row.type || '';
+    sel.addEventListener('change', e=>{
+      const row = rows.find(x=>x.id===e.target.dataset.id);
+      if(row) row.type = e.target.value;
+    });
+  });
+  document.querySelectorAll('.equipmentDetailInput').forEach(inp=>{
+    inp.addEventListener('input', e=>{
+      const row = rows.find(x=>x.id===e.target.dataset.id);
+      if(row) row.detail = e.target.value;
+    });
+  });
+  document.querySelectorAll('.equipmentRowDel').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const idx = rows.findIndex(x=>x.id===btn.dataset.id);
+      if(idx>-1){ rows.splice(idx,1); refreshBody(r); }
+    });
+  });
+  const addBtn = document.getElementById('addEquipmentRowBtn');
+  if(addBtn) addBtn.addEventListener('click', ()=>{
+    rows.push(makeEquipmentRow());
+    refreshBody(r);
+  });
+  const manageBtn = document.getElementById('manageEquipmentTypesBtn');
+  if(manageBtn) manageBtn.addEventListener('click', ()=> openManageEquipmentTypes(()=> refreshBody(r)));
+  document.querySelectorAll('.link-insert-btn[data-target^="eqdetail_"]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const targetEl = document.getElementById(btn.dataset.target);
+      if(targetEl) openLinkPicker(targetEl, r.id, null, ()=> refreshBody(r));
+    });
+  });
+}
 
 function instructionsBodyHTML(r, editing){
   const groups = activeInstructionGroups(r);
-  const oven = ovenBlockHTML(r, editing);
+  const ovenHtml = ovenBlockHTML(r, editing);
+  const equipmentHtml = equipmentBlockHTML(r, editing);
+  const ovenAndEquipment = editing
+    ? `${ovenHtml}${equipmentHtml}`
+    : (ovenHtml ? `<div class="settings-combined-wrap">${ovenHtml}</div>` : '');
   const showGroupNames = groups.length > 1;
 
   const renderGroup = (group) => {
@@ -3493,7 +4222,7 @@ function instructionsBodyHTML(r, editing){
   if(editing){
     bodyHtml += `<button class="add-row-btn" id="addInstrGroupBtn" style="margin-top:12px;">${ICON.plus} Add instruction list</button>`;
   }
-  return `${oven}${bodyHtml}`;
+  return `${ovenAndEquipment}${bodyHtml}`;
 }
 function applyInlineFormat(el, marker){
   const start = el.selectionStart, end = el.selectionEnd;
@@ -3528,6 +4257,7 @@ function wireFormatToolbar(item){
 }
 function wireInstructions(r, editing){
   wireOvenBlock(r, editing);
+  wireEquipmentBlock(r, editing);
   document.querySelectorAll('.instr-photo-thumb[data-lightbox-src]').forEach(img=>{
     img.addEventListener('click', ()=> openReferenceLightbox(img.dataset.lightboxSrc));
   });
@@ -3985,9 +4715,9 @@ function openPrintPreview(r){
   ovenRows.forEach(oven=>{
     if(!(oven.temp || oven.time || oven.setting)) return;
     const bits = [];
-    if(oven.temp) bits.push(`<div><b>Preheat</b>${oven.temp}°${oven.tempUnit}</div>`);
+    if(oven.temp) bits.push(`<div><b>Oven temp</b>${oven.temp}°${oven.tempUnit}</div>`);
     const settingLabel = oven.setting==='Other' ? (oven.settingOther||'Other') : oven.setting;
-    if(settingLabel) bits.push(`<div><b>Oven setting</b>${escHtml(settingLabel)}</div>`);
+    if(settingLabel) bits.push(`<div><b>Oven function</b>${escHtml(settingLabel)}</div>`);
     if(oven.time) bits.push(`<div><b>Bake time</b>${escHtml(String(oven.time))} ${oven.timeUnit}</div>`);
     const label = (showOvenLabels && oven.label) ? `<div class="kitchen-oven-label">${escHtml(oven.label)}</div>` : '';
     ovenHtml += `${label}<div class="kitchen-oven">${bits.join('')}</div>`;
@@ -4037,6 +4767,14 @@ function openPrintPreview(r){
    IMAGE RESIZE
 ========================================================= */
 function resizeImageToBase64(file, maxDim, cb){
+  resizeViaObjectUrl(file, maxDim, result=>{
+    if(result){ cb(result); return; }
+    // Fallback path: some files (notably certain HEIC photos) fail to load via
+    // an object URL in some contexts but succeed when read as a data URL instead.
+    resizeViaFileReader(file, maxDim, cb);
+  });
+}
+function resizeViaObjectUrl(file, maxDim, cb){
   let settled = false;
   let objectUrl = null;
   const finish = (result)=>{
@@ -4073,6 +4811,39 @@ function resizeImageToBase64(file, maxDim, cb){
     }
   };
   img.src = objectUrl;
+}
+function resizeViaFileReader(file, maxDim, cb){
+  let settled = false;
+  const finish = (result)=>{
+    if(settled) return;
+    settled = true;
+    clearTimeout(safetyTimer);
+    cb(result);
+  };
+  const safetyTimer = setTimeout(()=> finish(null), 15000);
+
+  const reader = new FileReader();
+  reader.onerror = ()=> finish(null);
+  reader.onload = ()=>{
+    const img = new Image();
+    img.onerror = ()=> finish(null);
+    img.onload = ()=>{
+      try{
+        let w = img.width, h = img.height;
+        if(w > h && w > maxDim){ h = h*(maxDim/w); w = maxDim; }
+        else if(h > maxDim){ w = w*(maxDim/h); h = maxDim; }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        finish(canvas.toDataURL('image/jpeg', 0.85));
+      }catch(err){
+        console.error('Error processing image (FileReader fallback):', err);
+        finish(null);
+      }
+    };
+    img.src = reader.result;
+  };
+  reader.readAsDataURL(file);
 }
 
 /* =========================================================
@@ -4115,8 +4886,9 @@ function migrateRecipe(raw){
   if(!r.yield) r.yield = { base:4, unit:'servings', na:false };
   if(typeof r.yield.na !== 'boolean') r.yield.na = false;
   if(!r.yield.base) r.yield.base = 4;
-  if(!r.sectionsEnabled) r.sectionsEnabled = { storage:false, prepPlan:false, oven:false, source:false };
+  if(!r.sectionsEnabled) r.sectionsEnabled = { storage:false, prepPlan:false, oven:false, equipment:false, source:false };
   if(typeof r.sectionsEnabled.source !== 'boolean') r.sectionsEnabled.source = false;
+  if(typeof r.sectionsEnabled.equipment !== 'boolean') r.sectionsEnabled.equipment = false;
   // oven: migrate old single `oven` object to `ovenRows` array
   if(!Array.isArray(raw.ovenRows)){
     if(raw.oven && (raw.oven.temp || raw.oven.time || raw.oven.setting)){
@@ -4126,6 +4898,9 @@ function migrateRecipe(raw){
       r.ovenRows = [makeOvenRow()];
     }
   }
+  if(!Array.isArray(raw.equipmentRows)){
+    r.equipmentRows = [makeEquipmentRow()];
+  }
   if(!Array.isArray(r.variants)) r.variants = [];
   r.variants = r.variants.map(v=>{
     if(!Array.isArray(v.ovenRows)){
@@ -4134,6 +4909,7 @@ function migrateRecipe(raw){
         : [makeOvenRow()];
     }
     delete v.oven;
+    if(!Array.isArray(v.equipmentRows)) v.equipmentRows = [makeEquipmentRow()];
     if(!Array.isArray(v.ingredientGroups)){
       v.ingredientGroups = [{ id: uid(), name:'', items: (v.ingredients||[]).map(normalizeIngItem) }];
     }
@@ -4474,7 +5250,11 @@ async function bootstrap(){
   if(!Array.isArray(data.pantryCategories)) data.pantryCategories = [];
   if(!Array.isArray(data.pantry)) data.pantry = [];
   if(!Array.isArray(data.shoppingList)) data.shoppingList = [];
+  if(!Array.isArray(data.equipmentCategories)) data.equipmentCategories = [];
+  if(!Array.isArray(data.equipment)) data.equipment = [];
+  if(!Array.isArray(data.equipmentTypes)) data.equipmentTypes = [...DEFAULT_EQUIPMENT_TYPES];
   data.pantry = data.pantry.map(migratePantryItem);
+  data.equipment = data.equipment.map(migrateEquipmentItem);
   if(data.recipes && data.recipes.length){
     data.recipes = data.recipes.map(migrateRecipe);
   }
