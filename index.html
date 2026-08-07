@@ -69,6 +69,12 @@
     border:1px solid var(--hairline-strong); border-radius:999px; padding:2px 7px;
     flex:0 0 auto;
   }
+  .testing-badge{
+    font-family:var(--font-body); font-size:10.5px; font-weight:600; letter-spacing:0.02em;
+    color:var(--accent); background:rgba(107,117,97,0.12);
+    border:1px solid var(--accent); border-radius:999px; padding:2px 8px;
+    flex:0 0 auto; white-space:nowrap;
+  }
   .topbar-actions{ display:flex; align-items:center; gap:6px; flex:0 0 auto; }
   .icon-btn{
     border:1px solid var(--hairline-strong);
@@ -768,11 +774,12 @@
 /* =========================================================
    CONSTANTS
 ========================================================= */
-const APP_VERSION = "v51";
+const APP_VERSION = "v52";
 const DEFAULT_CATEGORIES = ["Dessert","Dinner","Bites","Drinks","Side Dishes","Batch Cooking"];
 const ACCENTS = ["#7C5A6B","#6B7561","#A68A5B","#5C7A80","#8A8F5C","#9C6B54","#5E6B8A","#8B6F8C"];
 const OVEN_SETTINGS = ["With fan","Without fan","Turbo","Airfry","Other"];
 const DEFAULT_EQUIPMENT_TYPES = ["Oven (Smeg)","Oven (Other)","Airfryer","Microwave","Frying pan","Perforated baking sheet","Baking sheet"];
+const DEFAULT_EQUIPMENT_CATEGORIES = ["Bakeware & molds","Large appliances","Miscellaneous","Pots and pans","Sheet pans","Small appliances","Tools","Utensils"];
 
 /* =========================================================
    STORAGE — IndexedDB (with one-time migration from localStorage)
@@ -851,7 +858,7 @@ function idbSet(key, value, isRetry){
 /* Loads app data at startup: tries IndexedDB first; if empty, migrates
    any existing localStorage data over (one-time); falls back to defaults. */
 async function loadAppData(){
-  const defaults = { title:"Recipe Book", categories:[...DEFAULT_CATEGORIES], recipes:[], pantryCategories:[], pantry:[], shoppingList:[], equipmentCategories:[], equipment:[], equipmentTypes:[...DEFAULT_EQUIPMENT_TYPES] };
+  const defaults = { title:"Recipe Book", categories:[...DEFAULT_CATEGORIES], recipes:[], pantryCategories:[], pantry:[], shoppingList:[], equipmentCategories:[...DEFAULT_EQUIPMENT_CATEGORIES], equipment:[], equipmentTypes:[...DEFAULT_EQUIPMENT_TYPES] };
   try{
     const fromIDB = await idbGet(IDB_KEY);
     if(fromIDB) return fromIDB;
@@ -875,7 +882,7 @@ async function loadAppData(){
 /* =========================================================
    DATA / STATE
 ========================================================= */
-let data = { title:"Recipe Book", categories:[...DEFAULT_CATEGORIES], recipes:[], pantryCategories:[], pantry:[], shoppingList:[], equipmentCategories:[], equipment:[], equipmentTypes:[...DEFAULT_EQUIPMENT_TYPES] };
+let data = { title:"Recipe Book", categories:[...DEFAULT_CATEGORIES], recipes:[], pantryCategories:[], pantry:[], shoppingList:[], equipmentCategories:[...DEFAULT_EQUIPMENT_CATEGORIES], equipment:[], equipmentTypes:[...DEFAULT_EQUIPMENT_TYPES] };
 let dirty = false;
 let draftRecipe = null; // holds an unsaved new recipe until first Save
 let draftPantryItem = null; // holds an unsaved new pantry item until first Save
@@ -912,7 +919,8 @@ let state = {
   equipmentSearchQuery: "",
   recipeOrigin: "home",
   bookOrder: [],
-  bookIndex: 0
+  bookIndex: 0,
+  bookTocFilter: "all"
 };
 let draftEquipmentItem = null;
 
@@ -983,6 +991,7 @@ function blankRecipe(cat){
     equipmentRows: [makeEquipmentRow()],
     variants: [], activeVariant: 'standard',
     archived: false,
+    testing: false,
     quickNotes: []
   };
 }
@@ -1012,10 +1021,11 @@ function migratePantryItem(raw){
   if(raw.link) item.stores.push({ id: uid(), name:'', url: raw.link });
   return item;
 }
-function makeEquipmentItem(cat){ return { id: uid(), name:'', type:'', category: cat||'', image:null, brand:'', model:'', brands:[], stores:[], notes:'', price:'', quantity:'' }; }
+function makeEquipmentItem(cat){ return { id: uid(), name:'', type:'', category: cat||'', tags:[], image:null, brand:'', model:'', brands:[], stores:[], notes:'', price:'', quantity:'' }; }
 function migrateEquipmentItem(raw){
   return {
     id: raw.id||uid(), name: raw.name||'', type: raw.type||'', category: raw.category||'',
+    tags: Array.isArray(raw.tags) ? raw.tags : [],
     image: raw.image||null,
     brand: raw.brand || (Array.isArray(raw.brands) && raw.brands[0] ? raw.brands[0].text : '') || '',
     model: raw.model || '',
@@ -1025,12 +1035,29 @@ function migrateEquipmentItem(raw){
   };
 }
 function equipmentDisplayName(item){
-  const bm = [item.brand, item.model].filter(Boolean).join(' ');
-  if(bm && item.type) return `${bm} (${item.type})`;
-  if(bm) return bm;
-  if(item.type) return item.type;
+  const parts = [];
+  if(item.type) parts.push(item.type);
+  if(item.model) parts.push(item.model);
+  let name = parts.join(' ');
+  if(item.brand){
+    name = name ? `${name} (${item.brand})` : item.brand;
+  }
+  if(name) return name;
   if(item.name) return item.name;
   return 'Untitled';
+}
+function equipmentTagsBlockHTML(item, editing){
+  if(editing){
+    const chips = data.equipmentCategories.map(t=>{
+      const sel = (item.tags||[]).includes(t);
+      return `<button class="chip ${sel?'selected':''}" data-eqtag="${escAttr(t)}"><span class="dot" style="background:${sel?'':accentFor(t)}"></span>${escHtml(t)}</button>`;
+    }).join('');
+    return `<div class="chip-row" id="eqTagChipRow" style="margin-top:10px;">${chips}</div><button class="icon-btn" id="manageEqTagsFromItemBtn" style="margin-top:8px;" title="Manage equipment tags">⚙️ Manage tags</button>`;
+  }
+  const tags = item.tags || [];
+  if(tags.length === 0) return '';
+  const dots = tags.map(t=>`<span class="dot" style="background:${accentFor(t)}"></span>`).join('');
+  return `<div class="tile-tags" style="margin-top:10px;">${dots}<span class="lbl">${escHtml(tags.join(' · '))}</span></div>`;
 }
 
 /* =========================================================
@@ -1228,7 +1255,7 @@ function tileHTML(r){
   return `<div class="tile" data-id="${r.id}">
     ${coverCollageHTML(r, 'tile-img')}
     <div class="tile-body">
-      <div class="tile-name">${escHtml(r.name || 'Untitled')}</div>
+      <div class="tile-name">${escHtml(r.name || 'Untitled')}${r.testing ? ` <span class="testing-badge">Testing</span>` : ''}</div>
       ${tagsRowHTML(r)}
     </div>
   </div>`;
@@ -1237,7 +1264,7 @@ function listRowHTML(r){
   return `<div class="list-row recipe-list-row" data-id="${r.id}">
     ${coverCollageHTML(r, 'list-thumb recipe-list-thumb')}
     <div class="list-info">
-      <div class="list-name recipe-list-name">${escHtml(r.name || 'Untitled')}</div>
+      <div class="list-name recipe-list-name">${escHtml(r.name || 'Untitled')}${r.testing ? ` <span class="testing-badge">Testing</span>` : ''}</div>
       ${tagsRowHTML(r)}
     </div>
   </div>`;
@@ -1528,8 +1555,10 @@ function renderPantryView(){
 function renderEquipmentView(){
   const app = document.getElementById('app');
   const q = state.equipmentSearchQuery.trim().toLowerCase();
+  const activeTag = state.equipmentActiveCategory || "All";
   const filtered = data.equipment
    .filter(p => !q || equipmentDisplayName(p).toLowerCase().includes(q))
+   .filter(p => activeTag === "All" || (p.tags||[]).includes(activeTag))
    .slice().sort((a,b)=>equipmentDisplayName(a).localeCompare(equipmentDisplayName(b), undefined, {sensitivity:'base'}));
 
   let body;
@@ -1543,6 +1572,14 @@ function renderEquipmentView(){
     body = `<div class="list">${filtered.map(equipmentListRowHTML).join('')}</div>`;
   }
 
+  const tagTabs = ["All", ...data.equipmentCategories].map(t=>{
+    const active = t === activeTag;
+    const dotColor = t === "All" ? "var(--ink-faint)" : accentFor(t);
+    return `<button class="cat-tab ${active?'active':''}" data-eqtag="${escAttr(t)}">
+      <span class="dot" style="background:${dotColor}"></span>${escHtml(t)}
+    </button>`;
+  }).join('');
+
   app.innerHTML = `
     <div class="rv-header">
       <div class="rv-header-left">
@@ -1554,6 +1591,10 @@ function renderEquipmentView(){
     </div>
     <div class="search-row">
       <input type="text" id="equipmentSearchInput" class="search-input" placeholder="Search equipment…" value="${escAttr(state.equipmentSearchQuery)}" />
+    </div>
+    <div class="cat-row-wrap" style="padding:16px 20px 4px 20px;">
+      <div class="cat-row">${tagTabs}</div>
+      <button class="pinned-manage-btn" id="manageEqTagsBtn" title="Manage equipment tags">⚙️</button>
     </div>
     <div class="toolbar" style="margin-top:8px;">
       <span class="count-label">${filtered.length} item${filtered.length===1?'':'s'}</span>
@@ -1567,6 +1608,11 @@ function renderEquipmentView(){
   `;
 
   document.getElementById('equipmentBack').addEventListener('click', ()=>{ state.viewMode='tile'; state.view='home'; render(); });
+  document.querySelectorAll('.cat-tab[data-eqtag]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{ state.equipmentActiveCategory = btn.dataset.eqtag; render(); });
+  });
+  const manageEqTagsBtn = document.getElementById('manageEqTagsBtn');
+  if(manageEqTagsBtn) manageEqTagsBtn.addEventListener('click', ()=> openManageEquipmentCategories());
   const equipmentSearchInput = document.getElementById('equipmentSearchInput');
   if(equipmentSearchInput){
     equipmentSearchInput.addEventListener('input', e=>{
@@ -1776,6 +1822,8 @@ function renderEquipmentItemBody(item){
       : (item.price || item.quantity) ? `<div class="pantry-pq-static">${item.price?`<span>${escHtml(item.price)}</span>`:''}${item.price&&item.quantity?' · ':''}${item.quantity?`<span>${escHtml(item.quantity)}</span>`:''}</div>` : ''
     }
 
+    ${equipmentTagsBlockHTML(item, editing)}
+
     ${showStoresSection ? `<div class="section" style="margin-top:20px;"><div class="pantry-sublabel">Where to buy</div>${storesInner}</div>` : ''}
     ${showNotesSection ? `<div class="section"><div class="pantry-sublabel">Notes</div>${editing ? `<div class="field-with-link"><textarea class="storage-text" id="eqNotes" style="margin-top:0;" placeholder="Notes…">${escHtml(item.notes)}</textarea><button class="link-insert-btn" data-target="eqNotes" title="Link to a recipe">${ICON.link}</button></div>` : `<div class="rv-desc-static">${parseAllLinks(item.notes)}</div>`}</div>` : ''}
   `;
@@ -1790,6 +1838,18 @@ function renderEquipmentItemBody(item){
     });
     const manageTypesBtn = document.getElementById('manageEqTypesFromItemBtn');
     if(manageTypesBtn) manageTypesBtn.addEventListener('click', ()=> openManageEquipmentTypes(()=> refreshEquipmentBody(item)));
+    const manageTagsBtn = document.getElementById('manageEqTagsFromItemBtn');
+    if(manageTagsBtn) manageTagsBtn.addEventListener('click', ()=> openManageEquipmentCategories(()=> refreshEquipmentBody(item)));
+    document.querySelectorAll('#eqTagChipRow .chip[data-eqtag]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const tag = btn.dataset.eqtag;
+        item.tags = item.tags || [];
+        const idx = item.tags.indexOf(tag);
+        if(idx > -1) item.tags.splice(idx,1); else item.tags.push(tag);
+        markDirty();
+        refreshEquipmentBody(item);
+      });
+    });
   }
   autosizeAll();
 }
@@ -1986,10 +2046,16 @@ function openBookAt(recipeId){
 }
 function renderBookTocView(){
   const app = document.getElementById('app');
-  const chapters = computeBookChapters();
+  const testingOnly = state.bookTocFilter === 'testing';
+  const rawChapters = computeBookChapters();
+  const chapters = testingOnly
+    ? rawChapters.map(ch=>({ tag: ch.tag, recipes: ch.recipes.filter(r=>r.testing) })).filter(ch=>ch.recipes.length)
+    : rawChapters;
   let body;
   if(chapters.length === 0){
-    body = `<div class="empty">${ICON.book}<h3>Nothing to show yet</h3><p>Add some recipes and tags to build your book.</p></div>`;
+    body = testingOnly
+      ? `<div class="empty">${ICON.book}<h3>Nothing here yet</h3><p>No recipes are marked as Testing right now.</p></div>`
+      : `<div class="empty">${ICON.book}<h3>Nothing to show yet</h3><p>Add some recipes and tags to build your book.</p></div>`;
   } else {
     body = chapters.map(ch=>`
       <div class="book-chapter">
@@ -2000,7 +2066,7 @@ function renderBookTocView(){
             const thumb = cover
               ? `<img class="list-thumb recipe-list-thumb book-toc-thumb" src="${cover}" />`
               : `<div class="list-thumb recipe-list-thumb book-toc-thumb placeholder">${ICON.image}</div>`;
-            return `<li class="book-toc-item" data-id="${r.id}">${thumb}<span class="book-toc-name">${escHtml(r.name||'Untitled')}</span></li>`;
+            return `<li class="book-toc-item" data-id="${r.id}">${thumb}<span class="book-toc-name">${escHtml(r.name||'Untitled')}${r.testing ? ` <span class="testing-badge">Testing</span>` : ''}</span></li>`;
           }).join('')}
         </ul>
       </div>`).join('');
@@ -2010,9 +2076,17 @@ function renderBookTocView(){
       <div class="rv-header-left"><button class="back-btn" id="bookTocBack">${ICON.back} Recipes</button></div>
       <div class="rv-header-right"><span style="font-family:var(--font-display);font-size:17px;">Table of Contents</span></div>
     </div>
+    <div class="toolbar" style="padding:0 20px; margin-top:4px;">
+      <div class="view-toggle">
+        <button class="${!testingOnly?'active':''}" id="bookTocFilterAll">All</button>
+        <button class="${testingOnly?'active':''}" id="bookTocFilterTesting">Testing</button>
+      </div>
+    </div>
     <div class="rv-body">${body}</div>
   `;
   document.getElementById('bookTocBack').addEventListener('click', ()=>{ state.viewMode='tile'; state.view='home'; render(); });
+  document.getElementById('bookTocFilterAll').addEventListener('click', ()=>{ state.bookTocFilter = 'all'; render(); });
+  document.getElementById('bookTocFilterTesting').addEventListener('click', ()=>{ state.bookTocFilter = 'testing'; render(); });
   document.querySelectorAll('.book-toc-item').forEach(el=>{
     el.addEventListener('click', ()=> openBookAt(el.dataset.id));
   });
@@ -2057,6 +2131,7 @@ function renderBookView(){
         <div class="rv-header-left"><button class="back-btn" id="bookBack">${ICON.back} ${backLabel}</button></div>
         <div class="rv-header-right">
           <span class="book-position">${escHtml(entry.tag)} · ${posInChapter} of ${chapterEntries.length}</span>
+          ${r.testing ? `<span class="testing-badge">Testing</span>` : ''}
           <button class="icon-btn" id="bookEdit" title="Edit">${ICON.edit}</button>
           <button class="icon-btn" id="bookSettings" title="Settings">⚙️</button>
           <button class="icon-btn" id="bookPrev" title="Previous recipe">‹</button>
@@ -2682,12 +2757,13 @@ function openManagePantryCategories(){
   });
   backdrop.addEventListener('click', e=>{ if(e.target === backdrop){ safeRemoveModal(backdrop); render(); } });
 }
-function openManageEquipmentCategories(){
+function openManageEquipmentCategories(onClose){
   const backdrop = document.createElement('div');
   backdrop.className = 'modal-backdrop';
   backdrop.innerHTML = `
     <div class="modal">
       <h3>Manage equipment tags</h3>
+      <p class="hint" style="margin-top:0;">Tags are used to browse and filter your equipment catalog.</p>
       <div id="ecatList"></div>
       <div class="modal-add-row">
         <input type="text" id="newECatInput" placeholder="New tag name" />
@@ -2698,6 +2774,11 @@ function openManageEquipmentCategories(){
     </div>`;
   removeAllModals();
   document.body.appendChild(backdrop);
+
+  function finish(){
+    safeRemoveModal(backdrop);
+    if(typeof onClose === 'function') onClose(); else render();
+  }
 
   function renderList(){
     const list = backdrop.querySelector('#ecatList');
@@ -2713,7 +2794,13 @@ function openManageEquipmentCategories(){
         const oldName = data.equipmentCategories[idx];
         const newName = e.target.value;
         data.equipmentCategories[idx] = newName;
-        data.equipment.forEach(p=>{ if(p.category===oldName) p.category = newName; });
+        data.equipment.forEach(p=>{
+          if(Array.isArray(p.tags)){
+            const tIdx = p.tags.indexOf(oldName);
+            if(tIdx > -1) p.tags[tIdx] = newName;
+          }
+        });
+        if(state.equipmentActiveCategory === oldName) state.equipmentActiveCategory = newName;
         markDirty();
       });
     });
@@ -2723,7 +2810,9 @@ function openManageEquipmentCategories(){
         const removed = data.equipmentCategories[idx];
         if(!confirm(`Delete the tag "${removed}"? This clears it from any equipment using it.`)) return;
         data.equipmentCategories.splice(idx,1);
-        data.equipment.forEach(p=>{ if(p.category===removed) p.category=''; });
+        data.equipment.forEach(p=>{
+          if(Array.isArray(p.tags)) p.tags = p.tags.filter(t=>t!==removed);
+        });
         if(state.equipmentActiveCategory === removed) state.equipmentActiveCategory = "All";
         markDirty();
         renderList();
@@ -2741,11 +2830,8 @@ function openManageEquipmentCategories(){
     input.value = '';
     renderList();
   });
-  backdrop.querySelector('#closeECatModal').addEventListener('click', ()=>{
-    safeRemoveModal(backdrop);
-    render();
-  });
-  backdrop.addEventListener('click', e=>{ if(e.target === backdrop){ safeRemoveModal(backdrop); render(); } });
+  backdrop.querySelector('#closeECatModal').addEventListener('click', finish);
+  backdrop.addEventListener('click', e=>{ if(e.target === backdrop) finish(); });
 }
 function openManageEquipmentTypes(onClose){
   const backdrop = document.createElement('div');
@@ -2854,12 +2940,26 @@ function formatAmount(n){
   const rounded = Math.round(n * 100) / 100;
   return rounded.toString();
 }
+const EXTERNAL_LINK_RE_SRC = '\\[([^\\]]+)\\]\\((https?:\\/\\/[^\\s\\)]+)\\)';
 function linkify(text){
-  const escaped = escHtml(text);
-  return escaped.replace(/((https?:\/\/|www\.)[^\s]+)/g, (m)=>{
-    const href = m.startsWith('http') ? m : 'https://' + m;
-    return `<a href="${href}" target="_blank" rel="noopener">${m}</a>`;
-  });
+  if(!text) return '';
+  const COMBINED = new RegExp(EXTERNAL_LINK_RE_SRC + '|((https?:\\/\\/|www\\.)[^\\s]+)', 'g');
+  let result = '';
+  let lastIndex = 0;
+  let match;
+  while((match = COMBINED.exec(text)) !== null){
+    result += escHtml(text.slice(lastIndex, match.index));
+    if(match[1] !== undefined){
+      result += `<a href="${escAttr(match[2])}" target="_blank" rel="noopener">${escHtml(match[1])}</a>`;
+    } else {
+      const raw = match[3];
+      const href = raw.startsWith('http') ? raw : 'https://' + raw;
+      result += `<a href="${escAttr(href)}" target="_blank" rel="noopener">${escHtml(raw)}</a>`;
+    }
+    lastIndex = COMBINED.lastIndex;
+  }
+  result += escHtml(text.slice(lastIndex));
+  return result;
 }
 
 /* ---------- inline recipe links ---------- */
@@ -2887,7 +2987,7 @@ function parseRecipeLinks(text){
 }
 function parseAllLinks(text){
   if(!text) return '';
-  const COMBINED_RE = /\[\[([a-zA-Z0-9_]+):([^\]]*)\]\]|\{\{([a-zA-Z0-9_]+):([^\}]*)\}\}|\(\(([a-zA-Z0-9_]+):([^\)]*)\)\)/g;
+  const COMBINED_RE = new RegExp('\\[\\[([a-zA-Z0-9_]+):([^\\]]*)\\]\\]|\\{\\{([a-zA-Z0-9_]+):([^\\}]*)\\}\\}|\\(\\(([a-zA-Z0-9_]+):([^\\)]*)\\)\\)|' + EXTERNAL_LINK_RE_SRC, 'g');
   let result = '';
   let lastIndex = 0;
   let match;
@@ -2909,7 +3009,7 @@ function parseAllLinks(text){
       } else {
         result += escHtml(match[4]);
       }
-    } else {
+    } else if(match[5] !== undefined){
       const targetId = match[5];
       const target = data.equipment.find(x=>x.id===targetId);
       if(target){
@@ -2917,6 +3017,8 @@ function parseAllLinks(text){
       } else {
         result += escHtml(match[6]);
       }
+    } else {
+      result += `<a href="${escAttr(match[8])}" target="_blank" rel="noopener">${escHtml(match[7])}</a>`;
     }
     lastIndex = COMBINED_RE.lastIndex;
   }
@@ -3013,7 +3115,7 @@ function wireRecipeLinkClicks(container){
 }
 function wireRecipeLinkButtons(r){
   document.querySelectorAll('.link-insert-btn').forEach(btn=>{
-    if(btn.dataset.target && btn.dataset.target.startsWith('eqdetail_')) return;
+    if(btn.dataset.target && (btn.dataset.target.startsWith('eqdetail_') || btn.dataset.target.startsWith('sourcetext_'))) return;
     btn.addEventListener('click', ()=>{
       const targetEl = document.getElementById(btn.dataset.target);
       if(targetEl) openLinkPicker(targetEl, r.id, null);
@@ -3040,13 +3142,22 @@ function insertPantryLinkIntoField(inputEl, pantryId, pantryName){
 function insertEquipmentLinkIntoField(inputEl, equipId, equipName){
   insertTokenIntoField(inputEl, `((${equipId}:${equipName}))`);
 }
+function insertExternalLinkIntoField(inputEl, label, url){
+  insertTokenIntoField(inputEl, `[${label}](${url})`);
+}
 function openLinkPicker(targetEl, currentRecipeId, currentPantryId, onInsert, currentEquipmentId){
   const backdrop = document.createElement('div');
   backdrop.className = 'modal-backdrop';
   backdrop.innerHTML = `
     <div class="modal">
-      <h3>Link to a recipe, pantry item, or equipment</h3>
+      <h3>Link to a recipe, pantry item, equipment, or website</h3>
       <input type="text" class="picker-search" id="linkPickerSearch" placeholder="Search…" />
+      <button class="add-row-btn" id="linkPickerExternalToggle" style="margin-bottom:10px;">${ICON.link} External link</button>
+      <div id="linkPickerExternalForm" style="display:none; margin-bottom:12px;">
+        <input type="text" class="picker-search" id="linkPickerExtLabel" placeholder="Label (e.g. Cedric Grolet's website)" style="margin-bottom:6px;" />
+        <input type="text" class="picker-search" id="linkPickerExtUrl" placeholder="https://…" style="margin-bottom:6px;" />
+        <button id="linkPickerExtInsert">Insert link</button>
+      </div>
       <div id="linkPickerList"></div>
       <button class="modal-close" id="closeLinkPicker">Cancel</button>
     </div>`;
@@ -3089,6 +3200,21 @@ function openLinkPicker(targetEl, currentRecipeId, currentPantryId, onInsert, cu
   }
   renderResults('');
   backdrop.querySelector('#linkPickerSearch').addEventListener('input', e=> renderResults(e.target.value));
+  backdrop.querySelector('#linkPickerExternalToggle').addEventListener('click', ()=>{
+    const form = backdrop.querySelector('#linkPickerExternalForm');
+    const showing = form.style.display !== 'none';
+    form.style.display = showing ? 'none' : 'block';
+    if(!showing) backdrop.querySelector('#linkPickerExtLabel').focus();
+  });
+  backdrop.querySelector('#linkPickerExtInsert').addEventListener('click', ()=>{
+    const label = backdrop.querySelector('#linkPickerExtLabel').value.trim();
+    let url = backdrop.querySelector('#linkPickerExtUrl').value.trim();
+    if(!label || !url){ alert('Please enter both a label and a URL.'); return; }
+    if(!/^https?:\/\//i.test(url)) url = 'https://' + url;
+    insertExternalLinkIntoField(targetEl, label, url);
+    safeRemoveModal(backdrop);
+    if(typeof onInsert === 'function') onInsert();
+  });
   backdrop.querySelector('#closeLinkPicker').addEventListener('click', ()=> safeRemoveModal(backdrop));
   backdrop.addEventListener('click', e=>{ if(e.target === backdrop) safeRemoveModal(backdrop); });
 }
@@ -3164,6 +3290,7 @@ function openRecipeSettingsMenu(r){
       <div class="settings-menu">
         <button class="settings-menu-item" id="menuDuplicate">${ICON.copy} Duplicate</button>
         <button class="settings-menu-item" id="menuPrint">${ICON.print} Print</button>
+        <button class="settings-menu-item" id="menuTestingToggle">${r.testing?ICON.check:'🧪'} ${r.testing?'Mark as Tested':'Mark as Testing'}</button>
         <button class="settings-menu-item" id="menuArchiveToggle">${r.archived?ICON.restore:ICON.archive} ${r.archived?'Restore from archive':'Archive this recipe'}</button>
         <button class="settings-menu-item danger" id="menuDelete">${ICON.trash} Delete this recipe</button>
       </div>
@@ -3174,10 +3301,16 @@ function openRecipeSettingsMenu(r){
   function close(){ safeRemoveModal(backdrop); }
   backdrop.querySelector('#menuDuplicate').addEventListener('click', ()=>{ close(); duplicateRecipe(r); });
   backdrop.querySelector('#menuPrint').addEventListener('click', ()=>{ close(); openPrintPreview(r); });
+  backdrop.querySelector('#menuTestingToggle').addEventListener('click', ()=>{ close(); handleToggleTesting(r); });
   backdrop.querySelector('#menuArchiveToggle').addEventListener('click', ()=>{ close(); handleToggleArchive(r); });
   backdrop.querySelector('#menuDelete').addEventListener('click', ()=>{ close(); handleDelete(r); });
   backdrop.querySelector('#closeRecipeSettingsMenu').addEventListener('click', close);
   backdrop.addEventListener('click', e=>{ if(e.target === backdrop) close(); });
+}
+function handleToggleTesting(r){
+  r.testing = !r.testing;
+  markDirty();
+  render();
 }
 function handleToggleArchive(r){
   r.archived = !r.archived;
@@ -4443,7 +4576,10 @@ function sourceSectionBodyHTML(r, editing){
   }
   const rows = r.sourceLines.map(l => `
     <li class="line-item" data-id="${l.id}">
-      <input class="line-text" data-id="${l.id}" placeholder="e.g. Cedric Grolet, or a link…" value="${escAttr(l.text)}" />
+      <div class="field-with-link">
+        <input class="line-text" id="sourcetext_${l.id}" data-id="${l.id}" placeholder="e.g. Cedric Grolet, or a link…" value="${escAttr(l.text)}" />
+        <button class="link-insert-btn" data-target="sourcetext_${l.id}" title="Link to a recipe, pantry item, equipment, or website">${ICON.link}</button>
+      </div>
       <div class="row-actions">
         <button class="row-add" data-kind="source" data-id="${l.id}">${ICON.plus}</button>
         <button class="row-del" data-kind="source" data-id="${l.id}">${ICON.trash}</button>
@@ -4464,6 +4600,12 @@ function wireSourceSection(r, editing){
     inp.addEventListener('input', e=>{
       const item = r.sourceLines.find(x=>x.id===e.target.dataset.id);
       if(item) item.text = e.target.value;
+    });
+  });
+  document.querySelectorAll('.link-insert-btn[data-target^="sourcetext_"]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const targetEl = document.getElementById(btn.dataset.target);
+      if(targetEl) openLinkPicker(targetEl, r.id, null, ()=> refreshBody(r));
     });
   });
   document.querySelectorAll('#sourceList .row-add[data-kind="source"]').forEach(btn=>{
@@ -4500,7 +4642,7 @@ function notesSectionHTML(r){
 }
 function quickNoteItemHTML(n){
   const chips = extractLinkChips(n.text);
-  const chipsHtml = chips.length ? `<div class="quicknote-links">${chips.map(c=>`<button class="linked-from-pill quicknote-link-chip" data-kind="${c.kind}" data-id="${c.id}">🔗 ${escHtml(c.name)}</button>`).join('')}</div>` : '';
+  const chipsHtml = chips.length ? `<div class="quicknote-links">${chips.map(c=>`<button class="linked-from-pill quicknote-link-chip" data-kind="${c.kind}" data-id="${escAttr(c.id)}">🔗 ${escHtml(c.name)}</button>`).join('')}</div>` : '';
   const photoGrid = (n.images && n.images.length) ? `<div class="instr-photo-grid">${n.images.map(img=>`
     <div class="instr-photo-thumb-wrap">
       <img class="instr-photo-thumb" src="${img.data}" data-lightbox-src="${escAttr(img.data)}" />
@@ -4533,6 +4675,7 @@ function wireQuickNotes(r){
   document.querySelectorAll('.quicknote-link-chip').forEach(btn=>{
     btn.addEventListener('click', ()=>{
       if(btn.dataset.kind === 'recipe') openRecipe(btn.dataset.id);
+      else if(btn.dataset.kind === 'external') window.open(btn.dataset.id, '_blank', 'noopener');
       else openPantryItem(btn.dataset.id);
     });
   });
@@ -4605,15 +4748,17 @@ function wireQuickNotes(r){
 function extractLinkChips(text){
   if(!text) return [];
   const chips = [];
-  const RE = /\[\[([a-zA-Z0-9_]+):([^\]]*)\]\]|\{\{([a-zA-Z0-9_]+):([^\}]*)\}\}/g;
+  const RE = new RegExp('\\[\\[([a-zA-Z0-9_]+):([^\\]]*)\\]\\]|\\{\\{([a-zA-Z0-9_]+):([^\\}]*)\\}\\}|' + EXTERNAL_LINK_RE_SRC, 'g');
   let m;
   while((m = RE.exec(text))){
     if(m[1] !== undefined){
       const rec = data.recipes.find(x=>x.id===m[1]);
       chips.push({ kind:'recipe', id:m[1], name: rec ? (rec.name||'Untitled') : m[2] });
-    } else {
+    } else if(m[3] !== undefined){
       const p = data.pantry.find(x=>x.id===m[3]);
       chips.push({ kind:'pantry', id:m[3], name: p ? (p.name||'Untitled') : m[4] });
+    } else {
+      chips.push({ kind:'external', id: m[6], name: m[5] });
     }
   }
   return chips;
@@ -4985,6 +5130,7 @@ function migrateRecipe(raw){
   }
   if(!Array.isArray(r.referenceImages)) r.referenceImages = [];
   if(typeof r.archived !== 'boolean') r.archived = false;
+  if(typeof r.testing !== 'boolean') r.testing = false;
   if(!Array.isArray(r.quickNotes)) r.quickNotes = [];
   r.quickNotes = r.quickNotes.map(n=>({ images:[], ...n }));
   if(!Array.isArray(raw.images)){
@@ -5306,7 +5452,7 @@ async function bootstrap(){
   if(!Array.isArray(data.pantryCategories)) data.pantryCategories = [];
   if(!Array.isArray(data.pantry)) data.pantry = [];
   if(!Array.isArray(data.shoppingList)) data.shoppingList = [];
-  if(!Array.isArray(data.equipmentCategories)) data.equipmentCategories = [];
+  if(!Array.isArray(data.equipmentCategories) || data.equipmentCategories.length === 0) data.equipmentCategories = [...DEFAULT_EQUIPMENT_CATEGORIES];
   if(!Array.isArray(data.equipment)) data.equipment = [];
   if(!Array.isArray(data.equipmentTypes)) data.equipmentTypes = [...DEFAULT_EQUIPMENT_TYPES];
   data.pantry = data.pantry.map(migratePantryItem);
