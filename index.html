@@ -16,6 +16,7 @@
     --danger: #A6503C;
     --danger-bg: #F3E7E2;
     --accent: #6B7561;
+    --shop-active: #9C6B54;
     --shadow: 0 1px 2px rgba(43,41,38,0.06), 0 8px 24px rgba(43,41,38,0.06);
     --font-display: ui-serif, Georgia, 'Iowan Old Style', 'Times New Roman', serif;
     --font-body: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -87,6 +88,8 @@
   }
   .icon-btn:active{ transform: scale(0.94); }
   .icon-btn svg{ width:16px; height:16px; stroke:var(--ink); fill:none; }
+  .icon-btn.active svg{ stroke:var(--shop-active); }
+  .icon-btn.active{ border-color:var(--shop-active); }
   .icon-btn.danger svg{ stroke:var(--danger); }
   .dirty-dot{
     width:7px; height:7px; border-radius:50%;
@@ -186,8 +189,36 @@
   .list-thumb.cover-collage{ border-radius:8px; }
   .tile-body{ padding:10px 12px 12px 12px; }
   .tile-name{ font-family:var(--font-display); font-size:15px; line-height:1.3; }
+  .eq-model-muted{ color:var(--ink-faint); font-weight:400; }
   .tile-tags{ margin-top:5px; display:flex; align-items:center; gap:5px; flex-wrap:wrap; }
   .tile-tags .dot{ width:6px; height:6px; border-radius:50%; flex:0 0 auto; }
+  .carousel-shell{
+    position:fixed; inset:0; display:flex; flex-direction:column;
+    background:var(--paper); height:100vh; height:100dvh;
+  }
+  .carousel-shell > *{ flex:0 0 auto; }
+  .carousel-shell .carousel-row{ flex:1 1 auto; min-height:0; }
+  .carousel-row{
+    display:flex; overflow-x:auto; scroll-snap-type:x mandatory;
+    scrollbar-width:none; padding:14px 13% 20px 13%; gap:14px;
+    -webkit-overflow-scrolling:touch;
+  }
+  .carousel-row::-webkit-scrollbar{ display:none; }
+  .carousel-card{
+    flex:0 0 74%; scroll-snap-align:center; scroll-snap-stop:always;
+    background:var(--paper-raised); border:1px solid var(--hairline);
+    border-radius:var(--radius-m); overflow:hidden; cursor:pointer;
+    display:flex; flex-direction:column;
+  }
+  .carousel-card-img{
+    width:100%; object-fit:cover; display:block;
+    background: linear-gradient(135deg, #E7E1D3, #DED6C3);
+  }
+  .carousel-shell .carousel-card-img{ flex:1 1 auto; min-height:0; }
+  .carousel-card-img.placeholder{ display:flex; align-items:center; justify-content:center; }
+  .carousel-card-img.placeholder svg{ width:32px; height:32px; stroke:var(--ink-faint); fill:none; opacity:0.6; }
+  .carousel-card-body{ padding:12px 14px 14px 14px; flex:0 0 auto; }
+  .carousel-card-name{ font-family:var(--font-display); font-size:16px; line-height:1.3; }
   .tile-tags span.lbl{ font-size:11px; color:var(--ink-faint); text-transform:uppercase; letter-spacing:0.4px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 
   /* ---------- List view ---------- */
@@ -201,10 +232,12 @@
   .list-row:active{ background: var(--paper-raised); }
   .shop-add-btn{
     flex:0 0 auto; width:34px; height:34px; border-radius:50%; border:1px solid var(--hairline-strong);
-    background:var(--paper-raised); font-size:15px; display:flex; align-items:center; justify-content:center;
-    opacity:0.6;
+    background:var(--paper-raised); display:flex; align-items:center; justify-content:center;
+    opacity:0.75;
   }
-  .shop-add-btn.active{ opacity:1; background:var(--accent); border-color:var(--accent); }
+  .shop-add-btn svg{ width:16px; height:16px; stroke:var(--ink-soft); fill:none; }
+  .shop-add-btn.active{ opacity:1; background:var(--shop-active); border-color:var(--shop-active); }
+  .shop-add-btn.active svg{ stroke:var(--paper-raised); }
   .tile-img-wrap{ position:relative; }
   .tile-shop-btn{
     position:absolute; top:8px; right:8px; width:32px; height:32px;
@@ -586,6 +619,22 @@
   }
   .pantry-type-static{ font-size:14px; color:var(--ink-soft); margin-top:4px; }
   .pantry-sublabel{ font-size:10.5px; text-transform:uppercase; letter-spacing:0.8px; color:var(--ink-faint); margin: 20px 0 8px 0; font-weight:600; }
+  .nutrition-block{
+    margin-top:14px; padding:12px 14px; border:1px solid var(--hairline-strong); border-radius:var(--radius-m);
+    background:var(--paper-raised);
+  }
+  .nutrition-grid{ display:flex; flex-wrap:wrap; gap:14px 20px; }
+  .nutrition-item{ min-width:48px; }
+  .nutrition-value{ font-family:var(--font-display); font-size:16px; color:var(--ink); }
+  .nutrition-label{ font-size:10px; text-transform:uppercase; letter-spacing:0.6px; color:var(--ink-faint); margin-top:1px; }
+  .nutrition-serving-tag{
+    margin-top:10px; padding-top:8px; border-top:1px solid var(--hairline);
+    font-size:11px; font-style:italic; color:var(--ink-faint);
+  }
+  .nutrition-edit-grid{ display:flex; flex-wrap:wrap; gap:10px; margin-top:8px; }
+  .nutrition-edit-field{ flex:1 1 80px; min-width:80px; }
+  .nutrition-edit-field label{ display:block; font-size:10px; text-transform:uppercase; letter-spacing:0.6px; color:var(--ink-faint); margin-bottom:4px; }
+  .nutrition-edit-field input{ width:100%; border:1px solid var(--hairline-strong); background:var(--paper); border-radius:6px; padding:7px 8px; font-size:14px; box-sizing:border-box; }
   .pantry-brand-input{
     flex:1; border:1px solid var(--hairline-strong); background:var(--paper); border-radius:8px;
     padding:7px 10px; font-size:13.5px; outline:none;
@@ -774,7 +823,7 @@
 /* =========================================================
    CONSTANTS
 ========================================================= */
-const APP_VERSION = "v52";
+const APP_VERSION = "v55";
 const DEFAULT_CATEGORIES = ["Dessert","Dinner","Bites","Drinks","Side Dishes","Batch Cooking"];
 const ACCENTS = ["#7C5A6B","#6B7561","#A68A5B","#5C7A80","#8A8F5C","#9C6B54","#5E6B8A","#8B6F8C"];
 const OVEN_SETTINGS = ["With fan","Without fan","Turbo","Airfry","Other"];
@@ -896,7 +945,7 @@ let state = {
   isNew: false,
   isEditing: false,
   editSnapshot: null,
-  openSections: { storage:true, prep:true, ingredients:true, instructions:true, source:true, notes:false },
+  openSections: { storage:true, prep:true, ingredients:true, instructions:true, source:true, notes:false, ovenSettings:true, nutrition:true, linkedFrom:true },
   kitchenMode: false,
   pantryActiveCategory: "All",
   pantryViewMode: "tile",
@@ -992,7 +1041,8 @@ function blankRecipe(cat){
     variants: [], activeVariant: 'standard',
     archived: false,
     testing: false,
-    quickNotes: []
+    quickNotes: [],
+    nutrition: { calories:'', protein:'', fat:'', carbs:'', fiber:'', servingLabel:'serving' }
   };
 }
 function makeOvenRow(){ return { id: uid(), label:'', temp:null, tempUnit:'C', time:null, timeUnit:'min', setting:'Without fan', settingOther:'' }; }
@@ -1036,14 +1086,26 @@ function migrateEquipmentItem(raw){
 }
 function equipmentDisplayName(item){
   const parts = [];
+  if(item.brand) parts.push(item.brand);
   if(item.type) parts.push(item.type);
-  if(item.model) parts.push(item.model);
   let name = parts.join(' ');
-  if(item.brand){
-    name = name ? `${name} (${item.brand})` : item.brand;
+  if(item.model){
+    name = name ? `${name} (${item.model})` : item.model;
   }
   if(name) return name;
   if(item.name) return item.name;
+  return 'Untitled';
+}
+function equipmentDisplayNameHTML(item){
+  const brandPart = item.brand ? `<b>${escHtml(item.brand)}</b>` : '';
+  const typePart = item.type ? escHtml(item.type) : '';
+  let html = [brandPart, typePart].filter(Boolean).join(' ');
+  if(item.model){
+    const modelPart = `<span class="eq-model-muted">(${escHtml(item.model)})</span>`;
+    html = html ? `${html} ${modelPart}` : `<span class="eq-model-muted">${escHtml(item.model)}</span>`;
+  }
+  if(html) return html;
+  if(item.name) return escHtml(item.name);
   return 'Untitled';
 }
 function equipmentTagsBlockHTML(item, editing){
@@ -1067,6 +1129,8 @@ const ICON = {
   plus:  `<svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>`,
   grid:  `<svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>`,
   list:  `<svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>`,
+  carousel: `<svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="5" height="12" rx="1.2" opacity="0.5"/><rect x="9.5" y="3" width="5" height="18" rx="1.2"/><rect x="17" y="6" width="5" height="12" rx="1.2" opacity="0.5"/></svg>`,
+  cart: `<svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h2l2.2 11.2a2 2 0 0 0 2 1.6h7.6a2 2 0 0 0 2-1.6L21 8H6"/><circle cx="9.5" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/></svg>`,
   image: `<svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>`,
   camera:`<svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v12H4z"/><circle cx="12" cy="14" r="3.5"/></svg>`,
   whisk:`<svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M12 2v4"/><path d="M8 6c-2 3-2 8 0 11 1 1.5 2.5 2 4 2s3-.5 4-2c2-3 2-8 0-11"/><path d="M9.3 6c-1.3 3-1.3 8 0 11"/><path d="M14.7 6c1.3 3 1.3 8 0 11"/><path d="M12 6v11"/></svg>`,
@@ -1110,6 +1174,8 @@ function resetRecipeChecks(r){
 let lastViewedRecipeId = null;
 function render(){
   const app = document.getElementById('app');
+  const prevCatRow = document.querySelector('.cat-row');
+  const prevCatRowScroll = prevCatRow ? prevCatRow.scrollLeft : null;
   if(state.view !== 'book' && wakeLockRef){
     wakeLockRef.release().catch(()=>{});
     wakeLockRef = null;
@@ -1145,6 +1211,10 @@ function render(){
     }
   } else {
     renderRecipeView();
+  }
+  if(prevCatRowScroll !== null){
+    const newCatRow = document.querySelector('.cat-row');
+    if(newCatRow) newCatRow.scrollLeft = prevCatRowScroll;
   }
 }
 
@@ -1185,11 +1255,13 @@ function homeHTML(){
     </div>`;
   } else if(state.viewMode === 'tile'){
     body = `<div class="grid">${filtered.map(tileHTML).join('')}</div>`;
+  } else if(state.viewMode === 'carousel'){
+    body = recipeCarouselHTML(filtered);
   } else {
     body = `<div class="list">${filtered.map(listRowHTML).join('')}</div>`;
   }
 
-  return `
+  const topHtml = `
     <div class="topbar">
       <div class="title-wrap">
         <input class="book-title" id="bookTitleInput" value="${escAttr(data.title)}" />
@@ -1216,13 +1288,18 @@ function homeHTML(){
       <div class="view-toggle">
         <button class="${state.viewMode==='tile'?'active':''}" data-mode="tile">${ICON.grid}</button>
         <button class="${state.viewMode==='list'?'active':''}" data-mode="list">${ICON.list}</button>
+        <button class="${state.viewMode==='carousel'?'active':''}" data-mode="carousel">${ICON.carousel}</button>
         <button id="bookModeBtn" title="Book mode">${ICON.book}</button>
       </div>
     </div>
-    ${body}
-    <button class="fab" id="fabAdd">${ICON.plus}</button>
-    <input type="file" id="importFile" accept="application/json" />
   `;
+  const tail = `<button class="fab" id="fabAdd">${ICON.plus}</button>
+    <input type="file" id="importFile" accept="application/json" />`;
+  const isCarousel = state.viewMode === 'carousel' && filtered.length > 0;
+  if(isCarousel){
+    return `<div class="carousel-shell">${topHtml}${body}${tail}</div>`;
+  }
+  return `${topHtml}${body}${tail}`;
 }
 
 function tagsRowHTML(r){
@@ -1269,6 +1346,22 @@ function listRowHTML(r){
     </div>
   </div>`;
 }
+function recipeCarouselCardHTML(r){
+  const covers = recipeCoverImages(r);
+  const img = covers.length
+    ? `<img class="carousel-card-img" src="${covers[0]}" />`
+    : `<div class="carousel-card-img placeholder">${ICON.image}</div>`;
+  return `<div class="carousel-card" data-id="${r.id}">
+    ${img}
+    <div class="carousel-card-body">
+      <div class="carousel-card-name">${escHtml(r.name || 'Untitled')}${r.testing ? ` <span class="testing-badge">Testing</span>` : ''}</div>
+    </div>
+  </div>`;
+}
+function recipeCarouselHTML(items){
+  if(items.length === 0) return '';
+  return `<div class="carousel-row">${items.map(recipeCarouselCardHTML).join('')}</div>`;
+}
 
 function attachHomeEvents(){
   document.querySelectorAll('.cat-tab[data-cat]').forEach(btn=>{
@@ -1277,7 +1370,7 @@ function attachHomeEvents(){
   document.querySelectorAll('.view-toggle button').forEach(btn=>{
     btn.addEventListener('click', ()=>{ state.viewMode = btn.dataset.mode; render(); });
   });
-  document.querySelectorAll('.tile, .list-row').forEach(el=>{
+  document.querySelectorAll('.tile, .list-row, .carousel-card').forEach(el=>{
     el.addEventListener('click', ()=> openRecipe(el.dataset.id));
   });
   const fab = document.getElementById('fabAdd');
@@ -1477,11 +1570,13 @@ function renderPantryView(){
     body = `<div class="empty">${ICON.book}<h3>Nothing here yet</h3><p>${q ? `No pantry items matching "${escHtml(state.pantrySearchQuery.trim())}"` : `No pantry items tagged ${escHtml(state.pantryActiveCategory)} yet.`}</p></div>`;
   } else if(state.pantryViewMode === 'tile'){
     body = `<div class="grid">${filtered.map(pantryTileHTML).join('')}</div>`;
+  } else if(state.pantryViewMode === 'carousel'){
+    body = pantryCarouselHTML(filtered);
   } else {
     body = `<div class="list">${filtered.map(pantryListRowHTML).join('')}</div>`;
   }
 
-  app.innerHTML = `
+  const topHtml = `
     <div class="rv-header">
       <div class="rv-header-left">
         <button class="back-btn" id="pantryBack">${ICON.back} Recipes</button>
@@ -1503,11 +1598,15 @@ function renderPantryView(){
       <div class="view-toggle">
         <button class="${state.pantryViewMode==='tile'?'active':''}" data-pmode="tile">${ICON.grid}</button>
         <button class="${state.pantryViewMode==='list'?'active':''}" data-pmode="list">${ICON.list}</button>
+        <button class="${state.pantryViewMode==='carousel'?'active':''}" data-pmode="carousel">${ICON.carousel}</button>
       </div>
     </div>
-    ${body}
-    <button class="fab" id="pantryAdd">${ICON.plus}</button>
   `;
+  const tail = `<button class="fab" id="pantryAdd">${ICON.plus}</button>`;
+  const isCarousel = state.pantryViewMode === 'carousel' && filtered.length > 0;
+  app.innerHTML = isCarousel
+    ? `<div class="carousel-shell">${topHtml}${body}${tail}</div>`
+    : `${topHtml}${body}${tail}`;
 
   document.getElementById('pantryBack').addEventListener('click', ()=>{ state.viewMode='tile'; state.view='home'; render(); });
   document.getElementById('pantryShopListBtn').addEventListener('click', ()=>{ state.view='shoppingList'; render(); });
@@ -1531,7 +1630,7 @@ function renderPantryView(){
   document.querySelectorAll('.view-toggle button[data-pmode]').forEach(btn=>{
     btn.addEventListener('click', ()=>{ state.pantryViewMode = btn.dataset.pmode; render(); });
   });
-  document.querySelectorAll('.tile[data-pid], .list-row[data-pid]').forEach(el=>{
+  document.querySelectorAll('.tile[data-pid], .list-row[data-pid], .carousel-card[data-pid]').forEach(el=>{
     el.addEventListener('click', ()=> openPantryItem(el.dataset.pid));
   });
   document.querySelectorAll('.shop-add-btn').forEach(btn=>{
@@ -1568,6 +1667,8 @@ function renderEquipmentView(){
     body = `<div class="empty">${ICON.book}<h3>Nothing here yet</h3><p>No equipment matching "${escHtml(state.equipmentSearchQuery.trim())}"</p></div>`;
   } else if(state.equipmentViewMode === 'tile'){
     body = `<div class="grid">${filtered.map(equipmentTileHTML).join('')}</div>`;
+  } else if(state.equipmentViewMode === 'carousel'){
+    body = equipmentCarouselHTML(filtered);
   } else {
     body = `<div class="list">${filtered.map(equipmentListRowHTML).join('')}</div>`;
   }
@@ -1580,13 +1681,14 @@ function renderEquipmentView(){
     </button>`;
   }).join('');
 
-  app.innerHTML = `
+  const topHtml = `
     <div class="rv-header">
       <div class="rv-header-left">
         <button class="back-btn" id="equipmentBack">${ICON.back} Recipes</button>
       </div>
       <div class="rv-header-right">
         <span style="font-family:var(--font-display);font-size:17px;">Equipment</span>
+        <button class="icon-btn" id="equipmentShopListBtn" title="Shopping list">🛒</button>
       </div>
     </div>
     <div class="search-row">
@@ -1601,13 +1703,18 @@ function renderEquipmentView(){
       <div class="view-toggle">
         <button class="${state.equipmentViewMode==='tile'?'active':''}" data-emode="tile">${ICON.grid}</button>
         <button class="${state.equipmentViewMode==='list'?'active':''}" data-emode="list">${ICON.list}</button>
+        <button class="${state.equipmentViewMode==='carousel'?'active':''}" data-emode="carousel">${ICON.carousel}</button>
       </div>
     </div>
-    ${body}
-    <button class="fab" id="equipmentAdd">${ICON.plus}</button>
   `;
+  const tail = `<button class="fab" id="equipmentAdd">${ICON.plus}</button>`;
+  const isCarousel = state.equipmentViewMode === 'carousel' && filtered.length > 0;
+  app.innerHTML = isCarousel
+    ? `<div class="carousel-shell">${topHtml}${body}${tail}</div>`
+    : `${topHtml}${body}${tail}`;
 
   document.getElementById('equipmentBack').addEventListener('click', ()=>{ state.viewMode='tile'; state.view='home'; render(); });
+  document.getElementById('equipmentShopListBtn').addEventListener('click', ()=>{ state.view='shoppingList'; render(); });
   document.querySelectorAll('.cat-tab[data-eqtag]').forEach(btn=>{
     btn.addEventListener('click', ()=>{ state.equipmentActiveCategory = btn.dataset.eqtag; render(); });
   });
@@ -1629,8 +1736,21 @@ function renderEquipmentView(){
   document.querySelectorAll('.view-toggle button[data-emode]').forEach(btn=>{
     btn.addEventListener('click', ()=>{ state.equipmentViewMode = btn.dataset.emode; render(); });
   });
-  document.querySelectorAll('.tile[data-eid], .list-row[data-eid]').forEach(el=>{
+  document.querySelectorAll('.tile[data-eid], .list-row[data-eid], .carousel-card[data-eid]').forEach(el=>{
     el.addEventListener('click', ()=> openEquipmentItem(el.dataset.eid));
+  });
+  document.querySelectorAll('.shop-add-btn[data-eid]').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      const item = data.equipment.find(x=>x.id===btn.dataset.eid);
+      if(item){
+        toggleShoppingListItem(item, 'equipment');
+        const nowInList = isInShoppingList(item.id, 'equipment');
+        btn.classList.toggle('active', nowInList);
+        btn.title = nowInList ? 'Remove from shopping list' : 'Add to shopping list';
+        render();
+      }
+    });
   });
   document.getElementById('equipmentAdd').addEventListener('click', addNewEquipmentItem);
 }
@@ -1638,26 +1758,51 @@ function equipmentTileHTML(item){
   const img = item.image
     ? `<img class="tile-img" src="${item.image}" />`
     : `<div class="tile-img placeholder">${ICON.image}</div>`;
+  const inList = isInShoppingList(item.id, 'equipment');
   return `<div class="tile" data-eid="${item.id}">
-    ${img}
+    <div class="tile-img-wrap">
+      ${img}
+      <button class="shop-add-btn tile-shop-btn ${inList?'active':''}" data-eid="${item.id}" title="${inList?'Remove from':'Add to'} shopping list">${ICON.cart}</button>
+    </div>
     <div class="tile-body">
-      <div class="tile-name">${escHtml(equipmentDisplayName(item))}</div>
+      <div class="tile-name">${equipmentDisplayNameHTML(item)}</div>
     </div>
   </div>`;
+}
+function equipmentCarouselCardHTML(item){
+  const img = item.image
+    ? `<img class="carousel-card-img" src="${item.image}" />`
+    : `<div class="carousel-card-img placeholder">${ICON.image}</div>`;
+  const inList = isInShoppingList(item.id, 'equipment');
+  return `<div class="carousel-card" data-eid="${item.id}">
+    <div class="tile-img-wrap">
+      ${img}
+      <button class="shop-add-btn tile-shop-btn ${inList?'active':''}" data-eid="${item.id}" title="${inList?'Remove from':'Add to'} shopping list">${ICON.cart}</button>
+    </div>
+    <div class="carousel-card-body">
+      <div class="carousel-card-name">${equipmentDisplayNameHTML(item)}</div>
+    </div>
+  </div>`;
+}
+function equipmentCarouselHTML(items){
+  if(items.length === 0) return '';
+  return `<div class="carousel-row">${items.map(equipmentCarouselCardHTML).join('')}</div>`;
 }
 function equipmentListRowHTML(item){
   const img = item.image
     ? `<img class="list-thumb" src="${item.image}" />`
     : `<div class="list-thumb placeholder">${ICON.image}</div>`;
+  const inList = isInShoppingList(item.id, 'equipment');
   return `<div class="list-row" data-eid="${item.id}">
     ${img}
     <div class="list-info">
-      <div class="pantry-list-name">${escHtml(equipmentDisplayName(item))}</div>
+      <div class="pantry-list-name">${equipmentDisplayNameHTML(item)}</div>
       <div class="pantry-list-meta">
         ${item.price ? `<span class="pantry-list-price">${escHtml(item.price)}</span>` : ''}
         ${item.quantity ? `<span class="pantry-list-qty">${escHtml(item.quantity)}</span>` : ''}
       </div>
     </div>
+    <button class="shop-add-btn ${inList?'active':''}" data-eid="${item.id}" title="${inList?'Remove from':'Add to'} shopping list">${ICON.cart}</button>
   </div>`;
 }
 function addNewEquipmentItem(){
@@ -1697,7 +1842,8 @@ function renderEquipmentItemView(){
       <div class="rv-header-right">
         ${editing
           ? `<button class="text-btn primary" id="eqSave">Save</button>`
-          : `<button class="icon-btn" id="eqEdit" title="Edit">${ICON.edit}</button>
+          : `<button class="icon-btn ${isInShoppingList(item.id,'equipment')?'active':''}" id="eqShopAdd" title="${isInShoppingList(item.id,'equipment')?'Remove from':'Add to'} shopping list">${ICON.cart}</button>
+             <button class="icon-btn" id="eqEdit" title="Edit">${ICON.edit}</button>
              <button class="icon-btn danger" id="eqDelete" title="Delete">${ICON.trash}</button>`
         }
       </div>
@@ -1710,6 +1856,10 @@ function renderEquipmentItemView(){
     document.getElementById('eqSave').addEventListener('click', ()=> handleEquipmentSave(item));
   } else {
     document.getElementById('eqBack').addEventListener('click', ()=>{ state.view='equipment'; render(); });
+    document.getElementById('eqShopAdd').addEventListener('click', ()=>{
+      toggleShoppingListItem(item, 'equipment');
+      render();
+    });
     document.getElementById('eqEdit').addEventListener('click', ()=>{
       state.equipmentEditSnapshot = deepClone(item);
       state.equipmentIsEditing = true;
@@ -1807,7 +1957,7 @@ function renderEquipmentItemBody(item){
 
     ${editing
       ? `<div class="rv-cat-select" style="margin-top:14px; display:flex; align-items:center; gap:8px;"><select id="eqType" style="flex:1;"><option value="">Select equipment type…</option>${typeOptions}</select><button class="icon-btn" id="manageEqTypesFromItemBtn" title="Manage equipment types">⚙️</button></div>`
-      : `<div class="rv-title-static">${escHtml(equipmentDisplayName(item))}</div>`
+      : `<div class="rv-title-static">${equipmentDisplayNameHTML(item)}</div>`
     }
     ${editing
       ? `<input class="pantry-type-input" id="eqBrand" placeholder="Brand (e.g. KitchenAid)" value="${escAttr(item.brand)}" />`
@@ -1982,15 +2132,26 @@ function renderArchiveView(){
 /* =========================================================
    SHOPPING LIST
 ========================================================= */
-function isInShoppingList(pantryId){
-  return data.shoppingList.some(x=>x.pantryId===pantryId);
+function isInShoppingList(itemId, kind){
+  kind = kind || 'pantry';
+  return data.shoppingList.some(x=>{
+    const xKind = x.kind || 'pantry';
+    const xId = x.itemId || x.pantryId;
+    return xKind === kind && xId === itemId;
+  });
 }
-function toggleShoppingListItem(pantryItem){
-  const idx = data.shoppingList.findIndex(x=>x.pantryId===pantryItem.id);
+function toggleShoppingListItem(item, kind){
+  kind = kind || 'pantry';
+  const idx = data.shoppingList.findIndex(x=>{
+    const xKind = x.kind || 'pantry';
+    const xId = x.itemId || x.pantryId;
+    return xKind === kind && xId === item.id;
+  });
   if(idx > -1){
     data.shoppingList.splice(idx,1);
   } else {
-    data.shoppingList.push({ id: uid(), pantryId: pantryItem.id, name: pantryItem.name||'Untitled', checked:false });
+    const name = kind === 'equipment' ? equipmentDisplayName(item) : (item.name||'Untitled');
+    data.shoppingList.push({ id: uid(), kind, itemId: item.id, name, checked:false });
   }
   markDirty();
 }
@@ -2182,14 +2343,17 @@ function renderBookPages(r){
       ${(r.sectionsEnabled.storage) ? sectionHTML('storage','Storage instructions', storageBodyHTML(r, false), false) : ''}
       ${(r.sectionsEnabled.equipment) ? sectionHTML('equipment','Equipment', equipmentBlockHTML(r, false), false) : ''}
       ${notesSectionHTML(r)}
+      ${nutritionBlockHTML(r)}
       ${linkedFromHTML(r)}
       ${(r.sectionsEnabled.source) ? sectionHTML('source','Source', sourceSectionBodyHTML(r, false), false) : ''}
       ${referenceRowHTML(r)}
     </div>
   `;
+  const ovenHtmlForSplit = ovenBlockHTML(r, false);
   rightContainer.innerHTML = `
     ${sectionHTML('ingredients','Ingredients', `<div class="yield-strip-subtle">${yieldRowHTML(r, false)}</div>${ingredientsBodyHTML(r, false)}`, false)}
-    ${sectionHTML('instructions','Instructions', instructionsBodyHTML(r, false), false)}
+    ${ovenHtmlForSplit ? sectionHTML('ovenSettings','Oven settings', ovenHtmlForSplit, false) : ''}
+    ${sectionHTML('instructions','Instructions', instructionsGroupsHTML(r, false), false)}
   `;
   wireImage(r);
   wireSectionToggles();
@@ -2209,13 +2373,22 @@ function renderShoppingListView(){
   const app = document.getElementById('app');
   const items = data.shoppingList;
 
-  function renderItemRow(item, pantryItem){
-    const pantryStillExists = !!pantryItem;
-    const nameHtml = pantryStillExists
-      ? `<a class="pantry-link-ref shop-pantry-link" data-goto-pantry="${escAttr(item.pantryId)}">${escHtml(item.name)}</a>`
+  function resolveEntry(entry){
+    const kind = entry.kind || 'pantry';
+    const itemId = entry.itemId || entry.pantryId;
+    const source = kind === 'equipment' ? data.equipment.find(x=>x.id===itemId) : data.pantry.find(x=>x.id===itemId);
+    return { kind, itemId, source };
+  }
+
+  function renderItemRow(entry){
+    const item = entry.item;
+    const { kind, itemId, source } = resolveEntry(item);
+    const stillExists = !!source;
+    const nameHtml = stillExists
+      ? `<a class="pantry-link-ref shop-item-link" data-goto-kind="${kind}" data-goto-id="${escAttr(itemId)}">${escHtml(item.name)}</a>`
       : `<span>${escHtml(item.name)}</span>`;
-    const thumb = (pantryItem && pantryItem.image)
-      ? `<img class="shop-thumb" src="${pantryItem.image}" />`
+    const thumb = (source && source.image)
+      ? `<img class="shop-thumb" src="${source.image}" />`
       : `<div class="shop-thumb placeholder">${ICON.image}</div>`;
     return `
       <li class="shop-item">
@@ -2228,25 +2401,32 @@ function renderShoppingListView(){
 
   let bodyHtml;
   if(items.length === 0){
-    bodyHtml = `<div class="empty">${ICON.book}<h3>Your list is empty</h3><p>Tap the cart icon on any pantry item to add it here.</p></div>`;
+    bodyHtml = `<div class="empty">${ICON.book}<h3>Your list is empty</h3><p>Tap the cart icon on any pantry or equipment item to add it here.</p></div>`;
   } else {
+    const pantryItems = items.filter(x => (x.kind||'pantry') === 'pantry');
+    const equipmentItems = items.filter(x => x.kind === 'equipment');
+
     const groups = {};
     const ungrouped = [];
-    items.forEach(item=>{
-      const pantryItem = data.pantry.find(p=>p.id===item.pantryId);
-      const cat = pantryItem ? (pantryItem.category||'') : '';
-      if(!cat){ ungrouped.push({item, pantryItem}); }
-      else{ (groups[cat] = groups[cat]||[]).push({item, pantryItem}); }
+    pantryItems.forEach(item=>{
+      const { source } = resolveEntry(item);
+      const cat = source ? (source.category||'') : '';
+      if(!cat){ ungrouped.push(item); }
+      else{ (groups[cat] = groups[cat]||[]).push(item); }
     });
 
     let html = '';
     Object.keys(groups).sort((a,b)=>a.localeCompare(b, undefined, {sensitivity:'base'})).forEach(cat=>{
       html += `<div class="ing-group-label"><span class="dot shop-group-dot" style="background:${pantryAccentFor(cat)};"></span>${escHtml(cat)}</div>`;
-      html += `<ul class="shop-list">${groups[cat].map(g=>renderItemRow(g.item, g.pantryItem)).join('')}</ul>`;
+      html += `<ul class="shop-list">${groups[cat].map(item=>renderItemRow({item})).join('')}</ul>`;
     });
     if(ungrouped.length){
       html += `<div class="ing-group-label">${Object.keys(groups).length ? 'Other' : ''}</div>`;
-      html += `<ul class="shop-list">${ungrouped.map(g=>renderItemRow(g.item, g.pantryItem)).join('')}</ul>`;
+      html += `<ul class="shop-list">${ungrouped.map(item=>renderItemRow({item})).join('')}</ul>`;
+    }
+    if(equipmentItems.length){
+      html += `<div class="ing-group-label">Equipment</div>`;
+      html += `<ul class="shop-list">${equipmentItems.map(item=>renderItemRow({item})).join('')}</ul>`;
     }
     html += `<button class="add-row-btn" id="clearCheckedBtn" style="margin-top:10px;">${ICON.trash} Clear checked items</button>`;
     bodyHtml = html;
@@ -2267,10 +2447,11 @@ function renderShoppingListView(){
 
   document.getElementById('shopBack').addEventListener('click', ()=>{ state.viewMode='tile'; state.view='home'; render(); });
   document.getElementById('shopPantryBtn').addEventListener('click', ()=>{ state.view='pantry'; render(); });
-  document.querySelectorAll('.shop-pantry-link').forEach(el=>{
+  document.querySelectorAll('.shop-item-link').forEach(el=>{
     el.addEventListener('click', (e)=>{
       e.preventDefault();
-      openPantryItem(el.dataset.gotoPantry);
+      if(el.dataset.gotoKind === 'equipment') openEquipmentItem(el.dataset.gotoId);
+      else openPantryItem(el.dataset.gotoId);
     });
   });
   document.querySelectorAll('.shop-check').forEach(btn=>{
@@ -2308,13 +2489,32 @@ function pantryTileHTML(item){
   return `<div class="tile" data-pid="${item.id}">
     <div class="tile-img-wrap">
       ${img}
-      <button class="shop-add-btn tile-shop-btn ${inList?'active':''}" data-pid="${item.id}" title="${inList?'Remove from':'Add to'} shopping list">🛒</button>
+      <button class="shop-add-btn tile-shop-btn ${inList?'active':''}" data-pid="${item.id}" title="${inList?'Remove from':'Add to'} shopping list">${ICON.cart}</button>
     </div>
     <div class="tile-body">
       <div class="tile-name">${escHtml(item.name || 'Untitled')}</div>
       ${tag}
     </div>
   </div>`;
+}
+function pantryCarouselCardHTML(item){
+  const img = item.image
+    ? `<img class="carousel-card-img" src="${item.image}" />`
+    : `<div class="carousel-card-img placeholder">${ICON.image}</div>`;
+  const inList = isInShoppingList(item.id);
+  return `<div class="carousel-card" data-pid="${item.id}">
+    <div class="tile-img-wrap">
+      ${img}
+      <button class="shop-add-btn tile-shop-btn ${inList?'active':''}" data-pid="${item.id}" title="${inList?'Remove from':'Add to'} shopping list">${ICON.cart}</button>
+    </div>
+    <div class="carousel-card-body">
+      <div class="carousel-card-name">${escHtml(item.name || 'Untitled')}</div>
+    </div>
+  </div>`;
+}
+function pantryCarouselHTML(items){
+  if(items.length === 0) return '';
+  return `<div class="carousel-row">${items.map(pantryCarouselCardHTML).join('')}</div>`;
 }
 function pantryListRowHTML(item){
   const img = item.image
@@ -2333,7 +2533,7 @@ function pantryListRowHTML(item){
         ${item.quantity ? `<span class="pantry-list-qty">${escHtml(item.quantity)}</span>` : ''}
       </div>
     </div>
-    <button class="shop-add-btn ${inList?'active':''}" data-pid="${item.id}" title="${inList?'Remove from':'Add to'} shopping list">🛒</button>
+    <button class="shop-add-btn ${inList?'active':''}" data-pid="${item.id}" title="${inList?'Remove from':'Add to'} shopping list">${ICON.cart}</button>
   </div>`;
 }
 function addNewPantryItem(){
@@ -2378,7 +2578,7 @@ function renderPantryItemView(){
       <div class="rv-header-right">
         ${editing
           ? `<button class="text-btn primary" id="piSave">Save</button>`
-          : `<button class="icon-btn" id="piShopAdd" title="${isInShoppingList(item.id)?'Remove from':'Add to'} shopping list">🛒</button>
+          : `<button class="icon-btn ${isInShoppingList(item.id)?'active':''}" id="piShopAdd" title="${isInShoppingList(item.id)?'Remove from':'Add to'} shopping list">${ICON.cart}</button>
              <button class="icon-btn" id="piEdit" title="Edit">${ICON.settings}</button>
              <button class="icon-btn danger" id="piDelete" title="Delete">${ICON.trash}</button>`
         }
@@ -3087,11 +3287,12 @@ function pantryLinkedFromHTML(item){
 function linkedFromHTML(r){
   const sources = findLinkedFromRecipes(r.id);
   if(sources.length === 0) return '';
-  return `<div class="linked-from-label">Linked from recipe(s):</div><div class="linked-from-row">${sources.map(s=>{
+  const inner = `<div class="linked-from-row">${sources.map(s=>{
     const cover = coverImage(s);
     const thumb = cover ? `<img class="linked-from-thumb" src="${cover}" />` : `<span class="linked-from-thumb placeholder">${ICON.image}</span>`;
     return `<button class="linked-from-pill" data-goto="${escAttr(s.id)}">${thumb}${escHtml(s.name||'Untitled')}</button>`;
   }).join('')}</div>`;
+  return sectionHTML('linkedFrom', 'Linked from recipe(s)', inner, false);
 }
 function wireRecipeLinkClicks(container){
   container.querySelectorAll('[data-goto]').forEach(el=>{
@@ -3452,6 +3653,7 @@ function renderRecipeBody(r){
     ${sectionHTML('ingredients','Ingredients', ingredientsBodyHTML(r, editing), false)}
     ${sectionHTML('instructions','Instructions', instructionsBodyHTML(r, editing), false)}
     ${(r.sectionsEnabled.storage) ? sectionHTML('storage','Storage instructions', storageBodyHTML(r, editing), editing) : ''}
+    ${editing ? `<div class="section"><div class="section-body-inner">${nutritionEditHTML(r)}</div></div>` : nutritionBlockHTML(r)}
     ${(r.sectionsEnabled.source) ? sectionHTML('source','Source', sourceSectionBodyHTML(r, editing), editing) : ''}
 
     ${referenceRowHTML(r)}
@@ -3475,6 +3677,7 @@ function renderRecipeBody(r){
   wireInstructions(r, editing);
   wireSourceSection(r, editing);
   wireReferenceRow(r, editing);
+  if(editing) wireNutritionEdit(r);
   wireRecipeLinkButtons(r);
   wireRecipeLinkClicks(container);
   autosizeAll();
@@ -4139,7 +4342,7 @@ function ovenBlockHTML(r, editing){
       const label = (showLabels && oven.label) ? `<div class="oven-row-label">${escHtml(oven.label)}</div>` : '';
       return `<div class="oven-row-group">${label}<div class="oven-static">${parts.join('')}</div></div>`;
     }).join('');
-    return rowsHtml ? `<div id="ovenStaticWrap"><div class="linked-from-label settings-block-title">Oven settings</div>${rowsHtml}</div>` : '';
+    return rowsHtml ? `<div id="ovenStaticWrap">${rowsHtml}</div>` : '';
   }
 
   const rowsHtml = rows.map((oven,idx)=>`
@@ -4340,13 +4543,8 @@ function wireEquipmentBlock(r, editing){
   });
 }
 
-function instructionsBodyHTML(r, editing){
+function instructionsGroupsHTML(r, editing){
   const groups = activeInstructionGroups(r);
-  const ovenHtml = ovenBlockHTML(r, editing);
-  const equipmentHtml = equipmentBlockHTML(r, editing);
-  const ovenAndEquipment = editing
-    ? `${ovenHtml}${equipmentHtml}`
-    : (ovenHtml ? `<div class="settings-combined-wrap">${ovenHtml}</div>` : '');
   const showGroupNames = groups.length > 1;
 
   const renderGroup = (group) => {
@@ -4408,7 +4606,15 @@ function instructionsBodyHTML(r, editing){
   if(editing){
     bodyHtml += `<button class="add-row-btn" id="addInstrGroupBtn" style="margin-top:12px;">${ICON.plus} Add instruction list</button>`;
   }
-  return `${ovenAndEquipment}${bodyHtml}`;
+  return bodyHtml;
+}
+function instructionsBodyHTML(r, editing){
+  const ovenHtml = ovenBlockHTML(r, editing);
+  const equipmentHtml = equipmentBlockHTML(r, editing);
+  const ovenAndEquipment = editing
+    ? `${ovenHtml}${equipmentHtml}`
+    : (ovenHtml ? `<div class="settings-combined-wrap">${ovenHtml}</div>` : '');
+  return `${ovenAndEquipment}${instructionsGroupsHTML(r, editing)}`;
 }
 function applyInlineFormat(el, marker){
   const start = el.selectionStart, end = el.selectionEnd;
@@ -4744,6 +4950,57 @@ function wireQuickNotes(r){
     markDirty();
     refreshBody(r);
   });
+}
+const NUTRITION_FIELDS = [
+  { key:'calories', label:'Calories', unit:'' },
+  { key:'protein', label:'Protein', unit:'g' },
+  { key:'fat', label:'Fat', unit:'g' },
+  { key:'carbs', label:'Carbs', unit:'g' },
+  { key:'fiber', label:'Fiber', unit:'g' }
+];
+function nutritionBlockHTML(r){
+  const n = r.nutrition || {};
+  const items = NUTRITION_FIELDS.filter(f => n[f.key] !== undefined && n[f.key] !== null && String(n[f.key]).trim() !== '');
+  if(items.length === 0) return '';
+  const servingLabel = (n.servingLabel || 'serving').trim() || 'serving';
+  const grid = items.map(f => `
+    <div class="nutrition-item">
+      <div class="nutrition-value">${escHtml(String(n[f.key]))}${f.unit}</div>
+      <div class="nutrition-label">${f.label}</div>
+    </div>`).join('');
+  const inner = `<div class="nutrition-grid">${grid}</div><div class="nutrition-serving-tag">(Per ${escHtml(servingLabel)})</div>`;
+  return sectionHTML('nutrition', 'Nutrition facts', inner, false);
+}
+function nutritionEditHTML(r){
+  const n = r.nutrition || {};
+  const fields = NUTRITION_FIELDS.map(f => `
+    <div class="nutrition-edit-field">
+      <label>${f.label}${f.unit ? ` (${f.unit})` : ''}</label>
+      <input type="number" inputmode="decimal" class="nutritionInput" data-key="${f.key}" value="${escAttr(n[f.key]||'')}" placeholder="0" />
+    </div>`).join('');
+  return `<div class="pantry-sublabel">Nutrition facts</div>
+    <div class="nutrition-edit-grid">${fields}</div>
+    <div class="nutrition-edit-field" style="max-width:200px; margin-top:10px;">
+      <label>Per</label>
+      <input type="text" class="nutritionServingInput" value="${escAttr(n.servingLabel||'serving')}" placeholder="serving" />
+    </div>`;
+}
+function wireNutritionEdit(r){
+  document.querySelectorAll('.nutritionInput').forEach(inp=>{
+    inp.addEventListener('input', e=>{
+      r.nutrition = r.nutrition || {};
+      r.nutrition[e.target.dataset.key] = e.target.value;
+      markDirty();
+    });
+  });
+  const servingInput = document.querySelector('.nutritionServingInput');
+  if(servingInput){
+    servingInput.addEventListener('input', e=>{
+      r.nutrition = r.nutrition || {};
+      r.nutrition.servingLabel = e.target.value;
+      markDirty();
+    });
+  }
 }
 function extractLinkChips(text){
   if(!text) return [];
@@ -5131,6 +5388,8 @@ function migrateRecipe(raw){
   if(!Array.isArray(r.referenceImages)) r.referenceImages = [];
   if(typeof r.archived !== 'boolean') r.archived = false;
   if(typeof r.testing !== 'boolean') r.testing = false;
+  if(!r.nutrition || typeof r.nutrition !== 'object') r.nutrition = { calories:'', protein:'', fat:'', carbs:'', fiber:'', servingLabel:'serving' };
+  else r.nutrition = { calories: r.nutrition.calories||'', protein: r.nutrition.protein||'', fat: r.nutrition.fat||'', carbs: r.nutrition.carbs||'', fiber: r.nutrition.fiber||'', servingLabel: r.nutrition.servingLabel || 'serving' };
   if(!Array.isArray(r.quickNotes)) r.quickNotes = [];
   r.quickNotes = r.quickNotes.map(n=>({ images:[], ...n }));
   if(!Array.isArray(raw.images)){
@@ -5167,7 +5426,10 @@ function importJSON(e){
         recipes: parsed.recipes.map(migrateRecipe),
         pantryCategories: Array.isArray(parsed.pantryCategories) ? parsed.pantryCategories : [],
         pantry: Array.isArray(parsed.pantry) ? parsed.pantry.map(migratePantryItem) : [],
-        shoppingList: Array.isArray(parsed.shoppingList) ? parsed.shoppingList : []
+        shoppingList: Array.isArray(parsed.shoppingList) ? parsed.shoppingList : [],
+        equipmentCategories: Array.isArray(parsed.equipmentCategories) && parsed.equipmentCategories.length ? parsed.equipmentCategories : [...DEFAULT_EQUIPMENT_CATEGORIES],
+        equipment: Array.isArray(parsed.equipment) ? parsed.equipment.map(migrateEquipmentItem) : [],
+        equipmentTypes: Array.isArray(parsed.equipmentTypes) && parsed.equipmentTypes.length ? parsed.equipmentTypes : [...DEFAULT_EQUIPMENT_TYPES]
       };
       saveLocal();
       clearDirty();
