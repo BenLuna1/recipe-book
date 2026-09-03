@@ -199,13 +199,13 @@
   .carousel-shell > *{ flex:0 0 auto; }
   .carousel-shell .carousel-row{ flex:1 1 auto; min-height:0; }
   .carousel-row{
-    display:flex; overflow-x:auto; scroll-snap-type:x mandatory;
+    display:flex; overflow-x:auto; scroll-snap-type:x proximity;
     scrollbar-width:none; padding:14px 13% 20px 13%; gap:14px;
     -webkit-overflow-scrolling:touch;
   }
   .carousel-row::-webkit-scrollbar{ display:none; }
   .carousel-card{
-    flex:0 0 74%; scroll-snap-align:center; scroll-snap-stop:always;
+    flex:0 0 74%; scroll-snap-align:center;
     background:var(--paper-raised); border:1px solid var(--hairline);
     border-radius:var(--radius-m); overflow:hidden; cursor:pointer;
     display:flex; flex-direction:column;
@@ -823,7 +823,7 @@
 /* =========================================================
    CONSTANTS
 ========================================================= */
-const APP_VERSION = "v55";
+const APP_VERSION = "v57";
 const DEFAULT_CATEGORIES = ["Dessert","Dinner","Bites","Drinks","Side Dishes","Batch Cooking"];
 const ACCENTS = ["#7C5A6B","#6B7561","#A68A5B","#5C7A80","#8A8F5C","#9C6B54","#5E6B8A","#8B6F8C"];
 const OVEN_SETTINGS = ["With fan","Without fan","Turbo","Airfry","Other"];
@@ -974,6 +974,14 @@ let state = {
 let draftEquipmentItem = null;
 
 function uid(){ return 'id_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,8); }
+function dedupeById(arr){
+  const seen = new Set();
+  return arr.filter(item=>{
+    if(!item || seen.has(item.id)) return false;
+    seen.add(item.id);
+    return true;
+  });
+}
 function accentFor(cat){
   const idx = data.categories.indexOf(cat);
   return ACCENTS[(idx < 0 ? 0 : idx) % ACCENTS.length];
@@ -3552,7 +3560,9 @@ function handleCancel(r){
 }
 function handleSave(r){
   if(state.isNew){
-    data.recipes.push(r);
+    if(!data.recipes.some(x=>x.id===r.id)){
+      data.recipes.push(r);
+    }
     draftRecipe = null;
     state.isNew = false;
   }
@@ -5423,12 +5433,12 @@ function importJSON(e){
       data = {
         title: parsed.title || 'Recipe Book',
         categories: Array.isArray(parsed.categories) && parsed.categories.length ? parsed.categories : [...DEFAULT_CATEGORIES],
-        recipes: parsed.recipes.map(migrateRecipe),
+        recipes: dedupeById(parsed.recipes.map(migrateRecipe)),
         pantryCategories: Array.isArray(parsed.pantryCategories) ? parsed.pantryCategories : [],
-        pantry: Array.isArray(parsed.pantry) ? parsed.pantry.map(migratePantryItem) : [],
+        pantry: Array.isArray(parsed.pantry) ? dedupeById(parsed.pantry.map(migratePantryItem)) : [],
         shoppingList: Array.isArray(parsed.shoppingList) ? parsed.shoppingList : [],
         equipmentCategories: Array.isArray(parsed.equipmentCategories) && parsed.equipmentCategories.length ? parsed.equipmentCategories : [...DEFAULT_EQUIPMENT_CATEGORIES],
-        equipment: Array.isArray(parsed.equipment) ? parsed.equipment.map(migrateEquipmentItem) : [],
+        equipment: Array.isArray(parsed.equipment) ? dedupeById(parsed.equipment.map(migrateEquipmentItem)) : [],
         equipmentTypes: Array.isArray(parsed.equipmentTypes) && parsed.equipmentTypes.length ? parsed.equipmentTypes : [...DEFAULT_EQUIPMENT_TYPES]
       };
       saveLocal();
@@ -5717,10 +5727,19 @@ async function bootstrap(){
   if(!Array.isArray(data.equipmentCategories) || data.equipmentCategories.length === 0) data.equipmentCategories = [...DEFAULT_EQUIPMENT_CATEGORIES];
   if(!Array.isArray(data.equipment)) data.equipment = [];
   if(!Array.isArray(data.equipmentTypes)) data.equipmentTypes = [...DEFAULT_EQUIPMENT_TYPES];
-  data.pantry = data.pantry.map(migratePantryItem);
-  data.equipment = data.equipment.map(migrateEquipmentItem);
+  const pantryBefore = data.pantry.length;
+  const equipmentBefore = data.equipment.length;
+  const recipesBefore = (data.recipes||[]).length;
+  data.pantry = dedupeById(data.pantry.map(migratePantryItem));
+  data.equipment = dedupeById(data.equipment.map(migrateEquipmentItem));
   if(data.recipes && data.recipes.length){
-    data.recipes = data.recipes.map(migrateRecipe);
+    data.recipes = dedupeById(data.recipes.map(migrateRecipe));
+  }
+  const dedupedSomething = data.pantry.length < pantryBefore || data.equipment.length < equipmentBefore || (data.recipes||[]).length < recipesBefore;
+  if(dedupedSomething){
+    console.warn('Removed duplicate-ID entries found in stored data.');
+    markDirty();
+    flushSave();
   }
   document.addEventListener('visibilitychange', ()=>{
     if(document.visibilityState === 'hidden' && saveDebounceTimer) flushSave();
