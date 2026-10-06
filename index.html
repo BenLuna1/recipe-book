@@ -70,6 +70,25 @@
     border:1px solid var(--hairline-strong); border-radius:999px; padding:2px 7px;
     flex:0 0 auto;
   }
+  .gf-stamp{
+    display:inline-flex; align-items:center; justify-content:center; vertical-align:middle;
+    width:20px; height:20px; border-radius:50%; margin-left:6px;
+    color:var(--accent); border:1.5px solid var(--accent); background:rgba(107,117,97,0.10);
+    flex:0 0 auto;
+  }
+  .gf-stamp svg{ width:13px; height:13px; stroke:currentColor; }
+  .rec-tabs{ display:flex; gap:6px; margin:6px 0 10px; }
+  .rec-tabs button{ flex:1; border:1px solid var(--hairline-strong); background:var(--paper); border-radius:999px; padding:6px 8px; font-size:12.5px; color:var(--ink-soft); }
+  .rec-tabs button.active{ background:var(--accent); color:#fff; border-color:var(--accent); }
+  .rec-list{ max-height:50vh; overflow:auto; }
+  .rec-row{ display:flex; align-items:center; gap:10px; padding:10px 2px; border-bottom:1px solid var(--hairline); }
+  .rec-row.flagged .rec-name{ color:var(--danger); }
+  .rec-main{ flex:1; min-width:0; }
+  .rec-name{ font-size:14px; font-weight:600; overflow-wrap:anywhere; }
+  .rec-sub{ font-size:12px; color:var(--ink-faint); margin-top:2px; }
+  .rec-btn{ border:1px solid var(--accent); color:var(--accent); background:none; border-radius:999px; padding:5px 12px; font-size:12.5px; flex:0 0 auto; }
+  .rec-flag-dot{ color:var(--danger); font-size:12px; margin-left:6px; }
+  .picker-item-variant{ padding-left:28px; color:var(--ink-soft, var(--ink)); font-size:0.95em; }
   .testing-badge{
     font-family:var(--font-body); font-size:10.5px; font-weight:600; letter-spacing:0.02em;
     color:var(--accent); background:rgba(107,117,97,0.12);
@@ -321,6 +340,27 @@
   .book-shell .book-header{
     position:static; flex:0 0 auto; z-index:20;
   }
+  .book-tabs-row{
+    flex:0 0 auto; display:flex; gap:6px; overflow-x:auto; scrollbar-width:none;
+    padding:0 20px 10px 20px; background:var(--paper);
+  }
+  .book-tabs-row::-webkit-scrollbar{ display:none; }
+  .book-tab{
+    flex:0 0 auto; display:flex; align-items:center; gap:6px;
+    max-width:160px; padding:6px 8px 6px 12px; border-radius:999px;
+    border:1px solid var(--hairline-strong); background:var(--paper-raised);
+    cursor:pointer;
+  }
+  .book-tab.active{ border-color:var(--ink); background:var(--paper-raised); }
+  .book-tab-name{
+    font-size:12.5px; color:var(--ink-soft); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .book-tab.active .book-tab-name{ color:var(--ink); font-weight:600; }
+  .book-tab-close{
+    flex:0 0 auto; width:18px; height:18px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    color:var(--ink-faint); font-size:14px; line-height:1;
+  }
+  .book-tab-close:hover, .book-tab-close:active{ background:var(--hairline); color:var(--ink); }
   .book-shell .book-spread{
     flex:1 1 auto; min-height:0; padding:0; margin:0;
     display:flex; flex-direction:column; overflow-y:auto; -webkit-overflow-scrolling:touch;
@@ -823,7 +863,7 @@
 /* =========================================================
    CONSTANTS
 ========================================================= */
-const APP_VERSION = "v57";
+const APP_VERSION = "v60";
 const DEFAULT_CATEGORIES = ["Dessert","Dinner","Bites","Drinks","Side Dishes","Batch Cooking"];
 const ACCENTS = ["#7C5A6B","#6B7561","#A68A5B","#5C7A80","#8A8F5C","#9C6B54","#5E6B8A","#8B6F8C"];
 const OVEN_SETTINGS = ["With fan","Without fan","Turbo","Airfry","Other"];
@@ -969,7 +1009,8 @@ let state = {
   recipeOrigin: "home",
   bookOrder: [],
   bookIndex: 0,
-  bookTocFilter: "all"
+  bookTocFilter: "all",
+  openTabs: []
 };
 let draftEquipmentItem = null;
 
@@ -981,6 +1022,86 @@ function dedupeById(arr){
     seen.add(item.id);
     return true;
   });
+}
+/* =========================================================
+   SAFETY NET — recently deleted, activity log, snapshots
+========================================================= */
+const TRASH_DAYS = 30, ACTIVITY_MAX = 500, SNAPSHOT_MAX = 5, SNAP_KEY = 'recipeBookSnapshots';
+function ensureSafetyArrays(){
+  if(!Array.isArray(data.trash)) data.trash = [];
+  if(!Array.isArray(data.activity)) data.activity = [];
+}
+function logActivity(kind, r, note, flag){
+  ensureSafetyArrays();
+  data.activity.unshift({ t: Date.now(), kind, rid: (r && r.id) || '', name: (r && r.name) || '', note: note || '', flag: !!flag });
+  if(data.activity.length > ACTIVITY_MAX) data.activity.length = ACTIVITY_MAX;
+}
+function purgeTrash(){
+  ensureSafetyArrays();
+  const cutoff = Date.now() - TRASH_DAYS*86400000;
+  data.trash = data.trash.filter(t=> t && t.deletedAt > cutoff);
+}
+function trashRecipe(r, reason){
+  ensureSafetyArrays();
+  data.trash.unshift({ id: uid(), deletedAt: Date.now(), reason: reason || 'deleted', recipe: deepClone(r) });
+  purgeTrash();
+}
+// Keeps the first recipe per ID; any extra copies go to the trash (never silently destroyed) and are flagged.
+function dedupeRecipes(arr){
+  ensureSafetyArrays();
+  const seen = new Set();
+  return arr.filter(item=>{
+    if(!item) return false;
+    if(seen.has(item.id)){
+      trashRecipe(item, 'duplicate ID removed');
+      logActivity('repair', item, 'Duplicate ID found — extra copy moved to Recently deleted', true);
+      return false;
+    }
+    seen.add(item.id);
+    return true;
+  });
+}
+function readSnapshots(){ return idbGet(SNAP_KEY).then(v=> Array.isArray(v) ? v : []).catch(()=>[]); }
+async function takeSnapshot(reason){
+  try{
+    const json = JSON.stringify(data);
+    const list = await readSnapshots();
+    if(list.length && list[0].json === json) return;
+    list.unshift({ id: uid(), at: Date.now(), reason, count: (data.recipes||[]).length, json });
+    list.length = Math.min(list.length, SNAPSHOT_MAX);
+    await idbSet(SNAP_KEY, list);
+  }catch(err){ console.error('Snapshot failed:', err); }
+}
+function fmtTime(t){ try{ return new Date(t).toLocaleString(undefined,{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}); }catch(e){ return ''; } }
+function flaggedRecently(){
+  ensureSafetyArrays();
+  const cutoff = Date.now() - 14*86400000;
+  return data.activity.filter(a=> a.flag && a.t > cutoff).length;
+}
+function restoreFromTrash(trashId){
+  const t = data.trash.find(x=>x.id===trashId);
+  if(!t) return;
+  const rec = migrateRecipe(deepClone(t.recipe));
+  if(data.recipes.some(x=>x.id===rec.id)) rec.id = uid();
+  data.recipes.push(rec);
+  data.trash = data.trash.filter(x=>x.id!==trashId);
+  logActivity('restored', rec, 'Restored from Recently deleted');
+  markDirty(); flushSave();
+}
+function normalizeLoadedData(){
+  if(!Array.isArray(data.categories)) data.categories = [...DEFAULT_CATEGORIES];
+  if(!Array.isArray(data.recipes)) data.recipes = [];
+  if(!Array.isArray(data.pantryCategories)) data.pantryCategories = [];
+  if(!Array.isArray(data.pantry)) data.pantry = [];
+  if(!Array.isArray(data.shoppingList)) data.shoppingList = [];
+  if(!Array.isArray(data.equipmentCategories) || data.equipmentCategories.length === 0) data.equipmentCategories = [...DEFAULT_EQUIPMENT_CATEGORIES];
+  if(!Array.isArray(data.equipment)) data.equipment = [];
+  if(!Array.isArray(data.equipmentTypes)) data.equipmentTypes = [...DEFAULT_EQUIPMENT_TYPES];
+  ensureSafetyArrays();
+  data.pantry = dedupeById(data.pantry.map(migratePantryItem));
+  data.equipment = dedupeById(data.equipment.map(migrateEquipmentItem));
+  data.recipes = dedupeRecipes(data.recipes.map(migrateRecipe));
+  purgeTrash();
 }
 function accentFor(cat){
   const idx = data.categories.indexOf(cat);
@@ -995,6 +1116,7 @@ function equipmentAccentFor(cat){
   return ACCENTS[(idx < 0 ? 0 : idx) % ACCENTS.length];
 }
 function saveLocal(){
+  data.recipeCountAtSave = (data.recipes||[]).length;
   return idbSet(IDB_KEY, data).catch(err=>{
     console.error('Error saving to IndexedDB:', err);
     alert(`Your recipe book couldn't be saved (${err.name || 'error'}: ${err.message || 'unknown error'}). Please export a backup as soon as possible (Settings → Export data) so nothing is lost, and let me know what happened.`);
@@ -1049,6 +1171,7 @@ function blankRecipe(cat){
     variants: [], activeVariant: 'standard',
     archived: false,
     testing: false,
+    glutenFree: false,
     quickNotes: [],
     nutrition: { calories:'', protein:'', fat:'', carbs:'', fiber:'', servingLabel:'serving' }
   };
@@ -1134,6 +1257,7 @@ function equipmentTagsBlockHTML(item, editing){
    ICONS
 ========================================================= */
 const ICON = {
+  gf: `<svg viewBox="0 0 24 24" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M12 21V8"/><path d="M12 8c-2.2 0-3.5-1.4-3.5-3.2 2.2 0 3.5 1.4 3.5 3.2zM12 8c2.2 0 3.5-1.4 3.5-3.2-2.2 0-3.5 1.4-3.5 3.2zM12 13c-2.2 0-3.5-1.4-3.5-3.2 2.2 0 3.5 1.4 3.5 3.2zM12 13c2.2 0 3.5-1.4 3.5-3.2-2.2 0-3.5 1.4-3.5 3.2zM12 18c-2.2 0-3.5-1.4-3.5-3.2 2.2 0 3.5 1.4 3.5 3.2zM12 18c2.2 0 3.5-1.4 3.5-3.2-2.2 0-3.5 1.4-3.5 3.2z"/><path d="M4 4l16 16" stroke-width="2"/></svg>`,
   plus:  `<svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>`,
   grid:  `<svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>`,
   list:  `<svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>`,
@@ -1340,7 +1464,7 @@ function tileHTML(r){
   return `<div class="tile" data-id="${r.id}">
     ${coverCollageHTML(r, 'tile-img')}
     <div class="tile-body">
-      <div class="tile-name">${escHtml(r.name || 'Untitled')}${r.testing ? ` <span class="testing-badge">Testing</span>` : ''}</div>
+      <div class="tile-name">${escHtml(r.name || 'Untitled')}${r.testing ? ` <span class="testing-badge">Testing</span>` : ''}${gfStamp(r)}</div>
       ${tagsRowHTML(r)}
     </div>
   </div>`;
@@ -1349,7 +1473,7 @@ function listRowHTML(r){
   return `<div class="list-row recipe-list-row" data-id="${r.id}">
     ${coverCollageHTML(r, 'list-thumb recipe-list-thumb')}
     <div class="list-info">
-      <div class="list-name recipe-list-name">${escHtml(r.name || 'Untitled')}${r.testing ? ` <span class="testing-badge">Testing</span>` : ''}</div>
+      <div class="list-name recipe-list-name">${escHtml(r.name || 'Untitled')}${r.testing ? ` <span class="testing-badge">Testing</span>` : ''}${gfStamp(r)}</div>
       ${tagsRowHTML(r)}
     </div>
   </div>`;
@@ -1362,7 +1486,7 @@ function recipeCarouselCardHTML(r){
   return `<div class="carousel-card" data-id="${r.id}">
     ${img}
     <div class="carousel-card-body">
-      <div class="carousel-card-name">${escHtml(r.name || 'Untitled')}${r.testing ? ` <span class="testing-badge">Testing</span>` : ''}</div>
+      <div class="carousel-card-name">${escHtml(r.name || 'Untitled')}${r.testing ? ` <span class="testing-badge">Testing</span>` : ''}${gfStamp(r)}</div>
     </div>
   </div>`;
 }
@@ -1430,6 +1554,9 @@ function openHomeSettingsMenu(){
           ${dirty ? `<span class="dirty-dot" style="position:static;margin-left:6px;box-shadow:none;"></span>` : ''}
         </button>
         <button class="settings-menu-item" id="menuImport">${ICON.upload} Import data</button>
+        <button class="settings-menu-item" id="menuTrash">${ICON.trash} Recently deleted${(data.trash||[]).length ? ` (${data.trash.length})` : ''}</button>
+        <button class="settings-menu-item" id="menuSnapshots">${ICON.restore} Snapshots</button>
+        <button class="settings-menu-item" id="menuActivity">${ICON.list} Activity log${flaggedRecently() ? ` <span class="rec-flag-dot" title="Needs attention">⚠ ${flaggedRecently()}</span>` : ''}</button>
       </div>
       ${sizeLabel ? `<p class="hint" style="margin-top:10px;">Storage used: ${sizeLabel}</p>` : ''}
       <button class="modal-close" id="closeSettingsMenu">Close</button>
@@ -1441,10 +1568,62 @@ function openHomeSettingsMenu(){
   backdrop.querySelector('#menuArchive').addEventListener('click', ()=>{ close(); state.view='archive'; render(); });
   backdrop.querySelector('#menuExport').addEventListener('click', ()=>{ close(); exportJSON(); });
   backdrop.querySelector('#menuImport').addEventListener('click', ()=>{ close(); document.getElementById('importFile').click(); });
+  backdrop.querySelector('#menuTrash').addEventListener('click', ()=>{ close(); openRecoveryModal('trash'); });
+  backdrop.querySelector('#menuSnapshots').addEventListener('click', ()=>{ close(); openRecoveryModal('snapshots'); });
+  backdrop.querySelector('#menuActivity').addEventListener('click', ()=>{ close(); openRecoveryModal('activity'); });
   backdrop.querySelector('#closeSettingsMenu').addEventListener('click', close);
   backdrop.addEventListener('click', e=>{ if(e.target === backdrop) close(); });
 }
 
+async function openRecoveryModal(tab){
+  removeAllModals();
+  ensureSafetyArrays(); purgeTrash();
+  const backdrop = document.createElement('div');
+  backdrop.className = 'modal-backdrop';
+  document.body.appendChild(backdrop);
+  const snaps = await readSnapshots();
+  function body(){
+    if(tab === 'trash'){
+      if(!data.trash.length) return `<div class="picker-empty">Nothing deleted in the last ${TRASH_DAYS} days.</div>`;
+      return data.trash.map(t=>`<div class="rec-row"><div class="rec-main"><div class="rec-name">${escHtml((t.recipe&&t.recipe.name)||'Untitled')}</div><div class="rec-sub">${escHtml(t.reason||'deleted')} · ${escHtml(fmtTime(t.deletedAt))}</div></div><button class="rec-btn" data-restore="${escAttr(t.id)}">Restore</button></div>`).join('');
+    }
+    if(tab === 'snapshots'){
+      if(!snaps.length) return `<div class="picker-empty">No snapshots yet. One is taken each time the app opens and before every import.</div>`;
+      return snaps.map(sn=>`<div class="rec-row"><div class="rec-main"><div class="rec-name">${escHtml(fmtTime(sn.at))}</div><div class="rec-sub">${escHtml(sn.reason)} · ${sn.count} recipes</div></div><button class="rec-btn" data-snap="${escAttr(sn.id)}">Restore</button></div>`).join('');
+    }
+    if(!data.activity.length) return `<div class="picker-empty">No activity recorded yet.</div>`;
+    return data.activity.slice(0,150).map(a=>`<div class="rec-row${a.flag?' flagged':''}"><div class="rec-main"><div class="rec-name">${a.flag?'⚠ ':''}${escHtml(a.kind)}${a.name?' — '+escHtml(a.name):''}</div><div class="rec-sub">${escHtml(a.note||'')}${a.note?' · ':''}${escHtml(fmtTime(a.t))}</div></div></div>`).join('');
+  }
+  function draw(){
+    backdrop.innerHTML = `<div class="modal"><h3>${tab==='trash'?'Recently deleted':tab==='snapshots'?'Snapshots':'Activity log'}</h3>
+      <div class="rec-tabs"><button data-tab="trash" class="${tab==='trash'?'active':''}">Deleted</button><button data-tab="snapshots" class="${tab==='snapshots'?'active':''}">Snapshots</button><button data-tab="activity" class="${tab==='activity'?'active':''}">Activity</button></div>
+      <div class="rec-list">${body()}</div>
+      <button class="modal-close" id="closeRec">Close</button></div>`;
+    backdrop.querySelectorAll('[data-tab]').forEach(b=> b.addEventListener('click', ()=>{ tab = b.dataset.tab; draw(); }));
+    backdrop.querySelector('#closeRec').addEventListener('click', ()=> safeRemoveModal(backdrop));
+    backdrop.querySelectorAll('[data-restore]').forEach(b=> b.addEventListener('click', ()=>{
+      restoreFromTrash(b.dataset.restore); draw(); render();
+    }));
+    backdrop.querySelectorAll('[data-snap]').forEach(b=> b.addEventListener('click', async ()=>{
+      const sn = snaps.find(x=>x.id===b.dataset.snap); if(!sn) return;
+      if(!confirm(`Replace your current book with the snapshot from ${fmtTime(sn.at)} (${sn.count} recipes)? Your current book is snapshotted first, so this can be undone.`)) return;
+      try{
+        await takeSnapshot('Before snapshot restore');
+        data = JSON.parse(sn.json);
+        normalizeLoadedData();
+        logActivity('restored', null, `Restored snapshot from ${fmtTime(sn.at)} (${sn.count} recipes)`, true);
+        markDirty(); await flushSave();
+        safeRemoveModal(backdrop);
+        state.view='home'; state.viewMode='tile'; render();
+      }catch(err){
+        console.error('Snapshot restore failed:', err);
+        alert('The snapshot could not be restored: ' + (err && err.message || err));
+      }
+    }));
+  }
+  draw();
+  backdrop.addEventListener('click', e=>{ if(e.target === backdrop) safeRemoveModal(backdrop); });
+}
 function addNewRecipe(){
   const cat = state.activeCategory !== "All" ? state.activeCategory : null;
   draftRecipe = blankRecipe(cat);
@@ -1456,7 +1635,15 @@ function addNewRecipe(){
   state.view = 'recipe';
   render();
 }
+function splitLinkId(s){ const i = String(s).indexOf('~'); return i<0 ? {rid:s, vid:null} : {rid:s.slice(0,i), vid:s.slice(i+1)}; }
+function recipeLinkLabel(rid, vid){
+  const rec = data.recipes.find(x=>x.id===rid);
+  if(!rec) return null;
+  const v = vid ? (rec.variants||[]).find(x=>x.id===vid) : null;
+  return (rec.name||'Untitled') + (v ? ' – ' + (v.name||'Variant') : '');
+}
 function openRecipe(id, origin){
+  const sp = splitLinkId(id); id = sp.rid;
   state.isNew = false;
   state.isEditing = false;
   state.editSnapshot = null;
@@ -1464,7 +1651,7 @@ function openRecipe(id, origin){
   state.currentMultiplier = null;
   state.recipeOrigin = origin || 'home';
   const r = data.recipes.find(x=>x.id===id);
-  if(r) r.activeVariant = 'standard';
+  if(r) r.activeVariant = (sp.vid && (r.variants||[]).some(v=>v.id===sp.vid)) ? sp.vid : 'standard';
   setBookContext(id);
   state.view = 'book';
   render();
@@ -2194,6 +2381,39 @@ function flattenBookOrder(chapters){
   });
   return flat;
 }
+function touchOpenTab(recipeId){
+  state.openTabs = (state.openTabs||[]).filter(id => id !== recipeId);
+  state.openTabs.push(recipeId);
+  if(state.openTabs.length > 3){
+    state.openTabs.shift();
+  }
+}
+function switchToTab(recipeId){
+  if(state.isEditing) return;
+  state.isEditing = false;
+  state.editSnapshot = null;
+  state.currentYield = null;
+  state.currentMultiplier = null;
+  const r = data.recipes.find(x=>x.id===recipeId);
+  if(r) r.activeVariant = 'standard';
+  setBookContext(recipeId);
+  state.view = 'book';
+  render();
+}
+function closeTab(recipeId){
+  state.openTabs = (state.openTabs||[]).filter(id => id !== recipeId);
+  if(state.recipeId === recipeId){
+    if(state.openTabs.length > 0){
+      switchToTab(state.openTabs[state.openTabs.length - 1]);
+    } else {
+      state.viewMode = 'tile';
+      state.view = 'home';
+      render();
+    }
+  } else {
+    render();
+  }
+}
 function setBookContext(recipeId){
   const flat = flattenBookOrder(computeBookChapters());
   let idx = flat.findIndex(x=>x.id===recipeId);
@@ -2206,6 +2426,7 @@ function setBookContext(recipeId){
   }
   state.bookIndex = Math.max(0, idx);
   state.recipeId = recipeId;
+  touchOpenTab(recipeId);
 }
 function openBookAt(recipeId){
   setBookContext(recipeId);
@@ -2235,7 +2456,7 @@ function renderBookTocView(){
             const thumb = cover
               ? `<img class="list-thumb recipe-list-thumb book-toc-thumb" src="${cover}" />`
               : `<div class="list-thumb recipe-list-thumb book-toc-thumb placeholder">${ICON.image}</div>`;
-            return `<li class="book-toc-item" data-id="${r.id}">${thumb}<span class="book-toc-name">${escHtml(r.name||'Untitled')}${r.testing ? ` <span class="testing-badge">Testing</span>` : ''}</span></li>`;
+            return `<li class="book-toc-item" data-id="${r.id}">${thumb}<span class="book-toc-name">${escHtml(r.name||'Untitled')}${r.testing ? ` <span class="testing-badge">Testing</span>` : ''}${gfStamp(r)}</span></li>`;
           }).join('')}
         </ul>
       </div>`).join('');
@@ -2261,6 +2482,8 @@ function renderBookTocView(){
   });
 }
 function bookNav(dir){
+  // Never switch recipes while editing (this caused a snapshot to be restored into the wrong recipe).
+  if(state.isEditing || state.view !== 'book') return;
   const len = state.bookOrder.length;
   if(len === 0) return;
   state.bookIndex = (state.bookIndex + dir + len) % len;
@@ -2268,6 +2491,8 @@ function bookNav(dir){
   render();
 }
 function wireBookSwipe(container){
+  if(container._bookSwipeWired) return;   // wire once; app element persists across renders
+  container._bookSwipeWired = true;
   let startX = null, startY = null, startedInCarousel = false;
   container.addEventListener('touchstart', e=>{
     startX = e.touches[0].clientX;
@@ -2275,7 +2500,7 @@ function wireBookSwipe(container){
     startedInCarousel = !!e.target.closest('.rv-carousel');
   }, {passive:true});
   container.addEventListener('touchend', e=>{
-    if(startX === null || startedInCarousel){ startX = null; return; }
+    if(startX === null || startedInCarousel || state.isEditing || state.view !== 'book'){ startX = null; return; }
     const dx = e.changedTouches[0].clientX - startX;
     const dy = e.changedTouches[0].clientY - startY;
     if(Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy)*1.5){
@@ -2294,19 +2519,33 @@ function renderBookView(){
   const posInChapter = chapterEntries.findIndex(x=>x.id===entry.id) + 1;
   const backLabel = state.recipeOrigin === 'archive' ? 'Archive' : (state.recipeOrigin === 'bookToc' ? 'Contents' : 'Recipes');
 
+  const validOpenTabs = (state.openTabs||[]).filter(tid => data.recipes.some(x=>x.id===tid));
+  const tabsRowHtml = validOpenTabs.length >= 2 ? `
+    <div class="book-tabs-row" id="bookTabsRow">
+      ${validOpenTabs.map(tid=>{
+        const tr = data.recipes.find(x=>x.id===tid);
+        const active = tid === r.id;
+        return `<div class="book-tab ${active?'active':''}" data-tabid="${tid}">
+          <span class="book-tab-name">${escHtml(tr.name||'Untitled')}</span>
+          <button class="book-tab-close" data-tabid="${tid}" title="Close tab">×</button>
+        </div>`;
+      }).join('')}
+    </div>` : '';
+
   app.innerHTML = `
     <div class="book-shell">
       <div class="rv-header book-header">
         <div class="rv-header-left"><button class="back-btn" id="bookBack">${ICON.back} ${backLabel}</button></div>
         <div class="rv-header-right">
           <span class="book-position">${escHtml(entry.tag)} · ${posInChapter} of ${chapterEntries.length}</span>
-          ${r.testing ? `<span class="testing-badge">Testing</span>` : ''}
+          ${r.testing ? `<span class="testing-badge">Testing</span>` : ''}${gfStamp(r)}
           <button class="icon-btn" id="bookEdit" title="Edit">${ICON.edit}</button>
           <button class="icon-btn" id="bookSettings" title="Settings">⚙️</button>
           <button class="icon-btn" id="bookPrev" title="Previous recipe">‹</button>
           <button class="icon-btn" id="bookNext" title="Next recipe">›</button>
         </div>
       </div>
+      ${tabsRowHtml}
       <div class="book-spread" id="bookSpread">
         <div class="book-page book-page-left" id="bookPageLeft"></div>
         <div class="book-page book-page-right" id="bookPageRight"></div>
@@ -2323,6 +2562,19 @@ function renderBookView(){
   document.getElementById('bookSettings').addEventListener('click', ()=> openRecipeSettingsMenu(r));
   document.getElementById('bookPrev').addEventListener('click', ()=> bookNav(-1));
   document.getElementById('bookNext').addEventListener('click', ()=> bookNav(1));
+  document.querySelectorAll('.book-tab[data-tabid]').forEach(tabEl=>{
+    tabEl.addEventListener('click', (e)=>{
+      if(e.target.closest('.book-tab-close')) return;
+      const tid = tabEl.dataset.tabid;
+      if(tid !== r.id) switchToTab(tid);
+    });
+  });
+  document.querySelectorAll('.book-tab-close[data-tabid]').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      closeTab(btn.dataset.tabid);
+    });
+  });
 
   try{
     renderBookPages(r);
@@ -2336,13 +2588,14 @@ function renderBookView(){
   wireBookSwipe(app);
 }
 function renderBookPages(r){
+  r = LP(r);
   const leftContainer = document.getElementById('bookPageLeft');
   const rightContainer = document.getElementById('bookPageRight');
   if(!leftContainer || !rightContainer) return;
   const variant = activeVariantObj(r);
   leftContainer.innerHTML = `
     ${imageBlockHTML(r, false)}
-    <div class="rv-title-static">${escHtml(r.name || 'Untitled')}</div>${variant?`<div class="rv-variant-sub">${escHtml(variant.name)} variant</div>`:''}
+    <div class="rv-title-static">${escHtml(r.name || 'Untitled')}</div>
     ${tagsBlockHTML(r, false)}
     ${r.description ? `<div class="rv-desc-static">${renderInstructionText(r.description)}</div>` : ''}
     <div class="book-left-lower">
@@ -3112,6 +3365,50 @@ function getRecipe(){
   if(state.isNew && draftRecipe) return draftRecipe;
   return data.recipes.find(r => r.id === state.recipeId);
 }
+/* ---------- per-variant left-page sections ---------- */
+const LEFT_KEYS = ['description','storageLines','prepPlan','sourceLines','quickNotes','nutrition','referenceImages'];
+const LEFT_ENABLED = ['storage','prepPlan','source'];
+function gfStamp(r){ return (r && r.glutenFree) ? `<span class="gf-stamp" title="Gluten-free" aria-label="Gluten-free">${ICON.gf}</span>` : ''; }
+function rawOf(r){ return (r && r.__raw) || r; }
+function copyLeftFrom(base){
+  const reid = arr => (arr||[]).map(i=>({...deepClone(i), id: uid()}));
+  const se = base.sectionsEnabled || {};
+  return {
+    description: base.description || '',
+    storageLines: reid(base.storageLines),
+    prepPlan: reid(base.prepPlan),
+    sourceLines: reid(base.sourceLines),
+    quickNotes: (base.quickNotes||[]).map(n=>({...deepClone(n), id: uid(), images:(n.images||[]).map(im=>({...im, id: uid()}))})),
+    nutrition: Object.assign({ calories:'', protein:'', fat:'', carbs:'', fiber:'', servingLabel:'serving' }, base.nutrition||{}),
+    referenceImages: (base.referenceImages||[]).map(im=>({...im, id: uid()})),
+    sectionsEnabled: { storage: !!se.storage, prepPlan: !!se.prepPlan, source: !!se.source },
+    leftInit: true
+  };
+}
+function ensureVariantLeft(base, v){
+  if(!v.leftInit) Object.assign(v, copyLeftFrom(base));
+  if(!v.sectionsEnabled) v.sectionsEnabled = { storage:false, prepPlan:false, source:false };
+}
+// Returns r itself for the base recipe, or a view of r whose left-page fields live on the active variant.
+function LP(r){
+  if(!r || r.__raw) return r;
+  const v = activeVariantObj(r);
+  if(!v) return r;
+  ensureVariantLeft(r, v);
+  const enabled = new Proxy(r.sectionsEnabled, {
+    get(t,k){ return LEFT_ENABLED.includes(k) ? v.sectionsEnabled[k] : t[k]; },
+    set(t,k,val){ if(LEFT_ENABLED.includes(k)) v.sectionsEnabled[k]=val; else t[k]=val; return true; }
+  });
+  return new Proxy(r, {
+    get(t,k){
+      if(k==='__raw') return t;
+      if(k==='sectionsEnabled') return enabled;
+      if(LEFT_KEYS.includes(k)) return v[k];
+      return t[k];
+    },
+    set(t,k,val){ if(LEFT_KEYS.includes(k)) v[k]=val; else t[k]=val; return true; }
+  });
+}
 function activeVariantObj(r){
   if(r.activeVariant === 'standard') return null;
   return (r.variants||[]).find(v=>v.id===r.activeVariant) || null;
@@ -3171,7 +3468,7 @@ function linkify(text){
 }
 
 /* ---------- inline recipe links ---------- */
-const RECIPE_LINK_RE = /\[\[([a-zA-Z0-9_]+):([^\]]*)\]\]/g;
+const RECIPE_LINK_RE = /\[\[([a-zA-Z0-9_~]+):([^\]]*)\]\]/g;
 const PANTRY_LINK_RE = /\{\{([a-zA-Z0-9_]+):([^\}]*)\}\}/g;
 function parseRecipeLinks(text){
   if(!text) return '';
@@ -3182,9 +3479,10 @@ function parseRecipeLinks(text){
   while((match = RECIPE_LINK_RE.exec(text)) !== null){
     result += escHtml(text.slice(lastIndex, match.index));
     const targetId = match[1];
-    const target = data.recipes.find(x=>x.id===targetId);
+    const lk = splitLinkId(targetId);
+    const target = data.recipes.find(x=>x.id===lk.rid);
     if(target){
-      result += `<a class="recipe-link" data-goto="${escAttr(targetId)}">${escHtml(target.name||'Untitled')}</a>`;
+      result += `<a class="recipe-link" data-goto="${escAttr(targetId)}">${escHtml(recipeLinkLabel(lk.rid, lk.vid))}</a>`;
     } else {
       result += escHtml(match[2]);
     }
@@ -3195,7 +3493,7 @@ function parseRecipeLinks(text){
 }
 function parseAllLinks(text){
   if(!text) return '';
-  const COMBINED_RE = new RegExp('\\[\\[([a-zA-Z0-9_]+):([^\\]]*)\\]\\]|\\{\\{([a-zA-Z0-9_]+):([^\\}]*)\\}\\}|\\(\\(([a-zA-Z0-9_]+):([^\\)]*)\\)\\)|' + EXTERNAL_LINK_RE_SRC, 'g');
+  const COMBINED_RE = new RegExp('\\[\\[([a-zA-Z0-9_~]+):([^\\]]*)\\]\\]|\\{\\{([a-zA-Z0-9_]+):([^\\}]*)\\}\\}|\\(\\(([a-zA-Z0-9_]+):([^\\)]*)\\)\\)|' + EXTERNAL_LINK_RE_SRC, 'g');
   let result = '';
   let lastIndex = 0;
   let match;
@@ -3203,9 +3501,10 @@ function parseAllLinks(text){
     result += escHtml(text.slice(lastIndex, match.index));
     if(match[1] !== undefined){
       const targetId = match[1];
-      const target = data.recipes.find(x=>x.id===targetId);
+      const lk = splitLinkId(targetId);
+      const target = data.recipes.find(x=>x.id===lk.rid);
       if(target){
-        result += `<a class="recipe-link" data-goto="${escAttr(targetId)}">${escHtml(target.name||'Untitled')}</a>`;
+        result += `<a class="recipe-link" data-goto="${escAttr(targetId)}">${escHtml(recipeLinkLabel(lk.rid, lk.vid))}</a>`;
       } else {
         result += escHtml(match[2]);
       }
@@ -3246,17 +3545,21 @@ function recipeTextsFor(rec){
   (rec.instructionGroups||[]).forEach(g=>(g.items||[]).forEach(i=>texts.push(i.text||'')));
   (rec.equipmentRows||[]).forEach(row=>texts.push(row.detail||''));
   (rec.variants||[]).forEach(v=>{
+    texts.push(v.description||'');
+    (v.quickNotes||[]).forEach(n=>texts.push(n.text||''));
+    (v.sourceLines||[]).forEach(l=>texts.push(l.text||''));
     (v.ingredientGroups||[]).forEach(g=>(g.items||[]).forEach(i=>texts.push(i.name||'')));
     (v.instructionGroups||[]).forEach(g=>(g.items||[]).forEach(i=>texts.push(i.text||'')));
     (v.equipmentRows||[]).forEach(row=>texts.push(row.detail||''));
   });
   return texts.join(' \n ');
 }
-function findLinkedFromRecipes(targetId){
+function findLinkedFromRecipes(targetId, variantId){
   const found = [];
+  const needle = variantId ? `[[${targetId}~${variantId}:` : `[[${targetId}:`;
   data.recipes.forEach(rec=>{
-    if(rec.id === targetId) return;
-    if(recipeTextsFor(rec).includes(`[[${targetId}:`)) found.push(rec);
+    if(rec.id === targetId && !variantId) return;
+    if(recipeTextsFor(rec).includes(needle)) found.push(rec);
   });
   return found;
 }
@@ -3293,7 +3596,8 @@ function pantryLinkedFromHTML(item){
   }).join('')}</div>`;
 }
 function linkedFromHTML(r){
-  const sources = findLinkedFromRecipes(r.id);
+  const av = activeVariantObj(r);
+  const sources = findLinkedFromRecipes(r.id, av ? av.id : null);
   if(sources.length === 0) return '';
   const inner = `<div class="linked-from-row">${sources.map(s=>{
     const cover = coverImage(s);
@@ -3375,7 +3679,20 @@ function openLinkPicker(targetEl, currentRecipeId, currentPantryId, onInsert, cu
   function renderResults(query){
     const list = backdrop.querySelector('#linkPickerList');
     const q = (query||'').trim().toLowerCase();
-    const recipeOptions = data.recipes.filter(rec => rec.id !== currentRecipeId && (!q || (rec.name||'').toLowerCase().includes(q)));
+    const curRec = currentRecipeId ? data.recipes.find(x=>x.id===currentRecipeId) : null;
+    const curVid = (curRec && curRec.activeVariant && curRec.activeVariant !== 'standard') ? curRec.activeVariant : null;
+    // recipe entries: each recipe's base, then its variants; hide only exactly what is currently open
+    const recipeOptions = [];
+    data.recipes.forEach(rec=>{
+      const nameMatch = !q || (rec.name||'').toLowerCase().includes(q);
+      if(nameMatch && !(rec.id === currentRecipeId && !curVid)) recipeOptions.push({ id: rec.id, name: rec.name||'Untitled', label: rec.name||'Untitled', variant:false });
+      (rec.variants||[]).forEach(v=>{
+        if(rec.id === currentRecipeId && v.id === curVid) return;
+        if(nameMatch || (v.name||'').toLowerCase().includes(q)){
+          recipeOptions.push({ id: rec.id+'~'+v.id, name: (rec.name||'Untitled')+' – '+(v.name||'Variant'), label: '↳ '+(v.name||'Variant'), variant:true });
+        }
+      });
+    });
     const pantryOptions = data.pantry.filter(p => p.id !== currentPantryId && (!q || (p.name||'').toLowerCase().includes(q)));
     const equipmentOptions = data.equipment.filter(eq => eq.id !== currentEquipmentId && (!q || equipmentDisplayName(eq).toLowerCase().includes(q)));
     if(recipeOptions.length === 0 && pantryOptions.length === 0 && equipmentOptions.length === 0){
@@ -3384,7 +3701,7 @@ function openLinkPicker(targetEl, currentRecipeId, currentPantryId, onInsert, cu
     }
     let html = '';
     if(recipeOptions.length){
-      html += `<div class="picker-group-label">Recipes</div>` + recipeOptions.map(rec=>`<div class="picker-item" data-kind="recipe" data-id="${rec.id}" data-name="${escAttr(rec.name||'Untitled')}">${escHtml(rec.name||'Untitled')}</div>`).join('');
+      html += `<div class="picker-group-label">Recipes</div>` + recipeOptions.map(rec=>`<div class="picker-item${rec.variant?' picker-item-variant':''}" data-kind="recipe" data-id="${rec.id}" data-name="${escAttr(rec.name)}">${escHtml(rec.label)}</div>`).join('');
     }
     if(pantryOptions.length){
       html += `<div class="picker-group-label">Pantry items</div>` + pantryOptions.map(p=>`<div class="picker-item" data-kind="pantry" data-id="${p.id}" data-name="${escAttr(p.name||'Untitled')}">${escHtml(p.name||'Untitled')}</div>`).join('');
@@ -3500,6 +3817,7 @@ function openRecipeSettingsMenu(r){
         <button class="settings-menu-item" id="menuDuplicate">${ICON.copy} Duplicate</button>
         <button class="settings-menu-item" id="menuPrint">${ICON.print} Print</button>
         <button class="settings-menu-item" id="menuTestingToggle">${r.testing?ICON.check:'🧪'} ${r.testing?'Mark as Tested':'Mark as Testing'}</button>
+        <button class="settings-menu-item" id="menuGFToggle"><span class="menu-gf-ico" style="display:inline-flex;width:18px;height:18px;">${ICON.gf}</span> ${r.glutenFree?'Remove gluten-free stamp':'Mark as gluten-free'}</button>
         <button class="settings-menu-item" id="menuArchiveToggle">${r.archived?ICON.restore:ICON.archive} ${r.archived?'Restore from archive':'Archive this recipe'}</button>
         <button class="settings-menu-item danger" id="menuDelete">${ICON.trash} Delete this recipe</button>
       </div>
@@ -3511,10 +3829,17 @@ function openRecipeSettingsMenu(r){
   backdrop.querySelector('#menuDuplicate').addEventListener('click', ()=>{ close(); duplicateRecipe(r); });
   backdrop.querySelector('#menuPrint').addEventListener('click', ()=>{ close(); openPrintPreview(r); });
   backdrop.querySelector('#menuTestingToggle').addEventListener('click', ()=>{ close(); handleToggleTesting(r); });
+  backdrop.querySelector('#menuGFToggle').addEventListener('click', ()=>{ close(); handleToggleGF(r); });
   backdrop.querySelector('#menuArchiveToggle').addEventListener('click', ()=>{ close(); handleToggleArchive(r); });
   backdrop.querySelector('#menuDelete').addEventListener('click', ()=>{ close(); handleDelete(r); });
   backdrop.querySelector('#closeRecipeSettingsMenu').addEventListener('click', close);
   backdrop.addEventListener('click', e=>{ if(e.target === backdrop) close(); });
+}
+function handleToggleGF(r){
+  r = rawOf(r);
+  r.glutenFree = !r.glutenFree;
+  markDirty();
+  render();
 }
 function handleToggleTesting(r){
   r.testing = !r.testing;
@@ -3530,12 +3855,14 @@ function handleToggleArchive(r){
 }
 
 function handleEdit(r){
+  r = rawOf(r);
   state.editSnapshot = deepClone(r);
   state.isEditing = true;
   state.view = 'recipe';
   render();
 }
 function handleCancel(r){
+  r = rawOf(r);
   if(state.isNew){
     draftRecipe = null;
     state.isNew = false;
@@ -3546,8 +3873,11 @@ function handleCancel(r){
     return;
   }
   const idx = data.recipes.findIndex(x=>x.id===r.id);
-  if(idx > -1 && state.editSnapshot){
+  // Only ever restore a snapshot into the slot of the SAME recipe (guards against ID duplication).
+  if(idx > -1 && state.editSnapshot && state.editSnapshot.id === r.id){
     data.recipes[idx] = state.editSnapshot;
+  } else if(state.editSnapshot && state.editSnapshot.id !== r.id){
+    logActivity('blocked', r, 'Blocked a restore that would have overwritten a different recipe', true);
   }
   state.editSnapshot = null;
   state.isEditing = false;
@@ -3559,12 +3889,27 @@ function handleCancel(r){
   render();
 }
 function handleSave(r){
+  r = rawOf(r);
+  const wasNew = !!state.isNew;
   if(state.isNew){
     if(!data.recipes.some(x=>x.id===r.id)){
       data.recipes.push(r);
     }
     draftRecipe = null;
     state.isNew = false;
+  }
+  {
+    const snap = state.editSnapshot;
+    const cnt = x => (x.ingredientGroups||[]).reduce((n,g)=>n+(g.items||[]).length,0);
+    const cnts = x => (x.instructionGroups||[]).reduce((n,g)=>n+(g.items||[]).length,0);
+    if(wasNew) logActivity('created', r, `${cnt(r)} ingredients, ${cnts(r)} steps`);
+    else if(snap && snap.id === r.id){
+      const bits = [];
+      if(snap.name !== r.name) bits.push(`renamed from "${snap.name}"`);
+      if(cnt(snap) !== cnt(r)) bits.push(`ingredients ${cnt(snap)}→${cnt(r)}`);
+      if(cnts(snap) !== cnts(r)) bits.push(`steps ${cnts(snap)}→${cnts(r)}`);
+      logActivity('saved', r, bits.join(', ') || 'edited');
+    } else logActivity('saved', r, 'edited');
   }
   state.editSnapshot = null;
   state.isEditing = false;
@@ -3575,7 +3920,10 @@ function handleSave(r){
   render();
 }
 function handleDelete(r){
-  if(confirm('Delete this recipe? This cannot be undone.')){
+  r = rawOf(r);
+  if(confirm('Delete this recipe? You can restore it for 30 days from Settings → Recently deleted.')){
+    data.recipes.filter(x=>x.id===r.id).forEach(x=> trashRecipe(x, 'deleted'));
+    logActivity('deleted', r, 'Moved to Recently deleted');
     data.recipes = data.recipes.filter(x=>x.id!==r.id);
     markDirty();
     state.viewMode = 'tile';
@@ -3584,6 +3932,7 @@ function handleDelete(r){
   }
 }
 function duplicateRecipe(r){
+  r = rawOf(r);
   if(!confirm(`Duplicate "${r.name || 'Untitled'}"? This will create a new editable copy.`)) return;
   const clone = deepClone(r);
   clone.id = uid();
@@ -3605,10 +3954,12 @@ function duplicateRecipe(r){
     ingredientGroups: v.ingredientGroups.map(g=>({...g, id: uid(), items: g.items.map(i=>({...i, id: uid()}))})),
     instructionGroups: v.instructionGroups.map(g=>({...g, id: uid(), items: g.items.map(i=>({...i, id: uid()}))})),
     ovenRows: (v.ovenRows||[]).map(i=>({...i, id: uid()})),
-    equipmentRows: (v.equipmentRows||[]).map(i=>({...i, id: uid()}))
+    equipmentRows: (v.equipmentRows||[]).map(i=>({...i, id: uid()})),
+    ...(v.leftInit ? copyLeftFrom(v) : {})
   }));
   clone.activeVariant = 'standard';
   data.recipes.push(clone);
+  logActivity('created', clone, `Duplicated from "${r.name||'Untitled'}"`);
   markDirty();
   state.recipeId = clone.id;
   state.isNew = false;
@@ -3624,6 +3975,7 @@ function duplicateRecipe(r){
    RECIPE BODY (shared render target re-rendered on structural change)
 ========================================================= */
 function renderRecipeBody(r){
+  r = LP(r);
   const container = document.getElementById('rvBodyContainer');
   const editing = state.isEditing;
   const variant = activeVariantObj(r);
@@ -3638,7 +3990,7 @@ function renderRecipeBody(r){
 
     ${editing
       ? `<input class="rv-title" id="rvTitle" placeholder="Recipe title" value="${escAttr(r.name)}" />`
-      : `<div class="rv-title-static">${escHtml(r.name || 'Untitled')}</div>${variant?`<div class="rv-variant-sub">${escHtml(variant.name)} variant</div>`:''}`
+      : `<div class="rv-title-static">${escHtml(r.name || 'Untitled')}</div>`
     }
 
     ${tagsBlockHTML(r, editing)}
@@ -3903,9 +4255,9 @@ function wireStorage(r, editing){
   if(!editing) return;
   const addBtn = document.getElementById('addStorageRow');
   if(addBtn) addBtn.addEventListener('click', ()=>{
-    r.storageLines.push(makeLine());
-    refreshBody(r);
-    focusLast('#storageList .line-text');
+    const nl = makeLine();
+    r.storageLines.push(nl);
+    refreshAndFocus(r, `#storageList .line-text[data-id="${nl.id}"]`);
   });
   document.querySelectorAll('#storageList .line-text').forEach(inp=>{
     inp.addEventListener('input', e=>{
@@ -3916,8 +4268,9 @@ function wireStorage(r, editing){
   document.querySelectorAll('#storageList .row-add[data-kind="storage"]').forEach(btn=>{
     btn.addEventListener('click', ()=>{
       const idx = r.storageLines.findIndex(x=>x.id===btn.dataset.id);
-      r.storageLines.splice(idx+1, 0, makeLine());
-      refreshBody(r);
+      const nl = makeLine();
+      r.storageLines.splice(idx+1, 0, nl);
+      refreshAndFocus(r, `#storageList .line-text[data-id="${nl.id}"]`);
     });
   });
   document.querySelectorAll('#storageList .row-del[data-kind="storage"]').forEach(btn=>{
@@ -3950,9 +4303,9 @@ function wirePrepPlan(r, editing){
   if(!editing) return;
   const addBtn = document.getElementById('addPrepRow');
   if(addBtn) addBtn.addEventListener('click', ()=>{
-    r.prepPlan.push(makeLine());
-    refreshBody(r);
-    focusLast('#prepList .line-text');
+    const nl = makeLine();
+    r.prepPlan.push(nl);
+    refreshAndFocus(r, `#prepList .line-text[data-id="${nl.id}"]`);
   });
   document.querySelectorAll('#prepList .line-text').forEach(inp=>{
     inp.addEventListener('input', e=>{
@@ -3963,8 +4316,9 @@ function wirePrepPlan(r, editing){
   document.querySelectorAll('#prepList .row-add[data-kind="prep"]').forEach(btn=>{
     btn.addEventListener('click', ()=>{
       const idx = r.prepPlan.findIndex(x=>x.id===btn.dataset.id);
-      r.prepPlan.splice(idx+1, 0, makeLine());
-      refreshBody(r);
+      const nl = makeLine();
+      r.prepPlan.splice(idx+1, 0, nl);
+      refreshAndFocus(r, `#prepList .line-text[data-id="${nl.id}"]`);
     });
   });
   document.querySelectorAll('#prepList .row-del[data-kind="prep"]').forEach(btn=>{
@@ -4079,7 +4433,7 @@ function wireYieldAndVariant(r, editing){
     multStepper.querySelectorAll('button[data-dir]').forEach(btn=>{
       btn.addEventListener('click', ()=>{
         const dir = +btn.dataset.dir;
-        state.currentMultiplier = Math.max(0.5, ensureMultiplierSession() + dir);
+        state.currentMultiplier = Math.max(0.5, ensureMultiplierSession() + dir*0.5);
         refreshBody(r);
       });
     });
@@ -4156,7 +4510,7 @@ function openManageVariants(r){
     list.querySelectorAll('.varDelete').forEach(btn=>{
       btn.addEventListener('click', ()=>{
         const v = r.variants.find(x=>x.id===btn.dataset.id);
-        if(!confirm(`Delete the "${v?v.name:'this'}" variant? Its own ingredients and instructions will be lost — the base recipe is unaffected.`)) return;
+        if(!confirm(`Delete the "${v?v.name:'this'}" variant? Its own ingredients, instructions and sections will be lost — the base recipe is unaffected.`)) return;
         r.variants = r.variants.filter(x=>x.id!==btn.dataset.id);
         if(r.activeVariant === btn.dataset.id) r.activeVariant = 'standard';
         renderVarList();
@@ -4175,7 +4529,8 @@ function openManageVariants(r){
       ingredientGroups: r.ingredientGroups.map(g=>({...g, id: uid(), items: g.items.map(i=>({...i, id: uid()}))})),
       instructionGroups: r.instructionGroups.map(g=>({...g, id: uid(), items: g.items.map(i=>({...i, id: uid(), images:(i.images||[]).map(img=>({...img,id:uid()}))}))})),
       ovenRows: r.ovenRows.map(row=>({...row, id: uid()})),
-      equipmentRows: r.equipmentRows.map(row=>({...row, id: uid()}))
+      equipmentRows: r.equipmentRows.map(row=>({...row, id: uid()})),
+      ...copyLeftFrom(rawOf(r))
     };
     r.variants.push(v);
     input.value = '';
@@ -4266,9 +4621,9 @@ function wireIngredients(r, editing){
     btn.addEventListener('click', ()=>{
       const group = groups.find(g=>g.id===btn.dataset.group);
       if(group){
-        group.items.push(makeIngredient());
-        refreshBody(r);
-        focusLast(`.ing-list[data-group="${group.id}"] .ing-name`);
+        const ni = makeIngredient();
+        group.items.push(ni);
+        refreshAndFocus(r, `#ingname_${ni.id}`);
       }
     });
   });
@@ -4296,8 +4651,9 @@ function wireIngredients(r, editing){
       const { group } = findItemAndGroup(btn.dataset.id);
       if(group){
         const idx = group.items.findIndex(x=>x.id===btn.dataset.id);
-        group.items.splice(idx+1, 0, makeIngredient());
-        refreshBody(r);
+        const ni = makeIngredient();
+        group.items.splice(idx+1, 0, ni);
+        refreshAndFocus(r, `#ingname_${ni.id}`);
       }
     });
   });
@@ -4682,9 +5038,9 @@ function wireInstructions(r, editing){
     btn.addEventListener('click', ()=>{
       const group = groups.find(g=>g.id===btn.dataset.group);
       if(group){
-        group.items.push(makeInstr());
-        refreshBody(r);
-        focusLast(`.instr-list[data-group="${group.id}"] .instr-text`);
+        const ni = makeInstr();
+        group.items.push(ni);
+        refreshAndFocus(r, `#instrtext_${ni.id}`);
       }
     });
   });
@@ -4702,9 +5058,9 @@ function wireInstructions(r, editing){
       const { group } = findItemAndGroup(btn.dataset.id);
       if(group){
         const idx = group.items.findIndex(x=>x.id===btn.dataset.id);
-        group.items.splice(idx+1, 0, makeInstr());
-        refreshBody(r);
-        focusLast(`.instr-list[data-group="${group.id}"] .instr-text`);
+        const ni = makeInstr();
+        group.items.splice(idx+1, 0, ni);
+        refreshAndFocus(r, `#instrtext_${ni.id}`);
       }
     });
   });
@@ -4808,9 +5164,9 @@ function wireSourceSection(r, editing){
   if(!editing) return;
   const addBtn = document.getElementById('addSourceRow');
   if(addBtn) addBtn.addEventListener('click', ()=>{
-    r.sourceLines.push(makeLine());
-    refreshBody(r);
-    focusLast('#sourceList .line-text');
+    const nl = makeLine();
+    r.sourceLines.push(nl);
+    refreshAndFocus(r, `#sourceList .line-text[data-id="${nl.id}"]`);
   });
   document.querySelectorAll('#sourceList .line-text').forEach(inp=>{
     inp.addEventListener('input', e=>{
@@ -4827,8 +5183,9 @@ function wireSourceSection(r, editing){
   document.querySelectorAll('#sourceList .row-add[data-kind="source"]').forEach(btn=>{
     btn.addEventListener('click', ()=>{
       const idx = r.sourceLines.findIndex(x=>x.id===btn.dataset.id);
-      r.sourceLines.splice(idx+1, 0, makeLine());
-      refreshBody(r);
+      const nl = makeLine();
+      r.sourceLines.splice(idx+1, 0, nl);
+      refreshAndFocus(r, `#sourceList .line-text[data-id="${nl.id}"]`);
     });
   });
   document.querySelectorAll('#sourceList .row-del[data-kind="source"]').forEach(btn=>{
@@ -5015,12 +5372,12 @@ function wireNutritionEdit(r){
 function extractLinkChips(text){
   if(!text) return [];
   const chips = [];
-  const RE = new RegExp('\\[\\[([a-zA-Z0-9_]+):([^\\]]*)\\]\\]|\\{\\{([a-zA-Z0-9_]+):([^\\}]*)\\}\\}|' + EXTERNAL_LINK_RE_SRC, 'g');
+  const RE = new RegExp('\\[\\[([a-zA-Z0-9_~]+):([^\\]]*)\\]\\]|\\{\\{([a-zA-Z0-9_]+):([^\\}]*)\\}\\}|' + EXTERNAL_LINK_RE_SRC, 'g');
   let m;
   while((m = RE.exec(text))){
     if(m[1] !== undefined){
-      const rec = data.recipes.find(x=>x.id===m[1]);
-      chips.push({ kind:'recipe', id:m[1], name: rec ? (rec.name||'Untitled') : m[2] });
+      const lk = splitLinkId(m[1]);
+      chips.push({ kind:'recipe', id:m[1], name: recipeLinkLabel(lk.rid, lk.vid) || m[2] });
     } else if(m[3] !== undefined){
       const p = data.pantry.find(x=>x.id===m[3]);
       chips.push({ kind:'pantry', id:m[3], name: p ? (p.name||'Untitled') : m[4] });
@@ -5128,6 +5485,7 @@ function openReferenceLightbox(src){
    KITCHEN / PRINT MODE
 ========================================================= */
 function openPrintPreview(r){
+  r = LP(r);
   const overlay = document.createElement('div');
   overlay.className = 'kitchen-overlay print-mode';
   overlay.id = 'printOverlay';
@@ -5398,10 +5756,12 @@ function migrateRecipe(raw){
   if(!Array.isArray(r.referenceImages)) r.referenceImages = [];
   if(typeof r.archived !== 'boolean') r.archived = false;
   if(typeof r.testing !== 'boolean') r.testing = false;
+  if(typeof r.glutenFree !== 'boolean') r.glutenFree = false;
   if(!r.nutrition || typeof r.nutrition !== 'object') r.nutrition = { calories:'', protein:'', fat:'', carbs:'', fiber:'', servingLabel:'serving' };
   else r.nutrition = { calories: r.nutrition.calories||'', protein: r.nutrition.protein||'', fat: r.nutrition.fat||'', carbs: r.nutrition.carbs||'', fiber: r.nutrition.fiber||'', servingLabel: r.nutrition.servingLabel || 'serving' };
   if(!Array.isArray(r.quickNotes)) r.quickNotes = [];
   r.quickNotes = r.quickNotes.map(n=>({ images:[], ...n }));
+  r.variants.forEach(v=>ensureVariantLeft(r, v));
   if(!Array.isArray(raw.images)){
     r.images = raw.image ? [{ id: uid(), data: raw.image }] : [];
   }
@@ -5409,6 +5769,7 @@ function migrateRecipe(raw){
 }
 
 function exportJSON(){
+  logActivity('export', null, `${data.recipes.length} recipes exported`);
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -5430,10 +5791,22 @@ function importJSON(e){
     try{
       const parsed = JSON.parse(ev.target.result);
       if(!parsed || !Array.isArray(parsed.recipes)) throw new Error('bad format');
+      const newRecipes = dedupeById(parsed.recipes.map(migrateRecipe));
+      const newIds = new Set(newRecipes.map(x=>x.id));
+      const removed = (data.recipes||[]).filter(x=>!newIds.has(x.id));
+      if(removed.length){
+        const names = removed.slice(0,8).map(x=>'• '+(x.name||'Untitled')).join('\n') + (removed.length>8 ? `\n…and ${removed.length-8} more` : '');
+        if(!confirm(`This import will remove ${removed.length} recipe(s) that are not in the file:\n\n${names}\n\nThey will be kept in Recently deleted for 30 days. Continue?`)){ e.target.value=''; return; }
+      }
+      takeSnapshot('Before import');
+      const prevTrash = Array.isArray(data.trash) ? data.trash : [];
+      const prevActivity = Array.isArray(data.activity) ? data.activity : [];
       data = {
         title: parsed.title || 'Recipe Book',
         categories: Array.isArray(parsed.categories) && parsed.categories.length ? parsed.categories : [...DEFAULT_CATEGORIES],
-        recipes: dedupeById(parsed.recipes.map(migrateRecipe)),
+        recipes: newRecipes,
+        trash: [...(Array.isArray(parsed.trash)?parsed.trash:[]), ...prevTrash.filter(t=>!(Array.isArray(parsed.trash)&&parsed.trash.some(p=>p.id===t.id)))],
+        activity: Array.isArray(parsed.activity) && parsed.activity.length ? parsed.activity : prevActivity,
         pantryCategories: Array.isArray(parsed.pantryCategories) ? parsed.pantryCategories : [],
         pantry: Array.isArray(parsed.pantry) ? dedupeById(parsed.pantry.map(migratePantryItem)) : [],
         shoppingList: Array.isArray(parsed.shoppingList) ? parsed.shoppingList : [],
@@ -5441,6 +5814,9 @@ function importJSON(e){
         equipment: Array.isArray(parsed.equipment) ? dedupeById(parsed.equipment.map(migrateEquipmentItem)) : [],
         equipmentTypes: Array.isArray(parsed.equipmentTypes) && parsed.equipmentTypes.length ? parsed.equipmentTypes : [...DEFAULT_EQUIPMENT_TYPES]
       };
+      removed.forEach(x=> trashRecipe(x, 'removed by import'));
+      logActivity('import', null, `Imported ${newRecipes.length} recipes` + (removed.length ? `; ${removed.length} not in file moved to Recently deleted` : ''), removed.length>0);
+      e.target.value = '';
       saveLocal();
       clearDirty();
       state.activeCategory = "All";
@@ -5708,6 +6084,23 @@ function openScanPhotoFlow(r){
 
 function escHtml(s){ return (s||'').toString().replace(/[&<>]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
 function escAttr(s){ return (s||'').toString().replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+// Rebuild the body while keeping the scroll position, then focus the new field and bring it into view.
+function scrollParents(){
+  const out = [document.scrollingElement || document.documentElement];
+  ['rvBodyContainer','bookSpread','bookPageLeft','bookPageRight','app'].forEach(id=>{ const el=document.getElementById(id); if(el) out.push(el); });
+  document.querySelectorAll('.rv-body,.book-page').forEach(el=> out.push(el));
+  return out;
+}
+function refreshAndFocus(r, selector){
+  const saved = scrollParents().map(el=>[el, el.scrollTop]);
+  refreshBody(r);
+  saved.forEach(([el,top])=>{ try{ el.scrollTop = top; }catch(e){} });
+  const el = selector ? document.querySelector(selector) : null;
+  if(el){
+    try{ el.focus({preventScroll:true}); }catch(e){ el.focus(); }
+    try{ el.scrollIntoView({block:'center'}); }catch(e){}
+  }
+}
 function focusLast(selector){ const els = document.querySelectorAll(selector); if(els.length) els[els.length-1].focus(); }
 function autosize(el){ el.style.height = 'auto'; el.style.height = (el.scrollHeight) + 'px'; }
 function autosizeAll(){ document.querySelectorAll('textarea').forEach(autosize); }
@@ -5721,26 +6114,20 @@ async function bootstrap(){
   }catch(err){
     console.error('Fatal error loading app data:', err);
   }
-  if(!Array.isArray(data.pantryCategories)) data.pantryCategories = [];
-  if(!Array.isArray(data.pantry)) data.pantry = [];
-  if(!Array.isArray(data.shoppingList)) data.shoppingList = [];
-  if(!Array.isArray(data.equipmentCategories) || data.equipmentCategories.length === 0) data.equipmentCategories = [...DEFAULT_EQUIPMENT_CATEGORIES];
-  if(!Array.isArray(data.equipment)) data.equipment = [];
-  if(!Array.isArray(data.equipmentTypes)) data.equipmentTypes = [...DEFAULT_EQUIPMENT_TYPES];
-  const pantryBefore = data.pantry.length;
-  const equipmentBefore = data.equipment.length;
-  const recipesBefore = (data.recipes||[]).length;
-  data.pantry = dedupeById(data.pantry.map(migratePantryItem));
-  data.equipment = dedupeById(data.equipment.map(migrateEquipmentItem));
-  if(data.recipes && data.recipes.length){
-    data.recipes = dedupeById(data.recipes.map(migrateRecipe));
+  if(!Array.isArray(data.recipes)) data.recipes = [];
+  const loadedCount = data.recipes.length;
+  const savedCount = data.recipeCountAtSave;
+  const pantryBefore = (data.pantry||[]).length;
+  const equipmentBefore = (data.equipment||[]).length;
+  normalizeLoadedData();
+  if(typeof savedCount === 'number' && loadedCount !== savedCount){
+    logActivity('count', null, `Recipe count differs from last save (saved ${savedCount}, loaded ${loadedCount}) — storage may have changed outside the app`, true);
   }
-  const dedupedSomething = data.pantry.length < pantryBefore || data.equipment.length < equipmentBefore || (data.recipes||[]).length < recipesBefore;
-  if(dedupedSomething){
-    console.warn('Removed duplicate-ID entries found in stored data.');
+  if(data.recipes.length < loadedCount || (typeof savedCount==='number' && loadedCount !== savedCount) || data.pantry.length < pantryBefore || data.equipment.length < equipmentBefore){
     markDirty();
     flushSave();
   }
+  setTimeout(()=> takeSnapshot('App opened'), 4000);   // deferred so startup stays fast
   document.addEventListener('visibilitychange', ()=>{
     if(document.visibilityState === 'hidden' && saveDebounceTimer) flushSave();
   });
