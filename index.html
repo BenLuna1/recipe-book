@@ -77,6 +77,16 @@
     flex:0 0 auto;
   }
   .gf-stamp svg{ width:13px; height:13px; stroke:currentColor; }
+  .row-move, .grp-move{ width:22px; height:22px; border:none; background:none; display:flex; align-items:center; justify-content:center; opacity:0.6; flex:0 0 auto; padding:0; }
+  .row-move svg, .grp-move svg{ width:15px; height:15px; stroke:var(--accent); }
+  .row-move:disabled, .grp-move:disabled{ opacity:0.15; }
+  .move-pair{ display:flex; gap:0; }
+  .comp-from{ display:flex; align-items:center; gap:8px; margin:-4px 0 8px 0; font-size:12px; color:var(--ink-faint); }
+  .comp-from button{ border:1px solid var(--accent); color:var(--accent); background:none; border-radius:999px; padding:3px 10px; font-size:12px; }
+  .comp-oven{ display:flex; flex-wrap:wrap; gap:4px 12px; margin:-2px 0 10px 0; padding:6px 10px; border-radius:8px; background:rgba(107,117,97,0.08); font-size:13px; color:var(--ink-soft); }
+  .comp-oven b{ font-weight:600; color:var(--ink); margin-right:4px; }
+  .expand-comp-btn{ border:none; background:none; padding:4px; opacity:0.7; }
+  .expand-comp-btn svg{ width:18px; height:18px; stroke:var(--accent); }
   .rec-tabs{ display:flex; gap:6px; margin:6px 0 10px; }
   .rec-tabs button{ flex:1; border:1px solid var(--hairline-strong); background:var(--paper); border-radius:999px; padding:6px 8px; font-size:12.5px; color:var(--ink-soft); }
   .rec-tabs button.active{ background:var(--accent); color:#fff; border-color:var(--accent); }
@@ -549,6 +559,12 @@
   .yield-base-row{ display:flex; align-items:center; gap:6px; font-size:11.5px; color:var(--ink-faint); }
   .yield-base-row input{ width:36px; border:none; border-bottom:1px dashed var(--hairline-strong); background:transparent; font-family:var(--font-mono); font-size:11.5px; text-align:center; outline:none; }
   .yield-static{ font-size:14px; color:var(--ink-soft); }
+  .section-head-extra{ display:flex; align-items:center; gap:10px; margin-left:16px; min-width:0; }
+  .section-head-extra .stepper{ padding:2px 4px; gap:6px; border-color:var(--hairline); flex:0 0 auto; }
+  .section-head-extra .stepper button{ width:22px; height:22px; }
+  .section-head-extra .stepper button svg{ width:10px; height:10px; }
+  .section-head-extra .stepper .yield-num{ font-size:13px; min-width:18px; text-align:center; }
+  .yield-compact-unit{ font-size:12.5px; color:var(--ink-faint); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:96px; }
   .yield-strip-subtle{ margin-bottom:14px; opacity:0.85; }
   .yield-strip-subtle .yield-row{ margin-bottom:0; }
   .yield-strip-subtle .yield-static{ font-size:12px; }
@@ -863,7 +879,7 @@
 /* =========================================================
    CONSTANTS
 ========================================================= */
-const APP_VERSION = "v60";
+const APP_VERSION = "v63";
 const DEFAULT_CATEGORIES = ["Dessert","Dinner","Bites","Drinks","Side Dishes","Batch Cooking"];
 const ACCENTS = ["#7C5A6B","#6B7561","#A68A5B","#5C7A80","#8A8F5C","#9C6B54","#5E6B8A","#8B6F8C"];
 const OVEN_SETTINGS = ["With fan","Without fan","Turbo","Airfry","Other"];
@@ -1257,6 +1273,9 @@ function equipmentTagsBlockHTML(item, editing){
    ICONS
 ========================================================= */
 const ICON = {
+  up: `<svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M6 15l6-6 6 6"/></svg>`,
+  down: `<svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M6 9l6 6 6-6"/></svg>`,
+  layers: `<svg viewBox="0 0 24 24" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/></svg>`,
   gf: `<svg viewBox="0 0 24 24" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M12 21V8"/><path d="M12 8c-2.2 0-3.5-1.4-3.5-3.2 2.2 0 3.5 1.4 3.5 3.2zM12 8c2.2 0 3.5-1.4 3.5-3.2-2.2 0-3.5 1.4-3.5 3.2zM12 13c-2.2 0-3.5-1.4-3.5-3.2 2.2 0 3.5 1.4 3.5 3.2zM12 13c2.2 0 3.5-1.4 3.5-3.2-2.2 0-3.5 1.4-3.5 3.2zM12 18c-2.2 0-3.5-1.4-3.5-3.2 2.2 0 3.5 1.4 3.5 3.2zM12 18c2.2 0 3.5-1.4 3.5-3.2-2.2 0-3.5 1.4-3.5 3.2z"/><path d="M4 4l16 16" stroke-width="2"/></svg>`,
   plus:  `<svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>`,
   grid:  `<svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>`,
@@ -2612,7 +2631,7 @@ function renderBookPages(r){
   `;
   const ovenHtmlForSplit = ovenBlockHTML(r, false);
   rightContainer.innerHTML = `
-    ${sectionHTML('ingredients','Ingredients', `<div class="yield-strip-subtle">${yieldRowHTML(r, false)}</div>${ingredientsBodyHTML(r, false)}`, false)}
+    ${sectionHTML('ingredients','Ingredients', ingredientsBodyHTML(r, false), false, yieldCompactHTML(r))}
     ${ovenHtmlForSplit ? sectionHTML('ovenSettings','Oven settings', ovenHtmlForSplit, false) : ''}
     ${sectionHTML('instructions','Instructions', instructionsGroupsHTML(r, false), false)}
   `;
@@ -4008,11 +4027,11 @@ function renderRecipeBody(r){
     ${(r.sectionsEnabled.prepPlan) ? sectionHTML('prep','Preparation plan', prepPlanBodyHTML(r, editing), editing) : ''}
 
     <div class="yv-strip">
-      ${yieldRowHTML(r, editing)}
+      ${editing ? yieldRowHTML(r, editing) : ''}
       ${variantRowHTML(r, editing)}
     </div>
 
-    ${sectionHTML('ingredients','Ingredients', ingredientsBodyHTML(r, editing), false)}
+    ${sectionHTML('ingredients','Ingredients', ingredientsBodyHTML(r, editing), false, editing ? '' : yieldCompactHTML(r))}
     ${sectionHTML('instructions','Instructions', instructionsBodyHTML(r, editing), false)}
     ${(r.sectionsEnabled.storage) ? sectionHTML('storage','Storage instructions', storageBodyHTML(r, editing), editing) : ''}
     ${editing ? `<div class="section"><div class="section-body-inner">${nutritionEditHTML(r)}</div></div>` : nutritionBlockHTML(r)}
@@ -4197,12 +4216,12 @@ function wireOptionalChips(r){
 }
 
 /* ---------- generic section shell ---------- */
-function sectionHTML(key, label, innerHTML, removable){
+function sectionHTML(key, label, innerHTML, removable, headExtra){
   const open = state.openSections[key];
   return `
     <div class="section">
       <div class="section-head" data-section="${key}">
-        <div class="section-head-left"><h4>${label}</h4></div>
+        <div class="section-head-left"><h4>${label}</h4>${headExtra ? `<div class="section-head-extra">${headExtra}</div>` : ''}</div>
         <div style="display:flex;align-items:center;gap:6px;">
           ${removable ? `<button class="section-remove" data-remove="${key==='prep'?'prepPlan':key}">×</button>` : ''}
           <span class="${open?'chev open':'chev'}">${ICON.chev}</span>
@@ -4216,7 +4235,7 @@ function sectionHTML(key, label, innerHTML, removable){
 function wireSectionToggles(){
   document.querySelectorAll('.section-head').forEach(head=>{
     head.addEventListener('click', (e)=>{
-      if(e.target.closest('.section-remove')) return;
+      if(e.target.closest('.section-remove') || e.target.closest('.section-head-extra')) return;
       const key = head.dataset.section;
       state.openSections[key] = !state.openSections[key];
       const body = document.querySelector(`[data-sectionbody="${key}"]`);
@@ -4330,6 +4349,26 @@ function wirePrepPlan(r, editing){
 }
 
 /* ---------- yield + variant strip ---------- */
+// Compact stepper shown beside the "Ingredients" title (read views)
+function yieldCompactHTML(r){
+  const y = r.yield;
+  if(y.na){
+    const mult = ensureMultiplierSession();
+    return `<div class="stepper" id="multiplierStepper">
+      <button data-dir="-1">${ICON.minus}</button>
+      <span class="yield-num">×${formatAmount(mult)}</span>
+      <button data-dir="1">${ICON.plus}</button>
+      <button class="yield-reset-btn" id="multiplierReset" title="Reset to ×1">${ICON.reset}</button>
+    </div>`;
+  }
+  const current = ensureYieldSession(r);
+  return `<div class="stepper" id="yieldStepper">
+      <button data-dir="-1">${ICON.minus}</button>
+      <span class="yield-num">${current}</span>
+      <button data-dir="1">${ICON.plus}</button>
+      <button class="yield-reset-btn" id="yieldReset" title="Reset to original">${ICON.reset}</button>
+    </div><span class="yield-compact-unit">${escHtml(y.unit)}</span>`;
+}
 function yieldRowHTML(r, editing){
   const y = r.yield;
   if(!editing){
@@ -4544,6 +4583,244 @@ function openManageVariants(r){
 }
 
 /* ---------- ingredients ---------- */
+/* =========================================================
+   COMPONENTS — a recipe's ingredients + steps (+ oven/equipment) copied into another recipe as a labelled group
+========================================================= */
+/* ---------- reordering ---------- */
+function moveInArray(arr, idx, dir){
+  const j = idx + dir;
+  if(idx < 0 || j < 0 || j >= arr.length) return false;
+  const t = arr[idx]; arr[idx] = arr[j]; arr[j] = t;
+  return true;
+}
+function groupKey(g){ return g.cid || ((g.name||'').trim() ? 'n:'+g.name.trim().toLowerCase() : null); }
+// Reorders the matching groups of `slave` (same component cid, or same name) to follow the order in `master`.
+function syncGroupOrder(master, slave){
+  const order = master.map(groupKey).filter(Boolean);
+  const slots = [], keyed = [];
+  slave.forEach((g,i)=>{ if(groupKey(g)){ slots.push(i); keyed.push(g); } });
+  const pos = g => { const k = order.indexOf(groupKey(g)); return k < 0 ? 1e9 : k; };
+  const sorted = keyed.map((g,i)=>({g,i})).sort((a,b)=> (pos(a.g)-pos(b.g)) || (a.i-b.i)).map(x=>x.g);
+  slots.forEach((slot,k)=>{ slave[slot] = sorted[k]; });
+}
+function moveGroup(r, kind, groupId, dir){
+  const ig = activeIngredientGroups(r), sg = activeInstructionGroups(r);
+  const A = kind === 'ing' ? ig : sg, B = kind === 'ing' ? sg : ig;
+  const idx = A.findIndex(g=>g.id===groupId);
+  if(!moveInArray(A, idx, dir)) return false;
+  syncGroupOrder(A, B);
+  return true;
+}
+function moveBtns(kind, id, idx, len, cls){
+  return `<button class="row-move" data-kind="${kind}" data-id="${id}" data-dir="-1" title="Move up" ${idx<=0?'disabled':''}>${ICON.up}</button><button class="row-move" data-kind="${kind}" data-id="${id}" data-dir="1" title="Move down" ${idx>=len-1?'disabled':''}>${ICON.down}</button>`;
+}
+function grpMoveBtns(kind, group, groups){
+  const i = groups.indexOf(group);
+  return `<button class="grp-move" data-kind="${kind}" data-group="${group.id}" data-dir="-1" title="Move component up" ${i<=0?'disabled':''}>${ICON.up}</button><button class="grp-move" data-kind="${kind}" data-group="${group.id}" data-dir="1" title="Move component down" ${i>=groups.length-1?'disabled':''}>${ICON.down}</button>`;
+}
+function wireGroupMoves(r, kind){
+  document.querySelectorAll(`.grp-move[data-kind="${kind}"]`).forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const dir = +btn.dataset.dir, gid = btn.dataset.group;
+      if(moveGroup(r, kind, gid, dir)) refreshAndFocus(r, `.grp-move[data-kind="${kind}"][data-group="${gid}"][data-dir="${dir}"]`, true);
+    });
+  });
+}
+function wireItemMoves(r, kind, groups){
+  document.querySelectorAll(`.row-move[data-kind="${kind}"]`).forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const id = btn.dataset.id, dir = +btn.dataset.dir;
+      for(const g of groups){
+        const idx = g.items.findIndex(x=>x.id===id);
+        if(idx > -1){
+          if(moveInArray(g.items, idx, dir)) refreshAndFocus(r, `.row-move[data-kind="${kind}"][data-id="${id}"][data-dir="${dir}"]`, true);
+          return;
+        }
+      }
+    });
+  });
+}
+function componentOvenRows(r, cid){ return activeOvenRows(r).filter(o=>o.cid===cid && (o.temp||o.time)); }
+function componentOvenHTML(r, cid){
+  const rows = componentOvenRows(r, cid);
+  if(!rows.length) return '';
+  return rows.map(o=>{
+    const fn = o.setting==='Other' ? (o.settingOther||'Other') : o.setting;
+    const bits = [];
+    if(o.temp) bits.push(`<span><b>Oven temp</b>${escHtml(String(o.temp))}°${escHtml(o.tempUnit||'C')}</span>`);
+    if(fn) bits.push(`<span><b>Oven function</b>${escHtml(fn)}</span>`);
+    if(o.time) bits.push(`<span><b>Bake time</b>${escHtml(String(o.time))} ${escHtml(o.timeUnit||'min')}</span>`);
+    return `<div class="comp-oven">${bits.join('')}</div>`;
+  }).join('');
+}
+function firstGroupOfCid(groups, cid){ return groups.find(g=>g.cid===cid); }
+function buildComponent(srcRec, vid, scale, nameOverride){
+  const v = vid ? (srcRec.variants||[]).find(x=>x.id===vid) : null;
+  const ingG = v ? v.ingredientGroups : srcRec.ingredientGroups;
+  const insG = v ? v.instructionGroups : srcRec.instructionGroups;
+  const ovenR = (v ? v.ovenRows : srcRec.ovenRows) || [];
+  const eqR = (v ? v.equipmentRows : srcRec.equipmentRows) || [];
+  const cid = uid();
+  const label = nameOverride || ((srcRec.name||'Untitled').trim() + (v ? ' – ' + (v.name||'Variant') : ''));
+  const src = { rid: srcRec.id, vid: vid || null, name: label, scale };
+  const nm = (g,i,n)=> n>1 ? `${label} – ${g.name||('Part '+(i+1))}` : label;
+  const scaleAmt = a => (a===null || a===undefined || a==='' || isNaN(a)) ? a : Math.round(a*scale*100)/100;
+  return {
+    cid,
+    ing: ingG.map((g,i)=>({ id: uid(), name: nm(g,i,ingG.length), cid, src, items: g.items.map(it=>({ ...deepClone(it), id: uid(), checked:false, amount: scaleAmt(it.amount) })) })),
+    ins: insG.map((g,i)=>({ id: uid(), name: nm(g,i,insG.length), cid, src, items: g.items.map(it=>({ ...deepClone(it), id: uid(), checked:false, images:(it.images||[]).map(im=>({...im, id: uid()})) })) })),
+    oven: ovenR.filter(o=>o.temp||o.time).map(o=>({ ...deepClone(o), id: uid(), cid, label })),
+    eq: eqR.filter(e=>e.detail || (e.type && e.detail)).map(e=>({ ...deepClone(e), id: uid(), cid })),
+    srcOvenOn: !!(srcRec.sectionsEnabled && srcRec.sectionsEnabled.oven),
+    srcEqOn: !!(srcRec.sectionsEnabled && srcRec.sectionsEnabled.equipment)
+  };
+}
+function blankComponent(name){
+  const cid = uid();
+  return { cid, ing:[{ id: uid(), name, cid, src:null, items:[makeIngredient()] }], ins:[{ id: uid(), name, cid, src:null, items:[makeInstr()] }], oven:[], eq:[] };
+}
+function nameMainGroups(r){
+  // when a recipe gains its first component, give its unnamed main lists a name so headings read sensibly
+  const ig = activeIngredientGroups(r), sg = activeInstructionGroups(r);
+  if(ig.length===1 && !ig[0].name) ig[0].name = r.name || 'Main';
+  if(sg.length===1 && !sg[0].name) sg[0].name = r.name || 'Main';
+}
+function applyComponent(r, comp, atIngIdx, atInsIdx){
+  const ig = activeIngredientGroups(r), sg = activeInstructionGroups(r), orows = activeOvenRows(r), erows = activeEquipmentRows(r);
+  nameMainGroups(r);
+  if(atIngIdx === undefined || atIngIdx < 0) atIngIdx = ig.length;
+  if(atInsIdx === undefined || atInsIdx < 0) atInsIdx = sg.length;
+  ig.splice(atIngIdx, 0, ...comp.ing);
+  sg.splice(atInsIdx, 0, ...comp.ins);
+  if(comp.oven.length){
+    // drop the blank placeholder row so only real settings remain
+    for(let i=orows.length-1;i>=0;i--){ const o=orows[i]; if(!o.cid && !o.temp && !o.time && !o.label) orows.splice(i,1); }
+    orows.push(...comp.oven);
+    r.sectionsEnabled.oven = true;
+  }
+  if(comp.eq.length){
+    comp.eq.forEach(e=>{ if(!erows.some(x=>x.type===e.type && x.detail===e.detail)) erows.push(e); });
+    r.sectionsEnabled.equipment = true;
+  }
+}
+function removeComponentRows(r, cid){
+  const orows = activeOvenRows(r), erows = activeEquipmentRows(r);
+  for(let i=orows.length-1;i>=0;i--) if(orows[i].cid===cid) orows.splice(i,1);
+  for(let i=erows.length-1;i>=0;i--) if(erows[i].cid===cid) erows.splice(i,1);
+}
+function cleanupComponentIfOrphan(r, cid){
+  if(!cid) return;
+  const still = activeIngredientGroups(r).some(g=>g.cid===cid) || activeInstructionGroups(r).some(g=>g.cid===cid);
+  if(!still) removeComponentRows(r, cid);
+}
+function resyncComponent(r, cid, scale){
+  const ig = activeIngredientGroups(r), sg = activeInstructionGroups(r);
+  const first = ig.find(g=>g.cid===cid);
+  const src = first && first.src;
+  if(!src) return false;
+  const rec = data.recipes.find(x=>x.id===src.rid);
+  if(!rec) return false;
+  const comp = buildComponent(rec, src.vid, scale);
+  const ii = ig.findIndex(g=>g.cid===cid), si = sg.findIndex(g=>g.cid===cid);
+  for(let i=ig.length-1;i>=0;i--) if(ig[i].cid===cid) ig.splice(i,1);
+  for(let i=sg.length-1;i>=0;i--) if(sg[i].cid===cid) sg.splice(i,1);
+  removeComponentRows(r, cid);
+  comp.ing.forEach(g=>{ g.cid = cid; }); comp.ins.forEach(g=>{ g.cid = cid; }); comp.oven.forEach(o=>{ o.cid = cid; }); comp.eq.forEach(e=>{ e.cid = cid; });
+  applyComponent(r, comp, ii, si);
+  return true;
+}
+// Small modal asking for the scale (and confirming). cb(scale) runs on confirm.
+function askComponentScale(title, subtitle, defaultScale, confirmLabel, cb){
+  removeAllModals();
+  const backdrop = document.createElement('div');
+  backdrop.className = 'modal-backdrop';
+  backdrop.innerHTML = `<div class="modal"><h3>${escHtml(title)}</h3>
+    <p class="hint" style="margin:0 0 10px;">${escHtml(subtitle||'')}</p>
+    <label class="hint">Scale (× the source recipe's amounts)</label>
+    <input type="number" id="compScaleInput" step="0.25" min="0.05" value="${escAttr(String(defaultScale))}" style="width:100%;margin:6px 0 14px;padding:10px;border:1px solid var(--hairline-strong);border-radius:8px;font-size:16px;box-sizing:border-box;" />
+    <div style="display:flex;gap:8px;"><button class="modal-close" id="compScaleCancel" style="margin:0;">Cancel</button><button class="rec-btn" id="compScaleOk" style="flex:1;padding:10px;font-size:14px;">${escHtml(confirmLabel)}</button></div></div>`;
+  document.body.appendChild(backdrop);
+  const inp = backdrop.querySelector('#compScaleInput'); inp.focus(); inp.select();
+  const done = ()=>{
+    const v = parseFloat(String(inp.value).replace(',','.'));
+    if(!(v > 0)){ inp.focus(); return; }
+    safeRemoveModal(backdrop); cb(v);
+  };
+  backdrop.querySelector('#compScaleOk').addEventListener('click', done);
+  inp.addEventListener('keydown', e=>{ if(e.key==='Enter') done(); });
+  backdrop.querySelector('#compScaleCancel').addEventListener('click', ()=> safeRemoveModal(backdrop));
+  backdrop.addEventListener('click', e=>{ if(e.target===backdrop) safeRemoveModal(backdrop); });
+}
+function openComponentPicker(r, onDone){
+  removeAllModals();
+  const rr = rawOf(r);
+  const backdrop = document.createElement('div');
+  backdrop.className = 'modal-backdrop';
+  backdrop.innerHTML = `<div class="modal"><h3>Add component</h3>
+    <p class="hint" style="margin:0 0 8px;">Copies a recipe's ingredients, steps and oven settings into this recipe as its own labelled section.</p>
+    <button class="add-row-btn" id="compBlankBtn" style="margin-bottom:10px;">${ICON.plus} Blank component</button>
+    <div id="compBlankForm" style="display:none;margin-bottom:10px;"><input type="text" class="picker-search" id="compBlankName" placeholder="Component name (e.g. Syrup)" style="margin-bottom:6px;" /><button id="compBlankGo">Add blank component</button></div>
+    <input type="text" class="picker-search" id="compSearch" placeholder="Search recipes…" />
+    <div id="compList"></div>
+    <button class="modal-close" id="compClose">Cancel</button></div>`;
+  document.body.appendChild(backdrop);
+  const list = backdrop.querySelector('#compList');
+  function render_(q){
+    q = (q||'').trim().toLowerCase();
+    const items = [];
+    data.recipes.forEach(rec=>{
+      if(rec.id === rr.id) return;
+      const nm = rec.name||'Untitled';
+      const match = !q || nm.toLowerCase().includes(q);
+      if(match) items.push({ rid: rec.id, vid: null, label: nm, variant:false });
+      (rec.variants||[]).forEach(v=>{ if(match || (v.name||'').toLowerCase().includes(q)) items.push({ rid: rec.id, vid: v.id, label: '↳ '+(v.name||'Variant'), variant:true }); });
+    });
+    list.innerHTML = items.length ? items.map(it=>`<div class="picker-item${it.variant?' picker-item-variant':''}" data-rid="${escAttr(it.rid)}" data-vid="${escAttr(it.vid||'')}">${escHtml(it.label)}</div>`).join('') : `<div class="picker-empty">No matches</div>`;
+    list.querySelectorAll('.picker-item').forEach(el=> el.addEventListener('click', ()=>{
+      const rec = data.recipes.find(x=>x.id===el.dataset.rid); if(!rec) return;
+      const vid = el.dataset.vid || null;
+      const label = (rec.name||'Untitled') + (vid ? ' – ' + (((rec.variants||[]).find(v=>v.id===vid)||{}).name||'') : '');
+      safeRemoveModal(backdrop);
+      askComponentScale('Add "'+label+'"', 'Ingredients are multiplied by this number when copied.', 1, 'Add component', scale=>{
+        applyComponent(r, buildComponent(rec, vid, scale));
+        if(onDone) onDone();
+      });
+    }));
+  }
+  render_('');
+  backdrop.querySelector('#compSearch').addEventListener('input', e=> render_(e.target.value));
+  backdrop.querySelector('#compBlankBtn').addEventListener('click', ()=>{ const f = backdrop.querySelector('#compBlankForm'); f.style.display = f.style.display==='none' ? 'block' : 'none'; backdrop.querySelector('#compBlankName').focus(); });
+  backdrop.querySelector('#compBlankGo').addEventListener('click', ()=>{
+    const nm = backdrop.querySelector('#compBlankName').value.trim() || 'Component';
+    safeRemoveModal(backdrop);
+    applyComponent(r, blankComponent(nm));
+    if(onDone) onDone();
+  });
+  backdrop.querySelector('#compClose').addEventListener('click', ()=> safeRemoveModal(backdrop));
+  backdrop.addEventListener('click', e=>{ if(e.target===backdrop) safeRemoveModal(backdrop); });
+}
+function wireComponentActions(r){
+  document.querySelectorAll('.comp-resync-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const cid = btn.dataset.cid;
+      const g = activeIngredientGroups(r).find(x=>x.cid===cid);
+      if(!g || !g.src){ return; }
+      const rec = data.recipes.find(x=>x.id===g.src.rid);
+      if(!rec){ alert('The source recipe no longer exists, so this component cannot be re-synced.'); return; }
+      askComponentScale('Re-sync "'+g.src.name+'"', 'This replaces the component\'s ingredients, steps and oven settings with the current version of the source. Edits you made in this component will be overwritten.', g.src.scale || 1, 'Re-sync', scale=>{
+        if(resyncComponent(r, cid, scale)) refreshBody(r);
+      });
+    });
+  });
+}
+function expandTokenOf(name){
+  if(!name) return null;
+  RECIPE_LINK_RE.lastIndex = 0;
+  const m = RECIPE_LINK_RE.exec(name);
+  if(!m) return null;
+  const lk = splitLinkId(m[1]);
+  return data.recipes.some(x=>x.id===lk.rid) ? lk : null;
+}
 function ingredientsBodyHTML(r, editing){
   const groups = activeIngredientGroups(r);
   const factor = scaleFactor(r);
@@ -4568,7 +4845,7 @@ function ingredientsBodyHTML(r, editing){
       }
       return html;
     }
-    const rows = list.map(item => `
+    const rows = list.map((item, itemIdx) => `
       <li class="ing-item" data-id="${item.id}">
         <button class="ing-check ${item.checked?'checked':''}" data-id="${item.id}">${ICON.check}</button>
         <div class="ing-fields">
@@ -4580,6 +4857,8 @@ function ingredientsBodyHTML(r, editing){
           </div>
         </div>
         <div class="row-actions">
+          ${moveBtns('ing', item.id, itemIdx, list.length)}
+          ${expandTokenOf(item.name) ? `<button class="expand-comp-btn" data-id="${item.id}" title="Expand this recipe into a component">${ICON.layers}</button>` : ''}
           <button class="opt-toggle-btn ${item.optional?'active':''}" data-kind="ing" data-id="${item.id}" title="Mark as optional">Opt</button>
           <button class="row-add" data-kind="ing" data-id="${item.id}">${ICON.plus}</button>
           <button class="row-del" data-kind="ing" data-id="${item.id}">${ICON.trash}</button>
@@ -4588,8 +4867,9 @@ function ingredientsBodyHTML(r, editing){
     const groupHeader = showGroupNames ? `
       <div class="ing-group-header">
         <input type="text" class="ing-group-name-input" data-group="${group.id}" placeholder="Component name" value="${escAttr(group.name)}" />
+        ${grpMoveBtns('ing', group, groups)}
         <button class="row-del ing-group-del" data-group="${group.id}" title="Remove this list">${ICON.trash}</button>
-      </div>` : '';
+      </div>${(group.cid && group.src && group === firstGroupOfCid(groups, group.cid)) ? `<div class="comp-from">From: ${escHtml(group.src.name||'recipe')} <button class="comp-resync-btn" data-cid="${escAttr(group.cid)}">Re-sync</button></div>` : ''}` : '';
     return `${groupHeader}
       <ul class="ing-list" data-group="${group.id}">${rows}</ul>
       <button class="add-row-btn addIngRowBtn" data-group="${group.id}">${ICON.plus} Add ingredient</button>`;
@@ -4597,7 +4877,8 @@ function ingredientsBodyHTML(r, editing){
 
   let html = groups.map(renderGroup).join(editing ? '<div style="height:6px"></div>' : '<div style="height:4px"></div>');
   if(editing){
-    html += `<button class="add-row-btn" id="addIngGroupBtn" style="margin-top:12px;">${ICON.plus} Add ingredient list</button>`;
+    html += `<button class="add-row-btn" id="addIngGroupBtn" style="margin-top:12px;">${ICON.plus} Add ingredient list</button>
+      <button class="add-row-btn" id="addComponentBtn" style="margin-top:8px;">${ICON.layers} Add component (from a recipe)</button>`;
   }
   return html;
 }
@@ -4681,6 +4962,7 @@ function wireIngredients(r, editing){
       const g = groups[idx];
       if(!confirm(`Delete the "${g.name||'Untitled'}" ingredient list and all ${g.items.length} item(s) in it?`)) return;
       groups.splice(idx,1);
+      cleanupComponentIfOrphan(r, g.cid);
       refreshBody(r);
     });
   });
@@ -4689,13 +4971,39 @@ function wireIngredients(r, editing){
     groups.push(makeIngredientGroup());
     refreshBody(r);
   });
+  const addCompBtn = document.getElementById('addComponentBtn');
+  if(addCompBtn) addCompBtn.addEventListener('click', ()=> openComponentPicker(r, ()=> refreshBody(r)));
+  document.querySelectorAll('.expand-comp-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const { item, group } = findItemAndGroup(btn.dataset.id);
+      if(!item || !group) return;
+      const lk = expandTokenOf(item.name); if(!lk) return;
+      const rec = data.recipes.find(x=>x.id===lk.rid); if(!rec) return;
+      const label = recipeLinkLabel(lk.rid, lk.vid) || rec.name;
+      const def = (item.amount!==null && item.amount!=='' && !isNaN(item.amount) && !item.unit) ? item.amount : 1;
+      askComponentScale('Expand "'+label+'"', 'Replaces this ingredient line with the full component. Default scale comes from the line\'s amount.', def, 'Expand', scale=>{
+        const gi = groups.indexOf(group);
+        const idx = group.items.findIndex(x=>x.id===item.id);
+        if(idx>-1) group.items.splice(idx,1);
+        const emptied = group.items.length === 0 && groups.length > 1;
+        if(emptied) groups.splice(groups.indexOf(group),1);
+        const at = emptied ? gi : groups.indexOf(group)+1;
+        applyComponent(r, buildComponent(rec, lk.vid, scale), at);
+        refreshBody(r);
+      });
+    });
+  });
+  wireComponentActions(r);
+  wireGroupMoves(r, 'ing');
+  wireItemMoves(r, 'ing', groups);
 }
 
 /* ---------- instructions ---------- */
 function ovenBlockHTML(r, editing){
   if(!r.sectionsEnabled.oven) return '';
-  const rows = activeOvenRows(r);
-  const showLabels = rows.length > 1;
+  const allRows = activeOvenRows(r);
+  const rows = editing ? allRows : allRows.filter(o=>!o.cid);   // component oven settings show under their component, once
+  const showLabels = rows.length > 1 || (editing && allRows.some(o=>o.cid));
 
   if(!editing){
     const rowsHtml = rows.map(oven=>{
@@ -4928,7 +5236,8 @@ function instructionsGroupsHTML(r, editing){
         </li>`;
       }).join('');
       const label = showGroupNames ? `<div class="ing-group-label">${escHtml(group.name||'Untitled')}</div>` : '';
-      return `${label}<ul class="instr-list">${rows}</ul>`;
+      const compOven = (group.cid && group === firstGroupOfCid(groups, group.cid)) ? componentOvenHTML(r, group.cid) : '';
+      return `${label}${compOven}<ul class="instr-list">${rows}</ul>`;
     }
     const rows = list.map((item, i) => {
       const photoGrid = (item.images && item.images.length) ? `<div class="instr-photo-grid">${item.images.map(img=>`
@@ -4953,6 +5262,7 @@ function instructionsGroupsHTML(r, editing){
           ${photoGrid}
         </div>
         <div class="instr-actions">
+          <div class="move-pair">${moveBtns('instr', item.id, i, list.length)}</div>
           <button class="row-add" data-kind="instr" data-id="${item.id}">${ICON.plus}</button>
           <button class="row-del" data-kind="instr" data-id="${item.id}">${ICON.trash}</button>
         </div>
@@ -4961,6 +5271,7 @@ function instructionsGroupsHTML(r, editing){
     const groupHeader = showGroupNames ? `
       <div class="ing-group-header">
         <input type="text" class="instr-group-name-input" data-group="${group.id}" placeholder="Component name" value="${escAttr(group.name)}" />
+        ${grpMoveBtns('instr', group, groups)}
         <button class="row-del instr-group-del" data-group="${group.id}" title="Remove this list">${ICON.trash}</button>
       </div>` : '';
     return `${groupHeader}
@@ -5088,6 +5399,7 @@ function wireInstructions(r, editing){
       const g = groups[idx];
       if(!confirm(`Delete the "${g.name||'Untitled'}" instruction list and all ${g.items.length} step(s) in it?`)) return;
       groups.splice(idx,1);
+      cleanupComponentIfOrphan(r, g.cid);
       refreshBody(r);
     });
   });
@@ -5096,6 +5408,8 @@ function wireInstructions(r, editing){
     groups.push(makeInstructionGroup());
     refreshBody(r);
   });
+  wireGroupMoves(r, 'instr');
+  wireItemMoves(r, 'instr', groups);
   document.querySelectorAll('.instr-photo-btn').forEach(btn=>{
     btn.addEventListener('click', ()=>{
       const input = document.querySelector(`.instr-photo-input[data-id="${btn.dataset.id}"]`);
@@ -5521,6 +5835,10 @@ function openPrintPreview(r){
       if(showGroupNames){
         html += `<li class="kitchen-ing-group-label"><span class="kitchen-ing-group-title">${escHtml(group.name||'Untitled')}</span></li>`;
       }
+      if(group.cid && group === firstGroupOfCid(groups, group.cid)){
+        const co = componentOvenRows(r, group.cid);
+        if(co.length) html += `<li class="kitchen-ing-group-label"><div class="kitchen-oven">${co.map(o=>{ const fn=o.setting==='Other'?(o.settingOther||'Other'):o.setting; return [o.temp?`<div><b>Oven temp</b>${escHtml(String(o.temp))}°${escHtml(o.tempUnit||'C')}</div>`:'', fn?`<div><b>Oven function</b>${escHtml(fn)}</div>`:'', o.time?`<div><b>Bake time</b>${escHtml(String(o.time))} ${escHtml(o.timeUnit||'min')}</div>`:''].join(''); }).join('')}</div></li>`;
+      }
       html += group.items.map((item,i)=>{
         const photoGrid = (printIncludePhotos && item.images && item.images.length)
           ? `<div class="instr-photo-grid" style="margin-top:8px;">${item.images.map(img=>`<img class="instr-photo-thumb kitchen-photo-thumb" src="${img.data}" />`).join('')}</div>`
@@ -5531,7 +5849,7 @@ function openPrintPreview(r){
     return html;
   }
 
-  const ovenRows = r.sectionsEnabled.oven ? activeOvenRows(r) : [];
+  const ovenRows = r.sectionsEnabled.oven ? activeOvenRows(r).filter(o=>!o.cid) : [];
   const variant = activeVariantObj(r);
   const showOvenLabels = ovenRows.length > 1;
   let ovenHtml = '';
@@ -5695,7 +6013,7 @@ function migrateRecipe(raw){
   }
   if(Array.isArray(raw.ingredientGroups)){
     r.ingredientGroups = raw.ingredientGroups.map(g=>({
-      id: g.id||uid(), name: g.name||'',
+      ...g, id: g.id||uid(), name: g.name||'',
       items: (g.items||[]).map(normalizeIngItem)
     }));
   } else {
@@ -5703,7 +6021,7 @@ function migrateRecipe(raw){
   }
   if(Array.isArray(raw.instructionGroups)){
     r.instructionGroups = raw.instructionGroups.map(g=>({
-      id: g.id||uid(), name: g.name||'',
+      ...g, id: g.id||uid(), name: g.name||'',
       items: (g.items||[]).map(i=>({ checked:false, images:[], ...i }))
     }));
   } else {
@@ -6091,14 +6409,15 @@ function scrollParents(){
   document.querySelectorAll('.rv-body,.book-page').forEach(el=> out.push(el));
   return out;
 }
-function refreshAndFocus(r, selector){
+function refreshAndFocus(r, selector, noCenter){
   const saved = scrollParents().map(el=>[el, el.scrollTop]);
   refreshBody(r);
   saved.forEach(([el,top])=>{ try{ el.scrollTop = top; }catch(e){} });
-  const el = selector ? document.querySelector(selector) : null;
+  let el = selector ? document.querySelector(selector) : null;
+  if(el && el.disabled){ const alt = el.parentElement && el.parentElement.querySelector('button:not([disabled])'); if(alt) el = alt; }
   if(el){
     try{ el.focus({preventScroll:true}); }catch(e){ el.focus(); }
-    try{ el.scrollIntoView({block:'center'}); }catch(e){}
+    if(!noCenter){ try{ el.scrollIntoView({block:'center'}); }catch(e){} }
   }
 }
 function focusLast(selector){ const els = document.querySelectorAll(selector); if(els.length) els[els.length-1].focus(); }
