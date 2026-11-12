@@ -6,18 +6,20 @@
 <title>Recipe Book</title>
 <style>
   :root{
-    --paper: #F2EFE9;
-    --paper-raised: #FBF9F5;
-    --ink: #2B2926;
-    --ink-soft: #6B655C;
-    --ink-faint: #A69F8F;
-    --hairline: #DCD5C5;
-    --hairline-strong: #C9C0AC;
+    /* Navy / Teal / Beige / Sky Blue / White palette */
+    --paper: #F5EFEB;
+    --paper-raised: #FFFFFF;
+    --ink: #2F4156;
+    --ink-soft: #4A6275;
+    --ink-faint: #6F8797;
+    --hairline: #D9E4EC;
+    --hairline-strong: #C8D9E6;
     --danger: #A6503C;
-    --danger-bg: #F3E7E2;
-    --accent: #6B7561;
-    --shop-active: #9C6B54;
-    --shadow: 0 1px 2px rgba(43,41,38,0.06), 0 8px 24px rgba(43,41,38,0.06);
+    --danger-bg: #F6E9E4;
+    --accent: #567C8D;
+    --accent-deep: #4A6E7F;
+    --shop-active: #2F4156;
+    --shadow: 0 1px 2px rgba(47,65,86,0.06), 0 8px 24px rgba(47,65,86,0.07);
     --font-display: ui-serif, Georgia, 'Iowan Old Style', 'Times New Roman', serif;
     --font-body: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
@@ -35,17 +37,17 @@
     -webkit-tap-highlight-color: transparent;
   }
   body{ overflow-x:hidden; }
-  ::selection{ background: #D8D2C4; }
+  ::selection{ background: #C8D9E6; }
   button, input, textarea, select{ font-family:inherit; color:inherit; }
   button{ cursor:pointer; }
   input, textarea, select{ background:transparent; }
   #app{ min-height:100%; padding-bottom:100px; }
-  a{ color:var(--accent); }
+  a{ color:var(--accent-deep); }
 
   /* ---------- Top bar ---------- */
   .topbar{
     position:sticky; top:0; z-index:20;
-    background: rgba(242,239,233,0.92);
+    background: rgba(245,239,235,0.92);
     backdrop-filter: blur(10px);
     border-bottom:1px solid var(--hairline);
     padding: 14px 20px;
@@ -73,7 +75,7 @@
   .gf-stamp{
     display:inline-flex; align-items:center; justify-content:center; vertical-align:middle;
     width:20px; height:20px; border-radius:50%; margin-left:6px;
-    color:var(--accent); border:1.5px solid var(--accent); background:rgba(107,117,97,0.10);
+    color:var(--accent-deep); border:1.5px solid var(--accent); background:rgba(86,124,141,0.10);
     flex:0 0 auto;
   }
   .gf-stamp svg{ width:13px; height:13px; stroke:currentColor; }
@@ -82,8 +84,8 @@
   .row-move:disabled, .grp-move:disabled{ opacity:0.15; }
   .move-pair{ display:flex; gap:0; }
   .comp-from{ display:flex; align-items:center; gap:8px; margin:-4px 0 8px 0; font-size:12px; color:var(--ink-faint); }
-  .comp-from button{ border:1px solid var(--accent); color:var(--accent); background:none; border-radius:999px; padding:3px 10px; font-size:12px; }
-  .comp-oven{ display:flex; flex-wrap:wrap; gap:4px 12px; margin:-2px 0 10px 0; padding:6px 10px; border-radius:8px; background:rgba(107,117,97,0.08); font-size:13px; color:var(--ink-soft); }
+  .comp-from button{ border:1px solid var(--accent); color:var(--accent-deep); background:none; border-radius:999px; padding:3px 10px; font-size:12px; }
+  .comp-oven{ display:flex; flex-wrap:wrap; gap:4px 12px; margin:-2px 0 10px 0; padding:6px 10px; border-radius:8px; background:rgba(86,124,141,0.08); font-size:13px; color:var(--ink-soft); }
   .comp-oven b{ font-weight:600; color:var(--ink); margin-right:4px; }
   .expand-comp-btn{ border:none; background:none; padding:4px; opacity:0.7; }
   .expand-comp-btn svg{ width:18px; height:18px; stroke:var(--accent); }
@@ -96,12 +98,12 @@
   .rec-main{ flex:1; min-width:0; }
   .rec-name{ font-size:14px; font-weight:600; overflow-wrap:anywhere; }
   .rec-sub{ font-size:12px; color:var(--ink-faint); margin-top:2px; }
-  .rec-btn{ border:1px solid var(--accent); color:var(--accent); background:none; border-radius:999px; padding:5px 12px; font-size:12.5px; flex:0 0 auto; }
+  .rec-btn{ border:1px solid var(--accent); color:var(--accent-deep); background:none; border-radius:999px; padding:5px 12px; font-size:12.5px; flex:0 0 auto; }
   .rec-flag-dot{ color:var(--danger); font-size:12px; margin-left:6px; }
   .picker-item-variant{ padding-left:28px; color:var(--ink-soft, var(--ink)); font-size:0.95em; }
   .testing-badge{
     font-family:var(--font-body); font-size:10.5px; font-weight:600; letter-spacing:0.02em;
-    color:var(--accent); background:rgba(107,117,97,0.12);
+    color:var(--accent-deep); background:rgba(86,124,141,0.12);
     border:1px solid var(--accent); border-radius:999px; padding:2px 8px;
     flex:0 0 auto; white-space:nowrap;
   }
@@ -178,6 +180,8 @@
     display:flex; align-items:center; justify-content:space-between;
     padding: 10px 20px 6px 20px;
   }
+  .toolbar .comp-toggle{ margin-left:auto; margin-right:8px; border:1px solid var(--hairline-strong); background:transparent; color:var(--ink-soft); border-radius:999px; padding:4px 9px; font-size:11.5px; white-space:nowrap; }
+  .toolbar .count-label{ white-space:nowrap; }
   .count-label{ font-size:12.5px; color:var(--ink-faint); letter-spacing:0.3px; text-transform:uppercase; }
   .view-toggle{ display:flex; border:1px solid var(--hairline-strong); border-radius:8px; overflow:hidden; }
   .view-toggle button{
@@ -205,7 +209,7 @@
   .tile:active{ transform: scale(0.98); }
   .tile-img{
     width:100%; aspect-ratio: 4/5; object-fit:cover;
-    background: linear-gradient(135deg, #E7E1D3, #DED6C3);
+    background: linear-gradient(135deg, #DCE7F0, #C8D9E6);
     display:block;
   }
   .tile-img.placeholder{ display:flex; align-items:center; justify-content:center; }
@@ -241,7 +245,7 @@
   }
   .carousel-card-img{
     width:100%; object-fit:cover; display:block;
-    background: linear-gradient(135deg, #E7E1D3, #DED6C3);
+    background: linear-gradient(135deg, #DCE7F0, #C8D9E6);
   }
   .carousel-shell .carousel-card-img{ flex:1 1 auto; min-height:0; }
   .carousel-card-img.placeholder{ display:flex; align-items:center; justify-content:center; }
@@ -270,11 +274,11 @@
   .tile-img-wrap{ position:relative; }
   .tile-shop-btn{
     position:absolute; top:8px; right:8px; width:32px; height:32px;
-    background:rgba(251,249,245,0.92); box-shadow: 0 1px 4px rgba(43,41,38,0.15);
+    background:rgba(255,255,255,0.92); box-shadow: 0 1px 4px rgba(47,65,86,0.15);
   }
   .list-thumb{
     width:52px; height:52px; border-radius:8px; object-fit:cover; flex:0 0 auto;
-    background: linear-gradient(135deg, #E7E1D3, #DED6C3);
+    background: linear-gradient(135deg, #DCE7F0, #C8D9E6);
   }
   .list-thumb.placeholder{ display:flex; align-items:center; justify-content:center; }
   .list-thumb.placeholder svg{ width:18px; height:18px; stroke:var(--ink-faint); fill:none; opacity:0.6; }
@@ -284,7 +288,7 @@
   .pantry-list-meta{ display:flex; align-items:baseline; gap:8px; margin-top:3px; flex-wrap:wrap; }
   .pantry-list-type{ font-size:12.5px; font-style:italic; color:var(--ink-soft); }
   .pantry-list-brand{ font-size:11px; text-transform:uppercase; letter-spacing:0.5px; color:var(--ink-faint); }
-  .pantry-list-price{ font-size:12.5px; color:var(--accent); font-weight:600; }
+  .pantry-list-price{ font-size:12.5px; color:var(--accent-deep); font-weight:600; }
   .pantry-list-qty{ font-size:12.5px; color:var(--ink-soft); }
   .pantry-pq-row{ display:flex; gap:10px; margin-top:8px; }
   .pantry-pq-input{
@@ -292,7 +296,7 @@
     padding:9px 12px; font-size:14px; outline:none;
   }
   .pantry-pq-static{ margin-top:8px; font-size:14px; color:var(--ink-soft); }
-  .pantry-pq-static span:first-child{ color:var(--accent); font-weight:600; }
+  .pantry-pq-static span:first-child{ color:var(--accent-deep); font-weight:600; }
   .list-info .tile-tags{ margin-top:3px; }
   .recipe-list-row{ padding: 14px 4px; gap:16px; }
   .recipe-list-thumb{ width:68px; height:68px; }
@@ -327,7 +331,7 @@
   .rv-header{
     display:flex; align-items:center; justify-content:space-between; gap:10px;
     padding: 14px 16px; position:sticky; top:0; z-index:20;
-    background: rgba(242,239,233,0.92); backdrop-filter: blur(10px);
+    background: rgba(245,239,235,0.92); backdrop-filter: blur(10px);
     border-bottom:1px solid var(--hairline);
   }
   .rv-header-left, .rv-header-right{ display:flex; align-items:center; gap:6px; }
@@ -399,7 +403,7 @@
   }
   .rv-image-wrap{
     width:100%; aspect-ratio: 16/10; border-radius: var(--radius-l);
-    background: linear-gradient(135deg, #E7E1D3, #DED6C3);
+    background: linear-gradient(135deg, #DCE7F0, #C8D9E6);
     display:flex; align-items:center; justify-content:center;
     overflow:hidden; margin: 14px 0 22px 0; position:relative;
     border:1px solid var(--hairline);
@@ -414,7 +418,7 @@
   .rv-image-wrap .upload-hint span{ font-size:12.5px; letter-spacing:0.3px; }
   .rv-image-wrap .change-overlay{
     position:absolute; bottom:10px; right:10px;
-    background: rgba(43,41,38,0.72); color:var(--paper);
+    background: rgba(47,65,86,0.72); color:var(--paper);
     font-size:11.5px; padding:5px 10px; border-radius:999px; letter-spacing:0.3px;
   }
   .image-link-row{ margin-top:-14px; margin-bottom:20px; }
@@ -437,7 +441,7 @@
   .rv-carousel::-webkit-scrollbar{ display:none; }
   .rv-carousel-slide{
     flex: 0 0 100%; scroll-snap-align: center; aspect-ratio: 16/10;
-    background: linear-gradient(135deg, #E7E1D3, #DED6C3);
+    background: linear-gradient(135deg, #DCE7F0, #C8D9E6);
     display:flex; align-items:center; justify-content:center;
     position:relative; border-radius: var(--radius-l); overflow:hidden;
     border:1px solid var(--hairline);
@@ -452,7 +456,7 @@
   .rv-carousel-slide.rv-carousel-add .upload-hint span{ font-size:12.5px; letter-spacing:0.3px; }
   .carousel-del{
     position:absolute; top:10px; right:10px; width:30px; height:30px; border-radius:50%;
-    background:rgba(43,41,38,0.72); border:none; display:flex; align-items:center; justify-content:center;
+    background:rgba(47,65,86,0.72); border:none; display:flex; align-items:center; justify-content:center;
   }
   .carousel-del svg{ width:14px; height:14px; stroke:var(--paper); fill:none; }
   .rv-carousel-dots{ display:flex; justify-content:center; gap:6px; margin-top:8px; }
@@ -465,7 +469,7 @@
   }
   .rv-title::placeholder{ color: var(--ink-faint); font-weight:500; }
   .rv-title-static{ font-family:var(--font-display); font-size:30px; font-weight:600; line-height:1.2; }
-  .rv-variant-sub{ font-size:13px; color:var(--accent); margin-top:2px; font-weight:600; letter-spacing:0.2px; }
+  .rv-variant-sub{ font-size:13px; color:var(--accent-deep); margin-top:2px; font-weight:600; letter-spacing:0.2px; }
 
   .chip-row{ display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
   .chip{ padding:6px 12px; border-radius:999px; border:1px solid var(--hairline-strong); background:var(--paper-raised); font-size:12.5px; color:var(--ink-soft); display:flex; align-items:center; gap:6px; }
@@ -596,7 +600,7 @@
   .fmt-toolbar button:active{ background:var(--ink); color:var(--paper); }
   .link-insert-btn{ border:none; background:none; opacity:0.7; display:flex; align-items:center; justify-content:center; width:26px; height:26px; flex:0 0 auto; margin-top:1px; }
   .link-insert-btn svg{ width:13px; height:13px; stroke:var(--accent); fill:none; }
-  a.recipe-link, a.pantry-link-ref, a.equipment-link-ref{ color:var(--accent); text-decoration:underline; text-decoration-color: var(--hairline-strong); cursor:pointer; }
+  a.recipe-link, a.pantry-link-ref, a.equipment-link-ref{ color:var(--accent-deep); text-decoration:underline; text-decoration-color: var(--hairline-strong); cursor:pointer; }
   .linked-from-label{ margin-top:18px; font-size:11.5px; text-transform:uppercase; letter-spacing:0.4px; color:var(--ink-faint); font-weight:600; }
   .settings-block-title{ margin-top:0; margin-bottom:8px; }
   #ovenStaticWrap + #equipmentStaticWrap{ margin-top:16px; }
@@ -605,7 +609,7 @@
   /* ---------- Shopping list ---------- */
   .shop-list{ list-style:none; margin:0 0 6px 0; padding:0; }
   .shop-item{ display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--hairline); }
-  .shop-thumb{ width:36px; height:36px; border-radius:7px; object-fit:cover; flex:0 0 auto; background: linear-gradient(135deg, #E7E1D3, #DED6C3); }
+  .shop-thumb{ width:36px; height:36px; border-radius:7px; object-fit:cover; flex:0 0 auto; background: linear-gradient(135deg, #DCE7F0, #C8D9E6); }
   .shop-thumb.placeholder{ display:flex; align-items:center; justify-content:center; }
   .shop-thumb.placeholder svg{ width:14px; height:14px; stroke:var(--ink-faint); fill:none; opacity:0.6; }
   .shop-group-dot{ width:8px; height:8px; margin-right:8px; display:inline-block; }
@@ -636,7 +640,7 @@
   }
   .linked-from-thumb{
     width:22px; height:22px; border-radius:50%; object-fit:cover; flex:0 0 auto;
-    background: linear-gradient(135deg, #E7E1D3, #DED6C3);
+    background: linear-gradient(135deg, #DCE7F0, #C8D9E6);
   }
   .linked-from-thumb.placeholder{ display:flex; align-items:center; justify-content:center; }
   .linked-from-thumb.placeholder svg{ width:10px; height:10px; stroke:var(--ink-faint); fill:none; opacity:0.6; }
@@ -697,12 +701,12 @@
   }
   .pantry-store-row{ display:flex; align-items:center; gap:6px; padding:6px 0; }
   .pantry-store-name{ flex:1 1 100px; min-width:70px; border:1px solid var(--hairline-strong); background:var(--paper); border-radius:8px; padding:7px 10px; font-size:13.5px; outline:none; }
-  .pantry-store-url{ flex:1.4 1 140px; min-width:90px; border:1px solid var(--hairline-strong); background:var(--paper); border-radius:8px; padding:7px 10px; font-size:13.5px; outline:none; color:var(--accent); }
+  .pantry-store-url{ flex:1.4 1 140px; min-width:90px; border:1px solid var(--hairline-strong); background:var(--paper); border-radius:8px; padding:7px 10px; font-size:13.5px; outline:none; color:var(--accent-deep); }
   .pantry-open-link{ flex:0 0 auto; width:26px; height:26px; border:none; background:none; display:flex; align-items:center; justify-content:center; opacity:0.6; }
   .pantry-open-link svg{ width:14px; height:14px; stroke:var(--accent); fill:none; }
   .pantry-store-view-list{ display:flex; flex-direction:column; gap:4px; }
   .pantry-store-view-row{ font-size:14.5px; display:flex; gap:8px; }
-  .pantry-store-view-row a{ color:var(--accent); word-break:break-all; }
+  .pantry-store-view-row a{ color:var(--accent-deep); word-break:break-all; }
   .pantry-notes-preview{ font-size:12.5px; color:var(--ink-faint); margin-top:3px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 
   /* Ingredients */
@@ -756,12 +760,12 @@
   .instr-photo-thumb-wrap .instr-photo-thumb{ border-radius:0; }
   .instr-photo-del{
     position:absolute; top:3px; right:3px; width:20px; height:20px; border-radius:50%;
-    background:rgba(43,41,38,0.72); border:none; display:flex; align-items:center; justify-content:center;
+    background:rgba(47,65,86,0.72); border:none; display:flex; align-items:center; justify-content:center;
   }
   .instr-photo-del svg{ width:10px; height:10px; stroke:var(--paper); fill:none; }
   .quicknote-photo-del{
     position:absolute; top:3px; right:3px; width:20px; height:20px; border-radius:50%;
-    background:rgba(43,41,38,0.72); border:none; display:flex; align-items:center; justify-content:center;
+    background:rgba(47,65,86,0.72); border:none; display:flex; align-items:center; justify-content:center;
   }
   .quicknote-photo-del svg{ width:10px; height:10px; stroke:var(--paper); fill:none; }
 
@@ -778,7 +782,7 @@
   .unit-toggle button{ border:none; background:var(--paper-raised); padding:6px 9px; font-size:12px; color:var(--ink-soft); }
   .unit-toggle button.active{ background:var(--ink); color:var(--paper); }
   .oven-row-group{ padding-bottom:2px; }
-  .oven-row-label{ font-size:12px; font-weight:600; color:var(--accent); margin-bottom:6px; letter-spacing:0.2px; }
+  .oven-row-label{ font-size:12px; font-weight:600; color:var(--accent-deep); margin-bottom:6px; letter-spacing:0.2px; }
   .oven-static{ display:flex; gap:18px; flex-wrap:wrap; font-size:13.5px; color:var(--ink-soft); }
   .oven-static b{ color:var(--ink); font-weight:600; margin-right:8px; }
   .equipment-row-edit{ display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px dashed var(--hairline-strong); }
@@ -805,12 +809,12 @@
   .reference-thumb{ width:100%; aspect-ratio:1; object-fit:cover; display:block; cursor:pointer; }
   .reference-remove{
     position:absolute; top:4px; right:4px; width:22px; height:22px; border-radius:50%;
-    background:rgba(43,41,38,0.72); border:none; display:flex; align-items:center; justify-content:center;
+    background:rgba(47,65,86,0.72); border:none; display:flex; align-items:center; justify-content:center;
   }
   .reference-remove svg{ width:12px; height:12px; stroke:var(--paper); fill:none; }
 
   /* ---------- Modal ---------- */
-  .modal-backdrop{ position:fixed; inset:0; background: rgba(43,41,38,0.36); display:flex; align-items:flex-end; justify-content:center; z-index:100; }
+  .modal-backdrop{ position:fixed; inset:0; background: rgba(47,65,86,0.36); display:flex; align-items:flex-end; justify-content:center; z-index:100; }
   @media (min-width:600px){ .modal-backdrop{ align-items:center; } }
   .modal{ background:var(--paper); width:100%; max-width:420px; border-radius: 20px 20px 0 0; padding: 20px 20px 28px 20px; max-height:80vh; overflow-y:auto; box-shadow: 0 -4px 30px rgba(0,0,0,0.15); }
   @media (min-width:600px){ .modal{ border-radius:16px; } }
@@ -830,16 +834,16 @@
 
   /* ---------- Kitchen / print mode ---------- */
   .kitchen-overlay{ position:fixed; inset:0; background:var(--paper); z-index:200; overflow-y:auto; }
-  .kitchen-header{ position:sticky; top:0; background:rgba(242,239,233,0.95); backdrop-filter:blur(10px); border-bottom:1px solid var(--hairline); padding:14px 20px; display:flex; align-items:center; justify-content:space-between; }
+  .kitchen-header{ position:sticky; top:0; background:rgba(245,239,235,0.95); backdrop-filter:blur(10px); border-bottom:1px solid var(--hairline); padding:14px 20px; display:flex; align-items:center; justify-content:space-between; }
   .kitchen-close{ border:none; background:var(--paper-raised); border:1px solid var(--hairline-strong); border-radius:999px; width:36px; height:36px; display:flex; align-items:center; justify-content:center; }
   .kitchen-close svg{ width:16px; height:16px; stroke:var(--ink); fill:none; }
   .kitchen-body{ max-width:720px; margin:0 auto; padding: 20px 24px 80px 24px; }
   .kitchen-img{ width:100%; max-height:340px; object-fit:cover; border-radius:var(--radius-l); margin-bottom:20px; }
   .kitchen-title{ font-family:var(--font-display); font-size:34px; font-weight:600; line-height:1.15; }
-  .kitchen-variant{ font-size:15px; color:var(--accent); font-weight:600; margin-top:4px; }
+  .kitchen-variant{ font-size:15px; color:var(--accent-deep); font-weight:600; margin-top:4px; }
   .kitchen-yield{ font-size:15px; color:var(--ink-soft); margin-top:8px; }
   .kitchen-section-title{ font-size:13px; text-transform:uppercase; letter-spacing:1.2px; color:var(--ink-soft); font-weight:700; margin:30px 0 14px 0; }
-  .kitchen-oven-label{ font-size:13px; font-weight:700; color:var(--accent); margin: 10px 0 4px 0; letter-spacing:0.2px; }
+  .kitchen-oven-label{ font-size:13px; font-weight:700; color:var(--accent-deep); margin: 10px 0 4px 0; letter-spacing:0.2px; }
   .kitchen-ing-group-title{ font-family:var(--font-display); font-size:22px; font-weight:600; color:var(--ink); margin:18px 0 6px 0; display:block; }
   .kitchen-oven{ display:flex; gap:24px; flex-wrap:wrap; font-size:16px; color:var(--ink); margin-bottom:6px; }
   .kitchen-oven b{ display:block; font-size:12px; text-transform:uppercase; color:var(--ink-faint); font-weight:600; letter-spacing:0.4px; margin-bottom:3px; }
@@ -883,9 +887,9 @@
 /* =========================================================
    CONSTANTS
 ========================================================= */
-const APP_VERSION = "v64";
+const APP_VERSION = "v66";
 const DEFAULT_CATEGORIES = ["Dessert","Dinner","Bites","Drinks","Side Dishes","Batch Cooking"];
-const ACCENTS = ["#7C5A6B","#6B7561","#A68A5B","#5C7A80","#8A8F5C","#9C6B54","#5E6B8A","#8B6F8C"];
+const ACCENTS = ["#567C8D","#7A6C9D","#B08968","#6A8F85","#C07F7A","#5B6F99","#8C9A5B","#A8956F"];
 const OVEN_SETTINGS = ["With fan","Without fan","Turbo","Airfry","Other"];
 const DEFAULT_EQUIPMENT_TYPES = ["Oven (Smeg)","Oven (Other)","Airfryer","Microwave","Frying pan","Perforated baking sheet","Baking sheet"];
 const DEFAULT_EQUIPMENT_CATEGORIES = ["Bakeware & molds","Large appliances","Miscellaneous","Pots and pans","Sheet pans","Small appliances","Tools","Utensils"];
@@ -1000,6 +1004,7 @@ let wakeLockRef = null;
 let state = {
   view: "home",
   activeCategory: "All",
+  showComponents: false,
   viewMode: "tile",
   recipeId: null,
   isNew: false,
@@ -1121,6 +1126,16 @@ function normalizeLoadedData(){
   data.pantry = dedupeById(data.pantry.map(migratePantryItem));
   data.equipment = dedupeById(data.equipment.map(migrateEquipmentItem));
   data.recipes = dedupeRecipes(data.recipes.map(migrateRecipe));
+  if(!data.componentsInit){
+    const used = new Set();
+    data.recipes.forEach(r=>{
+      const gs = [...(r.ingredientGroups||[]), ...(r.instructionGroups||[])];
+      (r.variants||[]).forEach(v=>{ gs.push(...(v.ingredientGroups||[]), ...(v.instructionGroups||[])); });
+      gs.forEach(g=>{ if(g && g.src && g.src.rid) used.add(g.src.rid); });
+    });
+    data.recipes.forEach(r=>{ if(used.has(r.id)) r.isComponent = true; });
+    data.componentsInit = true;
+  }
   purgeTrash();
 }
 function accentFor(cat){
@@ -1192,6 +1207,7 @@ function blankRecipe(cat){
     archived: false,
     testing: false,
     glutenFree: false,
+    isComponent: false,
     quickNotes: [],
     nutrition: { calories:'', protein:'', fat:'', carbs:'', fiber:'', servingLabel:'serving' }
   };
@@ -1378,8 +1394,8 @@ function render(){
 ========================================================= */
 function homeHTML(){
   const cats = ["All", ...data.categories];
-  const visibleRecipes = data.recipes.filter(r => !r.archived);
   const q = state.homeSearchQuery.trim().toLowerCase();
+  const visibleRecipes = data.recipes.filter(r => !r.archived && (state.showComponents || q || !r.isComponent));
   const filtered = (state.activeCategory === "All"
     ? visibleRecipes
     : visibleRecipes.filter(r => (r.categories||[]).includes(state.activeCategory))
@@ -1440,6 +1456,7 @@ function homeHTML(){
     </div>
     <div class="toolbar">
       <span class="count-label">${filtered.length} recipe${filtered.length===1?'':'s'}</span>
+      ${componentToggleHTML()}
       <div class="view-toggle">
         <button class="${state.viewMode==='tile'?'active':''}" data-mode="tile">${ICON.grid}</button>
         <button class="${state.viewMode==='list'?'active':''}" data-mode="list">${ICON.list}</button>
@@ -1487,7 +1504,7 @@ function tileHTML(r){
   return `<div class="tile" data-id="${r.id}">
     ${coverCollageHTML(r, 'tile-img')}
     <div class="tile-body">
-      <div class="tile-name">${escHtml(r.name || 'Untitled')}${r.testing ? ` <span class="testing-badge">Testing</span>` : ''}${gfStamp(r)}</div>
+      <div class="tile-name">${escHtml(r.name || 'Untitled')}${r.testing ? ` <span class="testing-badge">Testing</span>` : ''}${compBadge(r)}${gfStamp(r)}</div>
       ${tagsRowHTML(r)}
     </div>
   </div>`;
@@ -1496,7 +1513,7 @@ function listRowHTML(r){
   return `<div class="list-row recipe-list-row" data-id="${r.id}">
     ${coverCollageHTML(r, 'list-thumb recipe-list-thumb')}
     <div class="list-info">
-      <div class="list-name recipe-list-name">${escHtml(r.name || 'Untitled')}${r.testing ? ` <span class="testing-badge">Testing</span>` : ''}${gfStamp(r)}</div>
+      <div class="list-name recipe-list-name">${escHtml(r.name || 'Untitled')}${r.testing ? ` <span class="testing-badge">Testing</span>` : ''}${compBadge(r)}${gfStamp(r)}</div>
       ${tagsRowHTML(r)}
     </div>
   </div>`;
@@ -1509,7 +1526,7 @@ function recipeCarouselCardHTML(r){
   return `<div class="carousel-card" data-id="${r.id}">
     ${img}
     <div class="carousel-card-body">
-      <div class="carousel-card-name">${escHtml(r.name || 'Untitled')}${r.testing ? ` <span class="testing-badge">Testing</span>` : ''}${gfStamp(r)}</div>
+      <div class="carousel-card-name">${escHtml(r.name || 'Untitled')}${r.testing ? ` <span class="testing-badge">Testing</span>` : ''}${compBadge(r)}${gfStamp(r)}</div>
     </div>
   </div>`;
 }
@@ -1543,6 +1560,7 @@ function attachHomeEvents(){
 
   document.getElementById('pantryBtn').addEventListener('click', ()=>{ state.view = 'pantry'; render(); });
   document.getElementById('equipmentBtn').addEventListener('click', ()=>{ state.view = 'equipment'; render(); });
+  wireComponentToggle();
   document.getElementById('bookModeBtn').addEventListener('click', ()=>{ state.view = 'bookToc'; render(); });
   document.getElementById('shoppingListBtn').addEventListener('click', ()=>{ state.view = 'shoppingList'; render(); });
   document.getElementById('homeSettingsBtn').addEventListener('click', openHomeSettingsMenu);
@@ -2377,7 +2395,7 @@ function toggleShoppingListItem(item, kind){
    BOOK MODE
 ========================================================= */
 function computeBookChapters(){
-  const visibleRecipes = data.recipes.filter(r=>!r.archived);
+  const visibleRecipes = data.recipes.filter(r=>!r.archived && (state.showComponents || !r.isComponent));
   const chapters = [];
   const usedIds = new Set();
   data.categories.forEach(tag=>{
@@ -2479,7 +2497,7 @@ function renderBookTocView(){
             const thumb = cover
               ? `<img class="list-thumb recipe-list-thumb book-toc-thumb" src="${cover}" />`
               : `<div class="list-thumb recipe-list-thumb book-toc-thumb placeholder">${ICON.image}</div>`;
-            return `<li class="book-toc-item" data-id="${r.id}">${thumb}<span class="book-toc-name">${escHtml(r.name||'Untitled')}${r.testing ? ` <span class="testing-badge">Testing</span>` : ''}${gfStamp(r)}</span></li>`;
+            return `<li class="book-toc-item" data-id="${r.id}">${thumb}<span class="book-toc-name">${escHtml(r.name||'Untitled')}${r.testing ? ` <span class="testing-badge">Testing</span>` : ''}${compBadge(r)}${gfStamp(r)}</span></li>`;
           }).join('')}
         </ul>
       </div>`).join('');
@@ -2494,11 +2512,13 @@ function renderBookTocView(){
         <button class="${!testingOnly?'active':''}" id="bookTocFilterAll">All</button>
         <button class="${testingOnly?'active':''}" id="bookTocFilterTesting">Testing</button>
       </div>
+      ${componentToggleHTML()}
     </div>
     <div class="rv-body">${body}</div>
   `;
   document.getElementById('bookTocBack').addEventListener('click', ()=>{ state.viewMode='tile'; state.view='home'; render(); });
   document.getElementById('bookTocFilterAll').addEventListener('click', ()=>{ state.bookTocFilter = 'all'; render(); });
+  wireComponentToggle();
   document.getElementById('bookTocFilterTesting').addEventListener('click', ()=>{ state.bookTocFilter = 'testing'; render(); });
   document.querySelectorAll('.book-toc-item').forEach(el=>{
     el.addEventListener('click', ()=> openBookAt(el.dataset.id));
@@ -2561,7 +2581,7 @@ function renderBookView(){
         <div class="rv-header-left"><button class="back-btn" id="bookBack">${ICON.back} ${backLabel}</button></div>
         <div class="rv-header-right">
           <span class="book-position">${escHtml(entry.tag)} · ${posInChapter} of ${chapterEntries.length}</span>
-          ${r.testing ? `<span class="testing-badge">Testing</span>` : ''}${gfStamp(r)}
+          ${r.testing ? `<span class="testing-badge">Testing</span>` : ''}${compBadge(r)}${gfStamp(r)}
           <button class="icon-btn" id="bookEdit" title="Edit">${ICON.edit}</button>
           <button class="icon-btn" id="bookSettings" title="Settings">⚙️</button>
           <button class="icon-btn" id="bookPrev" title="Previous recipe">‹</button>
@@ -3391,6 +3411,15 @@ function getRecipe(){
 /* ---------- per-variant left-page sections ---------- */
 const LEFT_KEYS = ['description','storageLines','prepPlan','sourceLines','quickNotes','nutrition','referenceImages'];
 const LEFT_ENABLED = ['storage','prepPlan','source'];
+function compBadge(r){ return (r && r.isComponent) ? ` <span class="testing-badge">Component</span>` : ''; }
+function componentToggleHTML(){
+  const n = data.recipes.filter(r=>!r.archived && r.isComponent).length;
+  if(!n && !state.showComponents) return '';
+  return `<button class="comp-toggle" data-comp-toggle>${state.showComponents ? 'Hide components' : `Components (${n})`}</button>`;
+}
+function wireComponentToggle(){
+  document.querySelectorAll('[data-comp-toggle]').forEach(b=>b.addEventListener('click', ()=>{ state.showComponents = !state.showComponents; render(); }));
+}
 function gfStamp(r){ return (r && r.glutenFree) ? `<span class="gf-stamp" title="Gluten-free" aria-label="Gluten-free">${ICON.gf}</span>` : ''; }
 function rawOf(r){ return (r && r.__raw) || r; }
 function copyLeftFrom(base){
@@ -3841,6 +3870,7 @@ function openRecipeSettingsMenu(r){
         <button class="settings-menu-item" id="menuPrint">${ICON.print} Print</button>
         <button class="settings-menu-item" id="menuTestingToggle">${r.testing?ICON.check:'🧪'} ${r.testing?'Mark as Tested':'Mark as Testing'}</button>
         <button class="settings-menu-item" id="menuGFToggle"><span class="menu-gf-ico" style="display:inline-flex;width:18px;height:18px;">${ICON.gf}</span> ${r.glutenFree?'Remove gluten-free stamp':'Mark as gluten-free'}</button>
+        <button class="settings-menu-item" id="menuComponentToggle">🧩 ${r.isComponent?'Mark as full recipe':'Mark as component'}</button>
         <button class="settings-menu-item" id="menuArchiveToggle">${r.archived?ICON.restore:ICON.archive} ${r.archived?'Restore from archive':'Archive this recipe'}</button>
         <button class="settings-menu-item danger" id="menuDelete">${ICON.trash} Delete this recipe</button>
       </div>
@@ -3853,10 +3883,17 @@ function openRecipeSettingsMenu(r){
   backdrop.querySelector('#menuPrint').addEventListener('click', ()=>{ close(); openPrintPreview(r); });
   backdrop.querySelector('#menuTestingToggle').addEventListener('click', ()=>{ close(); handleToggleTesting(r); });
   backdrop.querySelector('#menuGFToggle').addEventListener('click', ()=>{ close(); handleToggleGF(r); });
+  backdrop.querySelector('#menuComponentToggle').addEventListener('click', ()=>{ close(); handleToggleComponent(r); });
   backdrop.querySelector('#menuArchiveToggle').addEventListener('click', ()=>{ close(); handleToggleArchive(r); });
   backdrop.querySelector('#menuDelete').addEventListener('click', ()=>{ close(); handleDelete(r); });
   backdrop.querySelector('#closeRecipeSettingsMenu').addEventListener('click', close);
   backdrop.addEventListener('click', e=>{ if(e.target === backdrop) close(); });
+}
+function handleToggleComponent(r){
+  r = rawOf(r);
+  r.isComponent = !r.isComponent;
+  markDirty();
+  render();
 }
 function handleToggleGF(r){
   r = rawOf(r);
@@ -6085,6 +6122,7 @@ function migrateRecipe(raw){
   if(typeof r.archived !== 'boolean') r.archived = false;
   if(typeof r.testing !== 'boolean') r.testing = false;
   if(typeof r.glutenFree !== 'boolean') r.glutenFree = false;
+  if(typeof r.isComponent !== 'boolean') r.isComponent = false;
   if(!r.nutrition || typeof r.nutrition !== 'object') r.nutrition = { calories:'', protein:'', fat:'', carbs:'', fiber:'', servingLabel:'serving' };
   else r.nutrition = { calories: r.nutrition.calories||'', protein: r.nutrition.protein||'', fat: r.nutrition.fat||'', carbs: r.nutrition.carbs||'', fiber: r.nutrition.fiber||'', servingLabel: r.nutrition.servingLabel || 'serving' };
   if(!Array.isArray(r.quickNotes)) r.quickNotes = [];
