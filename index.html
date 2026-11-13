@@ -887,7 +887,7 @@
 /* =========================================================
    CONSTANTS
 ========================================================= */
-const APP_VERSION = "v66";
+const APP_VERSION = "v67";
 const DEFAULT_CATEGORIES = ["Dessert","Dinner","Bites","Drinks","Side Dishes","Batch Cooking"];
 const ACCENTS = ["#567C8D","#7A6C9D","#B08968","#6A8F85","#C07F7A","#5B6F99","#8C9A5B","#A8956F"];
 const OVEN_SETTINGS = ["With fan","Without fan","Turbo","Airfry","Other"];
@@ -968,15 +968,34 @@ function idbSet(key, value, isRetry){
     throw err;
   });
 }
+function idbDelete(key){
+  return openIDB().then(db=> new Promise((resolve, reject)=>{
+    let tx;
+    try{ tx = db.transaction(IDB_STORE, 'readwrite'); }catch(err){ idbInstance = null; reject(err); return; }
+    const req = tx.objectStore(IDB_STORE).delete(key);
+    req.onsuccess = ()=> resolve();
+    req.onerror = ()=> reject(req.error);
+  }));
+}
+let storageReadFailed = false;
+const sleep = ms => new Promise(r=>setTimeout(r, ms));
 /* Loads app data at startup: tries IndexedDB first; if empty, migrates
    any existing localStorage data over (one-time); falls back to defaults. */
 async function loadAppData(){
   const defaults = { title:"Recipe Book", categories:[...DEFAULT_CATEGORIES], recipes:[], pantryCategories:[], pantry:[], shoppingList:[], equipmentCategories:[...DEFAULT_EQUIPMENT_CATEGORIES], equipment:[], equipmentTypes:[...DEFAULT_EQUIPMENT_TYPES] };
-  try{
-    const fromIDB = await idbGet(IDB_KEY);
-    if(fromIDB) return fromIDB;
-  }catch(err){
-    console.error('IndexedDB read failed, will try localStorage fallback:', err);
+  let readError = null;
+  for(let attempt=0; attempt<3; attempt++){
+    try{
+      const fromIDB = await idbGet(IDB_KEY);
+      if(fromIDB) return fromIDB;
+      readError = null;   // read worked, the store is simply empty (fresh install)
+      break;
+    }catch(err){
+      readError = err;
+      console.error('IndexedDB read failed (attempt '+(attempt+1)+'):', err);
+      idbInstance = null;
+      await sleep(500 * (attempt+1));
+    }
   }
   try{
     const raw = localStorage.getItem(LEGACY_LS_KEY);
@@ -988,6 +1007,9 @@ async function loadAppData(){
   }catch(err){
     console.error('LocalStorage fallback read failed:', err);
   }
+  // If the read FAILED (as opposed to being empty) never carry on with an empty book:
+  // any later edit would overwrite the real data. Block saving and show a retry screen instead.
+  if(readError) storageReadFailed = true;
   return defaults;
 }
 
@@ -1051,7 +1073,7 @@ function dedupeById(arr){
 /* =========================================================
    SAFETY NET — recently deleted, activity log, snapshots
 ========================================================= */
-const TRASH_DAYS = 30, ACTIVITY_MAX = 500, SNAPSHOT_MAX = 5, SNAP_KEY = 'recipeBookSnapshots';
+const TRASH_DAYS = 30, ACTIVITY_MAX = 500, SNAP_KEY = 'recipeBookSnapshots' /* legacy single-key store, removed */, SNAP_META_KEY = 'recipeBookSnapMeta', SNAP_PREFIX = 'recipeBookSnap_';
 function ensureSafetyArrays(){
   if(!Array.isArray(data.trash)) data.trash = [];
   if(!Array.isArray(data.activity)) data.activity = [];
@@ -1086,16 +1108,44 @@ function dedupeRecipes(arr){
     return true;
   });
 }
-function readSnapshots(){ return idbGet(SNAP_KEY).then(v=> Array.isArray(v) ? v : []).catch(()=>[]); }
-async function takeSnapshot(reason){
+/* Snapshots: at most two full copies — one 'auto' (at most once a day, only if something changed)
+   and one 'safety' (taken right before an import or a snapshot restore). Each copy is its own
+   IndexedDB entry, so only the small index is ever read unless you restore one. */
+function readSnapshots(){ return idbGet(SNAP_META_KEY).then(v=> Array.isArray(v) ? v : []).catch(()=>[]); }
+async function takeSnapshot(reason, kind){
+  kind = kind || 'safety';
   try{
-    const json = JSON.stringify(data);
-    const list = await readSnapshots();
-    if(list.length && list[0].json === json) return;
-    list.unshift({ id: uid(), at: Date.now(), reason, count: (data.recipes||[]).length, json });
-    list.length = Math.min(list.length, SNAPSHOT_MAX);
-    await idbSet(SNAP_KEY, list);
+    const json = JSON.stringify(data);     // must happen before any await: the caller may replace `data` right after
+    const count = (data.recipes||[]).length, mod = data.modifiedAt || 0;
+    const id = uid();
+    await idbSet(SNAP_PREFIX + id, json);
+    const meta = await readSnapshots();
+    const old = meta.filter(m=>m.kind === kind);
+    const keep = meta.filter(m=>m.kind !== kind);
+    keep.unshift({ id, kind, at: Date.now(), reason, count, mod });
+    await idbSet(SNAP_META_KEY, keep);
+    for(const o of old){ try{ await idbDelete(SNAP_PREFIX + o.id); }catch(e){} }
   }catch(err){ console.error('Snapshot failed:', err); }
+}
+let autoSnapshotBusy = false;
+async function maybeAutoSnapshot(){
+  if(autoSnapshotBusy || storageReadFailed) return;
+  if(document.visibilityState !== 'visible') return;
+  if(!(data.recipes||[]).length) return;
+  autoSnapshotBusy = true;
+  try{
+    try{ await idbDelete(SNAP_KEY); }catch(e){}     // frees the old five-copy store (one-time, no read)
+    const meta = await readSnapshots();
+    const last = meta.find(m=>m.kind === 'auto');
+    const changed = !last || (data.modifiedAt || 0) > (last.mod || 0);
+    const due = !last || Date.now() - last.at >= 86400000;
+    if(changed && due) await takeSnapshot('Daily copy', 'auto');
+  }finally{ autoSnapshotBusy = false; }
+}
+function scheduleAutoSnapshot(){
+  const run = ()=>{ if('requestIdleCallback' in window) requestIdleCallback(()=>maybeAutoSnapshot(), {timeout:15000}); else maybeAutoSnapshot(); };
+  setTimeout(run, 60000);
+  setInterval(run, 3600000);
 }
 function fmtTime(t){ try{ return new Date(t).toLocaleString(undefined,{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}); }catch(e){ return ''; } }
 function flaggedRecently(){
@@ -1151,6 +1201,8 @@ function equipmentAccentFor(cat){
   return ACCENTS[(idx < 0 ? 0 : idx) % ACCENTS.length];
 }
 function saveLocal(){
+  if(storageReadFailed) return Promise.resolve();
+  data.modifiedAt = Date.now();
   data.recipeCountAtSave = (data.recipes||[]).length;
   return idbSet(IDB_KEY, data).catch(err=>{
     console.error('Error saving to IndexedDB:', err);
@@ -1629,8 +1681,8 @@ async function openRecoveryModal(tab){
       return data.trash.map(t=>`<div class="rec-row"><div class="rec-main"><div class="rec-name">${escHtml((t.recipe&&t.recipe.name)||'Untitled')}</div><div class="rec-sub">${escHtml(t.reason||'deleted')} · ${escHtml(fmtTime(t.deletedAt))}</div></div><button class="rec-btn" data-restore="${escAttr(t.id)}">Restore</button></div>`).join('');
     }
     if(tab === 'snapshots'){
-      if(!snaps.length) return `<div class="picker-empty">No snapshots yet. One is taken each time the app opens and before every import.</div>`;
-      return snaps.map(sn=>`<div class="rec-row"><div class="rec-main"><div class="rec-name">${escHtml(fmtTime(sn.at))}</div><div class="rec-sub">${escHtml(sn.reason)} · ${sn.count} recipes</div></div><button class="rec-btn" data-snap="${escAttr(sn.id)}">Restore</button></div>`).join('');
+      if(!snaps.length) return `<div class="picker-empty">No snapshots yet. The app keeps one copy per day (when something changed) and one taken right before each import or restore.</div>`;
+      return snaps.map(sn=>`<div class="rec-row"><div class="rec-main"><div class="rec-name">${escHtml(fmtTime(sn.at))}</div><div class="rec-sub">${escHtml(sn.reason)}${sn.kind==='auto'?' (latest daily)':' (before import/restore)'} · ${sn.count} recipes</div></div><button class="rec-btn" data-snap="${escAttr(sn.id)}">Restore</button></div>`).join('');
     }
     if(!data.activity.length) return `<div class="picker-empty">No activity recorded yet.</div>`;
     return data.activity.slice(0,150).map(a=>`<div class="rec-row${a.flag?' flagged':''}"><div class="rec-main"><div class="rec-name">${a.flag?'⚠ ':''}${escHtml(a.kind)}${a.name?' — '+escHtml(a.name):''}</div><div class="rec-sub">${escHtml(a.note||'')}${a.note?' · ':''}${escHtml(fmtTime(a.t))}</div></div></div>`).join('');
@@ -1649,8 +1701,10 @@ async function openRecoveryModal(tab){
       const sn = snaps.find(x=>x.id===b.dataset.snap); if(!sn) return;
       if(!confirm(`Replace your current book with the snapshot from ${fmtTime(sn.at)} (${sn.count} recipes)? Your current book is snapshotted first, so this can be undone.`)) return;
       try{
-        await takeSnapshot('Before snapshot restore');
-        data = JSON.parse(sn.json);
+        await takeSnapshot('Before snapshot restore', 'safety');
+        const snapJson = await idbGet(SNAP_PREFIX + sn.id);
+        if(!snapJson) throw new Error('That snapshot is no longer stored.');
+        data = JSON.parse(snapJson);
         normalizeLoadedData();
         logActivity('restored', null, `Restored snapshot from ${fmtTime(sn.at)} (${sn.count} recipes)`, true);
         markDirty(); await flushSave();
@@ -6164,7 +6218,7 @@ function importJSON(e){
         const names = removed.slice(0,8).map(x=>'• '+(x.name||'Untitled')).join('\n') + (removed.length>8 ? `\n…and ${removed.length-8} more` : '');
         if(!confirm(`This import will remove ${removed.length} recipe(s) that are not in the file:\n\n${names}\n\nThey will be kept in Recently deleted for 30 days. Continue?`)){ e.target.value=''; return; }
       }
-      takeSnapshot('Before import');
+      takeSnapshot('Before import', 'safety');
       const prevTrash = Array.isArray(data.trash) ? data.trash : [];
       const prevActivity = Array.isArray(data.activity) ? data.activity : [];
       data = {
@@ -6481,6 +6535,11 @@ async function bootstrap(){
   }catch(err){
     console.error('Fatal error loading app data:', err);
   }
+  if(storageReadFailed){
+    document.getElementById('app').innerHTML = `<div class="empty" style="padding-top:80px"><h3>Couldn't open your saved recipes</h3><p>Your recipes are not lost — the browser just didn't hand them over this time. Nothing has been changed or saved. Close other tabs, then try again.</p><button id="retryLoad">Try again</button></div>`;
+    document.getElementById('retryLoad').addEventListener('click', ()=> location.reload());
+    return;
+  }
   if(!Array.isArray(data.recipes)) data.recipes = [];
   const loadedCount = data.recipes.length;
   const savedCount = data.recipeCountAtSave;
@@ -6494,7 +6553,7 @@ async function bootstrap(){
     markDirty();
     flushSave();
   }
-  setTimeout(()=> takeSnapshot('App opened'), 4000);   // deferred so startup stays fast
+  scheduleAutoSnapshot();   // idle-time, at most daily, only if changed
   document.addEventListener('visibilitychange', ()=>{
     if(document.visibilityState === 'hidden' && saveDebounceTimer) flushSave();
   });
